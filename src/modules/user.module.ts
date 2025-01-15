@@ -6,6 +6,7 @@ import { UserController } from 'src/controller/user.controller';
 import { JwtStrategy } from 'src/database/dto/user/jwt.strategy';
 import { User } from 'src/database/entity/user.entity';
 import { UserService } from 'src/service/user.service';
+import { CommonModule } from 'src/common/common.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UserService } from 'src/service/user.service';
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
     }),
     PassportModule,
+    CommonModule,
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],

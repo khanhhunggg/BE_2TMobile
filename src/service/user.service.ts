@@ -1,9 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as sgMail from '@sendgrid/mail';
 import * as bcryptjs from 'bcryptjs';
 import { isEmail } from 'class-validator';
+import { PaginationResponseDto } from 'src/common/common.dto';
 import {
+  GetUserByEmailDto,
+  SendEmailForgotPasswordDto,
   SignInDto,
   SignUpDto,
   UserJwtDto,
@@ -18,8 +22,12 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
-  ) {}
+    @Inject('SendGridToken') private readonly sendGridApiKey: string,
+  ) {
+    sgMail.setApiKey(this.sendGridApiKey);
+  }
 
+  //Main Function
   public async SignUp(user: SignUpDto) {
     try {
       if (!isEmail(user.Email)) {
@@ -95,6 +103,57 @@ export class UserService {
     }
   }
 
+  public async ResetPassword(dto: SendEmailForgotPasswordDto) {
+    if (!isEmail(dto.Email)) {
+      throw new BadRequestException('EMAIL_INVALID');
+    }
+    const user = await this.userRepository.findOne({
+      where: { Email: dto.Email },
+    });
+    if (!user) {
+      throw new BadRequestException('EMAIL_NOT_FOUND');
+    }
+    if (!dto.OldPassWord) {
+      throw new BadRequestException('OLD_PASSWORD_REQUIRED');
+    }
+    if (checkPassword(dto.OldPassWord)) {
+      throw new BadRequestException('OLD_PASSWORD_INVALID');
+    }
+    const isMatch = await bcryptjs.compare(dto.OldPassWord, user.PasswordHash);
+    if (!isMatch) {
+      throw new BadRequestException('OLD_PASSWORD_INCORRECT');
+    }
+    if (!dto.NewPassWord) {
+      throw new BadRequestException('PASSWORD_REQUIRED');
+    }
+    if (checkPassword(dto.NewPassWord)) {
+      throw new BadRequestException('PASSWORD_INVALID');
+    }
+    const salt = await bcryptjs.genSalt();
+    user.PasswordHash = await bcryptjs.hash(dto.NewPassWord, salt);
+    return await this.userRepository.update(user.UserID, {
+      PasswordHash: user.PasswordHash,
+    });
+  }
+
+  public async getAll(
+    dto: PaginationResponseDto,
+  ): Promise<{ data: User[]; total: number }> {
+    const { page, size } = dto;
+    const [data, total] = await this.userRepository.findAndCount({
+      skip: (page - 1) * size,
+      take: size,
+    });
+    const getAll = {
+      data,
+      total,
+      page,
+      size,
+    };
+    return getAll;
+  }
+
+  //Support Function
   public generateToken(user: User, expiry?: string | number) {
     const payload: UserJwtDto = {
       userName: user.Username,

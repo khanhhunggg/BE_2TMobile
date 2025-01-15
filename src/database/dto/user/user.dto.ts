@@ -6,7 +6,10 @@ import {
   IsEmail,
   IsPhoneNumber,
   IsDate,
+  IsArray,
+  IsNumber,
 } from 'class-validator';
+import { PaginationResponseDto } from 'src/common/common.dto';
 
 export class UserJwtDto {
   id: string;
@@ -45,6 +48,25 @@ export class SignInDto {
   @ApiProperty({ type: String, description: 'PassWord', required: true })
   @IsString()
   Password: string;
+}
+
+export class SendEmailForgotPasswordDto {
+  @ApiProperty({ type: String, description: 'Email', required: true })
+  @IsEmail()
+  Email: string;
+
+  @ApiProperty({ type: String, description: 'OldPassWord', required: true })
+  @IsString()
+  OldPassWord: string;
+
+  @ApiProperty({ type: String, description: 'NewPassWord', required: true })
+  @IsString()
+  NewPassWord: string;
+}
+export class GetUserByEmailDto extends PaginationResponseDto {
+  @ApiProperty({ type: String, description: 'Email', required: true })
+  @IsEmail()
+  Email: string;
 }
 
 export class DeleteUserDto {
