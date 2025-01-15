@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { setupSwagger } from './swagger';
 declare const module: any;
 
 async function bootstrap() {
@@ -9,6 +10,7 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });
+  setupSwagger(app);
   await app.listen(process.env.PORT ?? 8080);
   if (module.hot) {
     module.hot.accept();

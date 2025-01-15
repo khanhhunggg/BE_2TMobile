@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
@@ -15,6 +16,10 @@ import { DataSource } from 'typeorm';
       entities: [join(__dirname, '**', '*.entity{.ts,.js}')],
       synchronize: false,
       logging: false,
+    }),
+    JwtModule.register({
+      secret: 'food-service',
+      signOptions: { expiresIn: '1d' },
     }),
   ],
   controllers: [],
