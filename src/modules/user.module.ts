@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserController } from 'src/controller/user.controller';
+import { JwtStrategy } from 'src/database/dto/user/jwt.strategy';
 import { User } from 'src/database/entity/user.entity';
 import { UserService } from 'src/service/user.service';
 
@@ -9,11 +11,13 @@ import { UserService } from 'src/service/user.service';
   imports: [
     TypeOrmModule.forFeature([User]),
     JwtModule.register({
-      secret: 'food-service',
-      signOptions: { expiresIn: '1d' },
+      secret: process.env.JWT_SECRET_KEY,
+      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
     }),
+    PassportModule,
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, JwtStrategy],
+  exports: [PassportModule, JwtStrategy, UserService],
 })
 export class UserModule {}

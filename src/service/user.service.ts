@@ -7,7 +7,7 @@ import {
   SignInDto,
   SignUpDto,
   UserJwtDto,
-} from 'src/database/dto/auth/auth.dto';
+} from 'src/database/dto/user/user.dto';
 import { User } from 'src/database/entity/user.entity';
 import { checkPassword } from 'src/util/funtion-util';
 import { Repository } from 'typeorm';
@@ -17,12 +17,20 @@ export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
   ) {}
 
   public async SignUp(user: SignUpDto) {
     try {
-      await this.verifyEmail(user.Email);
+      if (!isEmail(user.Email)) {
+        throw new BadRequestException('EMAIL_INVALID');
+      }
+      const existingUser = await this.userRepository.findOne({
+        where: { Email: user.Email },
+      });
+      if (existingUser) {
+        throw new BadRequestException('EMAIL_ALREADY_EXISTS');
+      }
       if (!user.Password) {
         throw new BadRequestException('PASSWORD_REQUIRED');
       }
@@ -78,21 +86,15 @@ export class UserService {
     };
   }
 
-  private async verifyEmail(email: string) {
-    if (!email && !isEmail(email)) {
-      throw new BadRequestException('EMAIL_INVALID');
+  public async LogOut(userReq: UserJwtDto) {
+    const user = await this.userRepository.findOne({
+      where: { UserID: Number(userReq.id) },
+    });
+    if (user) {
+      return { isLogin: false };
     }
-
-    if (email) {
-      const existingUser = await this.userRepository.findOne({
-        where: { Email: email },
-      });
-      if (existingUser) {
-        throw new BadRequestException('EMAIL_ALREADY_EXISTS');
-      }
-    }
-    return true;
   }
+
   public generateToken(user: User, expiry?: string | number) {
     const payload: UserJwtDto = {
       userName: user.Username,
