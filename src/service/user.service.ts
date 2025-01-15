@@ -1,10 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcryptjs from 'bcryptjs';
 import { isEmail } from 'class-validator';
-import { SignUpDto, UserJwtDto } from 'src/database/dto/auth/auth.dto';
+import {
+  SignInDto,
+  SignUpDto,
+  UserJwtDto,
+} from 'src/database/dto/auth/auth.dto';
 import { User } from 'src/database/entity/user.entity';
-import { checkPassword, checkPhoneNumber } from 'src/util/funtion-util';
+import { checkPassword } from 'src/util/funtion-util';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -14,6 +19,65 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     private jwtService: JwtService,
   ) {}
+
+  public async SignUp(user: SignUpDto) {
+    try {
+      await this.verifyEmail(user.Email);
+      if (!user.Password) {
+        throw new BadRequestException('PASSWORD_REQUIRED');
+      }
+      if (checkPassword(user.Password)) {
+        throw new BadRequestException('PASSWORD_INVALID');
+      }
+      if (!user.FullName) {
+        throw new BadRequestException('FULLNAME_REQUIRED');
+      }
+      if (!user.PhoneNumber) {
+        throw new BadRequestException('PHONE_NUMBER_REQUIRED');
+      }
+      const newUser = new User();
+      newUser.Username = await this.GetUserName(user.FullName);
+      newUser.Email = user.Email;
+      const salt = await bcryptjs.genSalt();
+      newUser.PasswordHash = await bcryptjs.hash(user.Password, salt);
+      newUser.FullName = user.FullName;
+      newUser.PhoneNumber = user.PhoneNumber;
+      return await this.userRepository.save(newUser);
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  public async LogIn(user: SignInDto) {
+    if (!isEmail(user.Email)) {
+      throw new BadRequestException('EMAIL_INVALID');
+    }
+    const existingUser = await this.userRepository.findOne({
+      where: { Email: user.Email },
+    });
+    if (!existingUser) {
+      throw new BadRequestException('EMAIL_IS_INCORRECT');
+    }
+
+    if (!user.Password) {
+      throw new BadRequestException('PASSWORD_REQUIRED');
+    }
+    if (checkPassword(user.Password)) {
+      throw new BadRequestException('PASSWORD_INVALID');
+    }
+    const isMatch = await bcryptjs.compare(
+      user.Password,
+      existingUser.PasswordHash,
+    );
+    if (!isMatch) {
+      throw new BadRequestException('PASSWORD_IS_INCORRECT');
+    }
+    return {
+      ...(await this.encode(existingUser)),
+      isAdmin: existingUser.Role === 'Admin',
+    };
+  }
+
   private async verifyEmail(email: string) {
     if (!email && !isEmail(email)) {
       throw new BadRequestException('EMAIL_INVALID');
@@ -57,33 +121,18 @@ export class UserService {
       return null;
     }
   }
-  public async SignUp(user: SignUpDto) {
-    try {
-      await this.verifyEmail(user.Email);
-      if (!user.Password) {
-        throw new BadRequestException('PASSWORD_REQUIRED');
-      }
-      if (checkPassword(user.Password)) {
-        throw new BadRequestException('PASSWORD_INVALID');
-      }
-      if (!user.FullName) {
-        throw new BadRequestException('FULLNAME_REQUIRED');
-      }
-      if (!user.PhoneNumber) {
-        throw new BadRequestException('PHONE_NUMBER_REQUIRED');
-      }
-      if (checkPhoneNumber(user.PhoneNumber)) {
-        throw new BadRequestException('PHONE_NUMBER_INVALID');
-      }
-      const newUser = new User();
-      newUser.Email = user.Email;
-      newUser.PasswordHash = user.Password;
-      newUser.FullName = user.FullName;
-      newUser.PhoneNumber = user.PhoneNumber;
-
-      return await this.userRepository.save(newUser);
-    } catch (error) {
-      throw new BadRequestException(error);
+  public async GetUserName(fullName: string) {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length > 1) {
+      const lastName = parts.slice(-2).join(' ');
+      return lastName
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .toLowerCase()
+        .replace(/\s+/g, '');
     }
+    return fullName.toLowerCase();
   }
 }
