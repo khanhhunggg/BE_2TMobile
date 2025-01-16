@@ -244,6 +244,12 @@ export class UserService {
   public async deleteUserById(dto: DeleteUserDto, userReq: UserJwtDto) {
     try {
       await this.helperService.validateAdmin(userReq);
+      const user = await this.userRepository.findOne({
+        where: { UserID: dto.Id },
+      });
+      if (user.Role === 'Admin') {
+        throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
+      }
       return await this.userRepository.delete({ UserID: dto.Id });
     } catch (error) {
       throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
