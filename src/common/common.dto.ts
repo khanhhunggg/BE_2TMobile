@@ -9,3 +9,8 @@ export class PaginationResponseDto {
   @IsNumber()
   size?: number;
 }
+export class SearchDto {
+  @ApiProperty({ type: String, description: 'Search', required: false })
+  @IsString()
+  search?: string;
+}

@@ -7,6 +7,7 @@ import { JwtStrategy } from 'src/database/dto/user/jwt.strategy';
 import { User } from 'src/database/entity/user.entity';
 import { UserService } from 'src/service/user.service';
 import { CommonModule } from 'src/common/common.module';
+import { HelperModule } from 'src/common/helper/helper.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CommonModule } from 'src/common/common.module';
     }),
     PassportModule,
     CommonModule,
+    HelperModule,
   ],
   controllers: [UserController],
   providers: [UserService, JwtStrategy],

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { PaginationResponseDto } from 'src/common/common.dto';
+import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import {
@@ -43,11 +43,33 @@ export class UserController {
     return await this.userService.ResetPassword(dto);
   }
 
-  @Get('get-user-by-email')
+  @Get('get-all-user')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user by email' })
   public async GetUserByEmail(
     @Query() dto: PaginationResponseDto,
+    @UserReq() user: UserJwtDto,
   ): Promise<{ data: User[]; total: number }> {
-    return await this.userService.getAll(dto);
+    return await this.userService.getAll(dto, user);
+  }
+
+  @Get('get-user-by-id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by id' })
+  public async GetUserByID(@Query() id: number, @UserReq() user: UserJwtDto) {
+    return await this.userService.getUserByID(id, user);
+  }
+
+  @Get('search-user')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by keyword' })
+  public async GetUserByKeyword(
+    @Query() dto: SearchDto,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.getUserByKeyword(dto, user);
   }
 }
