@@ -6,10 +6,14 @@ import * as bcryptjs from 'bcryptjs';
 import { isEmail } from 'class-validator';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import {
+  DeleteUserDto,
   GetUserByEmailDto,
   SendEmailForgotPasswordDto,
   SignInDto,
   SignUpDto,
+  UpdateDtoIds,
+  UpdateDtoQuery,
+  UpdateUserDto,
   UserJwtDto,
 } from 'src/database/dto/user/user.dto';
 import { User } from 'src/database/entity/user.entity';
@@ -206,6 +210,43 @@ export class UserService {
       return users;
     } catch (error) {
       throw new BadRequestException('ERROR_FETCHING_USERS_BY_KEYWORD');
+    }
+  }
+
+  public async updateUserById(
+    dto: UpdateDtoQuery,
+    updateDto: UpdateUserDto,
+    userReq: UserJwtDto,
+  ) {
+    try {
+      if (!dto.Id) {
+        throw new BadRequestException('ID_REQUIRED');
+      }
+      await this.helperService.validateAdmin(userReq);
+      return await this.userRepository.update(dto.Id, updateDto);
+    } catch (error) {
+      throw new BadRequestException('ERROR_UPDATING_USER_BY_ID');
+    }
+  }
+
+  public async updateUserByIds(dto: UpdateDtoIds, userReq: UserJwtDto) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      for (let i = 0; i < dto.Id.length; i++) {
+        await this.userRepository.update(dto.Id[Number(i)], dto.userDto[i]);
+      }
+      return { message: 'USERS_UPDATED_SUCCESSFULLY' };
+    } catch (error) {
+      throw new BadRequestException('ERROR_UPDATING_USER_BY_ID');
+    }
+  }
+
+  public async deleteUserById(dto: DeleteUserDto, userReq: UserJwtDto) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      return await this.userRepository.delete({ UserID: dto.Id });
+    } catch (error) {
+      throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
     }
   }
 

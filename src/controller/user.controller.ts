@@ -1,13 +1,26 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import {
+  DeleteUserDto,
   GetUserByEmailDto,
   SendEmailForgotPasswordDto,
   SignInDto,
   SignUpDto,
+  UpdateDtoIds,
+  UpdateDtoQuery,
+  UpdateUserDto,
   UserJwtDto,
 } from 'src/database/dto/user/user.dto';
 import { User } from 'src/database/entity/user.entity';
@@ -71,5 +84,39 @@ export class UserController {
     @UserReq() user: UserJwtDto,
   ) {
     return await this.userService.getUserByKeyword(dto, user);
+  }
+
+  @Put('update-user-by-id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user by id' })
+  public async UpdateUserByID(
+    @Query() dto: UpdateDtoQuery,
+    @Body() updateDto: UpdateUserDto,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.updateUserById(dto, updateDto, user);
+  }
+
+  @Put('update-user-by-ids')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update user by ids' })
+  public async UpdateUserByIds(
+    @Body() dto: UpdateDtoIds,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.updateUserByIds(dto, user);
+  }
+
+  @Delete('delete-user-by-id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete user by id' })
+  public async DeleteUserById(
+    @Query() dto: DeleteUserDto,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.deleteUserById(dto, user);
   }
 }

@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsString,
-  IsOptional,
-  IsEnum,
-  IsEmail,
-  IsPhoneNumber,
-  IsDate,
   IsArray,
+  IsDateString,
+  IsEmail,
+  IsEnum,
   IsNumber,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Length,
 } from 'class-validator';
 import { PaginationResponseDto } from 'src/common/common.dto';
+import { User } from 'src/database/entity/user.entity';
 
 export class UserJwtDto {
   id: string;
@@ -69,7 +71,67 @@ export class GetUserByEmailDto extends PaginationResponseDto {
   Email: string;
 }
 
-export class DeleteUserDto {
+export class CreateUserDto {
+  @ApiProperty({ type: String, description: 'Username', required: true })
   @IsString()
+  @Length(3, 50)
   Username: string;
+
+  @ApiProperty({ type: String, description: 'FullName', required: false })
+  @IsOptional()
+  @IsString()
+  @Length(3, 100)
+  FullName?: string;
+
+  @ApiProperty({ type: String, description: 'Email', required: false })
+  @IsOptional()
+  @IsEmail()
+  Email?: string;
+
+  @ApiProperty({ type: String, description: 'PhoneNumber', required: false })
+  @IsOptional()
+  @IsString()
+  @Length(10, 15)
+  PhoneNumber?: string;
+
+  @ApiProperty({ type: String, description: 'Address', required: false })
+  @IsOptional()
+  @IsString()
+  @Length(5, 255)
+  Address?: string;
+
+  @ApiProperty({ type: String, description: 'Role', required: false })
+  @IsOptional()
+  @IsEnum(['Admin', 'Customer'])
+  Role?: 'Admin' | 'Customer';
+
+  @ApiProperty({ type: String, description: 'Gender', required: false })
+  @IsOptional()
+  @IsEnum(['Male', 'Female', 'Other'])
+  Gender?: 'Male' | 'Female' | 'Other';
+
+  @ApiProperty({ type: String, description: 'BirthDate', required: false })
+  @IsOptional()
+  @IsDateString()
+  BirthDate?: string;
+}
+export class UpdateUserDto extends CreateUserDto {}
+export class UpdateDtoQuery {
+  @ApiProperty({ type: Number, description: 'ID', required: true })
+  @IsNumber()
+  Id: number;
+}
+export class UpdateDtoIds {
+  @ApiProperty({ type: Array, description: 'ID', required: true })
+  @IsArray()
+  Id: number[];
+
+  @ApiProperty({ type: Array, description: 'UserDto', required: true })
+  @IsArray()
+  userDto: UpdateUserDto[];
+}
+export class DeleteUserDto {
+  @ApiProperty({ type: Number, description: 'ID', required: true })
+  @IsNumber()
+  Id: number;
 }
