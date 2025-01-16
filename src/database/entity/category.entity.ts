@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -34,5 +35,6 @@ export class Category {
   UpdatedAt: Date;
 
   @OneToMany(() => Food, (food) => food.category)
+  @JoinColumn({ name: 'FoodID' })
   Foods: Food[];
 }

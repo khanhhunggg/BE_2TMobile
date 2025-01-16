@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
 import { CommonModule } from './common/common.module';
-import { JwtAuthGuard } from './database/dto/user/jwt-auth.guard';
+import { FoodModule } from './modules/food.module';
 import { UserModule } from './modules/user.module';
-
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -23,6 +21,7 @@ import { UserModule } from './modules/user.module';
       logging: false,
     }),
     CommonModule,
+    FoodModule,
     UserModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,

@@ -2,11 +2,9 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Food } from './food.entity';
 
 @Entity('Price')
 export class Price {
@@ -45,7 +43,4 @@ export class Price {
     onUpdate: 'CURRENT_TIMESTAMP',
   })
   UpdatedAt: Date;
-
-  @ManyToOne(() => Food, (food) => food.price)
-  food: Food;
 }
