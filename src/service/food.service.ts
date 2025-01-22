@@ -27,6 +27,10 @@ export class FoodService {
   public async createNewFood(food: CreateFoodDto, userReq: UserJwtDto) {
     try {
       await this.helperService.validateAdmin(userReq);
+      const maxPrice = 1e18;
+      if (food.price > maxPrice) {
+        throw new BadRequestException(`Price must be less than ${maxPrice}`);
+      }
       let category = await this.categoryRepository.findOne({
         where: { CategoryName: food.categoryName },
       });
@@ -139,12 +143,35 @@ export class FoodService {
       const food = await this.foodRepository.findOne({
         where: { foodID: id },
       });
-      const category = await this.categoryRepository.findOne({
+      if (!food) {
+        throw new BadRequestException('FOOD_NOT_FOUND');
+      }
+      let category = await this.categoryRepository.findOne({
         where: { CategoryName: foodUpdate.categoryName },
       });
-      const price = await this.priceRepository.findOne({
+      if (!category && foodUpdate.categoryName) {
+        category = new Category();
+        category.CategoryName = foodUpdate.categoryName;
+        await this.categoryRepository.save(category);
+      } else if (!category) {
+        throw new BadRequestException('CATEGORY_NOT_FOUND');
+      }
+      let price = await this.priceRepository.findOne({
         where: { Price: foodUpdate.price },
       });
+      if (!price && foodUpdate.price) {
+        price = new Price();
+        price.Price = foodUpdate.price;
+        await this.priceRepository.save(price);
+      } else if (!price) {
+        throw new BadRequestException('PRICE_NOT_FOUND');
+      }
+      food.name = foodUpdate.name;
+      food.description = foodUpdate.description;
+      food.category = category;
+      food.price = price;
+      food.stock = foodUpdate.stock;
+      food.isAvailable = foodUpdate.isAvailable;
       let foodImages = [];
       for (const image of foodUpdate.images) {
         let foodImage = await this.foodImageRepository.findOne({
@@ -159,15 +186,6 @@ export class FoodService {
         }
         foodImages.push(foodImage);
       }
-      if (!food) {
-        throw new BadRequestException('FOOD_NOT_FOUND');
-      }
-      food.name = foodUpdate.name;
-      food.description = foodUpdate.description;
-      food.category = category;
-      food.price = price;
-      food.stock = foodUpdate.stock;
-      food.isAvailable = foodUpdate.isAvailable;
       food.images = foodImages;
       await this.foodRepository.save(food);
       return food;
