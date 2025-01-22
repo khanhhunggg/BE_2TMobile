@@ -6,9 +6,13 @@ import { FoodService } from 'src/service/food.service';
 import { Category } from 'src/database/entity/category.entity';
 import { Price } from 'src/database/entity/price.entity';
 import { HelperModule } from 'src/common/helper/helper.module';
+import { FoodImage } from 'src/database/entity/foodImage.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Food, Category, Price]), HelperModule],
+  imports: [
+    TypeOrmModule.forFeature([Food, Category, Price, FoodImage]),
+    HelperModule,
+  ],
   controllers: [FoodController],
   providers: [FoodService],
 })

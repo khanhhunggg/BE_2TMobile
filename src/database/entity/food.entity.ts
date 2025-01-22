@@ -6,9 +6,11 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Price } from './price.entity';
 import { Category } from './category.entity';
+import { FoodImage } from './foodImage.entity';
 
 @Entity()
 export class Food {
@@ -46,4 +48,7 @@ export class Food {
   @ManyToOne(() => Price)
   @JoinColumn({ name: 'priceID' })
   price: Price;
+
+  @OneToMany(() => FoodImage, (foodImage) => foodImage.food)
+  images: FoodImage[];
 }

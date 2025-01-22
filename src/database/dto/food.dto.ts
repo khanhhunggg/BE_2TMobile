@@ -1,7 +1,13 @@
 import { IsNotEmpty, IsOptional, IsInt, Min, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateFoodImageDto } from './foodImage.dto';
+import { PrimaryGeneratedColumn } from 'typeorm';
 
 export class CreateFoodDto {
+  @PrimaryGeneratedColumn()
+  @IsOptional()
+  foodId: number;
+
   @ApiProperty({ type: String, description: 'Name', required: true })
   @IsNotEmpty()
   @MaxLength(100)
@@ -30,6 +36,14 @@ export class CreateFoodDto {
   @ApiProperty({ type: Boolean, description: 'Is Available', required: false })
   @IsOptional()
   isAvailable: boolean = true;
+
+  @ApiProperty({
+    type: [CreateFoodImageDto],
+    description: 'Food Images',
+    required: false,
+  })
+  @IsOptional()
+  images: CreateFoodImageDto[];
 }
 export class UpdateFoodDto extends CreateFoodDto {}
 

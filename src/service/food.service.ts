@@ -6,8 +6,10 @@ import { CreateFoodDto, UpdateFoodDto } from 'src/database/dto/food.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { Category } from 'src/database/entity/category.entity';
 import { Food } from 'src/database/entity/food.entity';
+import { FoodImage } from 'src/database/entity/foodImage.entity';
 import { Price } from 'src/database/entity/price.entity';
 import { Like, Repository } from 'typeorm';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class FoodService {
@@ -19,6 +21,8 @@ export class FoodService {
     private readonly categoryRepository: Repository<Category>,
     @InjectRepository(Price)
     private readonly priceRepository: Repository<Price>,
+    @InjectRepository(FoodImage)
+    private readonly foodImageRepository: Repository<FoodImage>,
   ) {}
   public async createNewFood(food: CreateFoodDto, userReq: UserJwtDto) {
     try {
@@ -46,6 +50,19 @@ export class FoodService {
       newFood.price = price;
       newFood.stock = food.stock;
       newFood.isAvailable = food.isAvailable;
+
+      await this.foodRepository.save(newFood);
+
+      let foodImages = [];
+      for (const image of food.images) {
+        let foodImage = new FoodImage();
+        foodImage.FoodID = newFood.foodID;
+        foodImage.ImageURL = image.imageUrl;
+        foodImage.IsPrimary = image.isPrimary;
+        foodImages.push(foodImage);
+      }
+      await this.foodImageRepository.save(foodImages);
+      newFood.images = foodImages;
       await this.foodRepository.save(newFood);
       return newFood;
     } catch (error) {
@@ -59,7 +76,7 @@ export class FoodService {
       const [data, total] = await this.foodRepository.findAndCount({
         skip: (page - 1) * size,
         take: size,
-        relations: ['category', 'price'],
+        relations: ['category', 'price', 'images'],
       });
       return { data, total, page, size };
     } catch (error) {
@@ -89,7 +106,7 @@ export class FoodService {
 
       const food = await this.foodRepository.find({
         where: whereConditions,
-        relations: ['category', 'price'],
+        relations: ['category', 'price', 'images'],
       });
       return food;
     } catch (error) {
@@ -101,7 +118,7 @@ export class FoodService {
     try {
       const food = await this.foodRepository.findOne({
         where: { foodID: id },
-        relations: ['category', 'price'],
+        relations: ['category', 'price', 'images'],
       });
       if (!food) {
         throw new BadRequestException('Food not found');
@@ -128,6 +145,20 @@ export class FoodService {
       const price = await this.priceRepository.findOne({
         where: { Price: foodUpdate.price },
       });
+      let foodImages = [];
+      for (const image of foodUpdate.images) {
+        let foodImage = await this.foodImageRepository.findOne({
+          where: { FoodID: food.foodID },
+        });
+        if (!foodImage) {
+          foodImage = new FoodImage();
+          foodImage.FoodID = food.foodID;
+          foodImage.ImageURL = image.imageUrl;
+          foodImage.IsPrimary = image.isPrimary;
+          await this.foodImageRepository.save(foodImage);
+        }
+        foodImages.push(foodImage);
+      }
       if (!food) {
         throw new BadRequestException('FOOD_NOT_FOUND');
       }
@@ -137,6 +168,7 @@ export class FoodService {
       food.price = price;
       food.stock = foodUpdate.stock;
       food.isAvailable = foodUpdate.isAvailable;
+      food.images = foodImages;
       await this.foodRepository.save(food);
       return food;
     } catch (error) {
@@ -147,7 +179,11 @@ export class FoodService {
     try {
       await this.helperService.validateAdmin(userReq);
       const food = await this.foodRepository.findOne({ where: { foodID: id } });
+      const foodImages = await this.foodImageRepository.find({
+        where: { FoodID: id },
+      });
       await this.foodRepository.remove(food);
+      await this.foodImageRepository.remove(foodImages);
       return { message: 'Food deleted successfully' };
     } catch (error) {
       throw new BadRequestException(error);
