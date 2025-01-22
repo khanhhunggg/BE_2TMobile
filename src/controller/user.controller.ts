@@ -13,9 +13,8 @@ import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import {
+  ChangePassWordDto,
   DeleteUserDto,
-  GetUserByEmailDto,
-  SendEmailForgotPasswordDto,
   SignInDto,
   SignUpDto,
   UpdateDtoIds,
@@ -52,7 +51,7 @@ export class UserController {
 
   @Post('reset-password')
   @ApiOperation({ summary: 'Reset password' })
-  public async ForgotPassword(@Body() dto: SendEmailForgotPasswordDto) {
+  public async ForgotPassword(@Body() dto: ChangePassWordDto) {
     return await this.userService.ResetPassword(dto);
   }
 
