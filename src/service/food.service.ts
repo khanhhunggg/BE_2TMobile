@@ -29,7 +29,7 @@ export class FoodService {
       await this.helperService.validateAdmin(userReq);
       const maxPrice = 1e18;
       if (food.price > maxPrice) {
-        throw new BadRequestException(`Price must be less than ${maxPrice}`);
+        throw new BadRequestException('PRICE_TOO_HIGH');
       }
       let category = await this.categoryRepository.findOne({
         where: { CategoryName: food.categoryName },
@@ -193,6 +193,7 @@ export class FoodService {
       throw new BadRequestException(error);
     }
   }
+
   public async deleteFood(id: number, userReq: UserJwtDto) {
     try {
       await this.helperService.validateAdmin(userReq);
