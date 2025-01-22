@@ -5,10 +5,10 @@ import * as sgMail from '@sendgrid/mail';
 import * as bcryptjs from 'bcryptjs';
 import { isEmail } from 'class-validator';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
+import { HelperService } from 'src/common/helper/helper.service';
 import {
   DeleteUserDto,
-  GetUserByEmailDto,
-  SendEmailForgotPasswordDto,
+  ChangePassWordDto,
   SignInDto,
   SignUpDto,
   UpdateDtoIds,
@@ -19,8 +19,6 @@ import {
 import { User } from 'src/database/entity/user.entity';
 import { checkPassword } from 'src/util/funtion-util';
 import { Like, Repository } from 'typeorm';
-import { UserReq } from './../common/user.decorator';
-import { HelperService } from 'src/common/helper/helper.service';
 
 @Injectable()
 export class UserService {
@@ -118,7 +116,7 @@ export class UserService {
     }
   }
 
-  public async ResetPassword(dto: SendEmailForgotPasswordDto) {
+  public async ResetPassword(dto: ChangePassWordDto) {
     try {
       if (!isEmail(dto.Email)) {
         throw new BadRequestException('EMAIL_INVALID');

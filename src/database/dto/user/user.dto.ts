@@ -52,7 +52,7 @@ export class SignInDto {
   Password: string;
 }
 
-export class SendEmailForgotPasswordDto {
+export class ChangePassWordDto {
   @ApiProperty({ type: String, description: 'Email', required: true })
   @IsEmail()
   Email: string;
