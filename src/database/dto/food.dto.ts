@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsOptional, IsInt, Min, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+  Min,
+  MaxLength,
+  IsArray,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { CreateFoodImageDto } from './foodImage.dto';
 import { PrimaryGeneratedColumn } from 'typeorm';
@@ -46,7 +53,15 @@ export class CreateFoodDto {
   images: CreateFoodImageDto[];
 }
 export class UpdateFoodDto extends CreateFoodDto {}
+export class UpdateFoodDtoIds {
+  @ApiProperty({ type: Array, description: 'ID', required: true })
+  @IsArray()
+  Id: number[];
 
+  @ApiProperty({ type: Array, description: 'FoodDto', required: true })
+  @IsArray()
+  foodDto: UpdateFoodDto[];
+}
 export class GetAllFoodDto {
   @ApiProperty({ type: String, description: 'Name', required: true })
   @IsNotEmpty()

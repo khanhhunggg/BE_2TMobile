@@ -2,7 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationResponseDto } from 'src/common/common.dto';
 import { HelperService } from 'src/common/helper/helper.service';
-import { CreateFoodDto, UpdateFoodDto } from 'src/database/dto/food.dto';
+import {
+  CreateFoodDto,
+  UpdateFoodDto,
+  UpdateFoodDtoIds,
+} from 'src/database/dto/food.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { Category } from 'src/database/entity/category.entity';
 import { Food } from 'src/database/entity/food.entity';
@@ -125,7 +129,7 @@ export class FoodService {
         relations: ['category', 'price', 'images'],
       });
       if (!food) {
-        throw new BadRequestException('Food not found');
+        throw new BadRequestException('FOOD_NOT_FOUND');
       }
       return food;
     } catch (error) {
@@ -191,6 +195,66 @@ export class FoodService {
       return food;
     } catch (error) {
       throw new BadRequestException(error);
+    }
+  }
+
+  public async updateFoodByIds(dto: UpdateFoodDtoIds, userReq: UserJwtDto) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      for (let i = 0; i < dto.Id.length; i++) {
+        const food = await this.foodRepository.findOne({
+          where: { foodID: dto.Id[Number(i)] },
+        });
+        if (!food) {
+          throw new BadRequestException('FOOD_NOT_FOUND');
+        }
+        let category = await this.categoryRepository.findOne({
+          where: { CategoryName: dto.foodDto[i].categoryName },
+        });
+        if (!category && dto.foodDto[i].categoryName) {
+          category = new Category();
+          category.CategoryName = dto.foodDto[i].categoryName;
+          await this.categoryRepository.save(category);
+        } else if (!category) {
+          throw new BadRequestException('CATEGORY_NOT_FOUND');
+        }
+        let price = await this.priceRepository.findOne({
+          where: { Price: dto.foodDto[i].price },
+        });
+        if (!price && dto.foodDto[i].price) {
+          price = new Price();
+          price.Price = dto.foodDto[i].price;
+          await this.priceRepository.save(price);
+        } else if (!price) {
+          throw new BadRequestException('PRICE_NOT_FOUND');
+        }
+        food.name = dto.foodDto[i].name;
+        food.description = dto.foodDto[i].description;
+        food.category = category;
+        food.price = price;
+        food.stock = dto.foodDto[i].stock;
+        food.isAvailable = dto.foodDto[i].isAvailable;
+        let foodImages = [];
+        for (const image of dto.foodDto[i].images) {
+          let foodImage = await this.foodImageRepository.findOne({
+            where: { FoodID: dto.Id[Number(i)] },
+          });
+          if (!foodImage) {
+            foodImage = new FoodImage();
+            foodImage.FoodID = dto.Id[Number(i)];
+            foodImage.ImageURL = image.imageUrl;
+            foodImage.IsPrimary = image.isPrimary;
+            await this.foodImageRepository.save(foodImage);
+          }
+          foodImages.push(foodImage);
+        }
+        food.images = foodImages;
+        await this.foodRepository.save(food);
+        return food;
+      }
+      return { message: 'FOODS_UPDATED_SUCCESSFULLY' };
+    } catch (error) {
+      throw new BadRequestException('ERROR_UPDATING_FOOD_BY_ID');
     }
   }
 

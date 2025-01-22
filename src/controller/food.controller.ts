@@ -11,7 +11,11 @@ import {
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { PaginationResponseDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
-import { CreateFoodDto, UpdateFoodDto } from 'src/database/dto/food.dto';
+import {
+  CreateFoodDto,
+  UpdateFoodDto,
+  UpdateFoodDtoIds,
+} from 'src/database/dto/food.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { FoodService } from 'src/service/food.service';
@@ -65,6 +69,17 @@ export class FoodController {
     @UserReq() user: UserJwtDto,
   ) {
     return this.foodService.updateFood(id, food, user);
+  }
+
+  @Put('update-food-ids')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update food by ids' })
+  public async updateFoodByIds(
+    @Body() dto: UpdateFoodDtoIds,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return this.foodService.updateFoodByIds(dto, user);
   }
 
   @Delete('delete-food')
