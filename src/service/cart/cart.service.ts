@@ -73,7 +73,9 @@ export class CartService {
       if (!cart) {
         throw new BadRequestException('CART_NOT_FOUND');
       }
-      return await this.cartFoodService.getAll({ CartID: cart.CartID });
+      const data = await this.cartFoodService.getAll({ CartID: cart.CartID });
+      const cartId = cart.CartID;
+      return { cartId, data };
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -84,9 +86,15 @@ export class CartService {
 
       const cart = await this.cartRepository
         .createQueryBuilder('cart')
-        .select(['cart.TotalQuantity', 'cartFood', 'food', 'price.Price'])
+        .select([
+          'cart.TotalQuantity',
+          'cart.CartID',
+          'cartFood.Quantity',
+          'cartFood.CartFoodID',
+          'food',
+          'price.Price',
+        ])
         .leftJoin('cart.cartFoods', 'cartFood')
-        .addSelect(['cartFood.Quantity', 'cartFood.CartFoodID'])
         .leftJoin('cartFood.food', 'food')
         .leftJoin('food.price', 'price')
         .where('DATE(cartFood.CreatedAt) = :date', { date: date })
