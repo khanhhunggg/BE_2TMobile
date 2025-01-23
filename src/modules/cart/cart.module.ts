@@ -6,11 +6,12 @@ import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Food } from 'src/database/entity/food.entity';
 import { User } from 'src/database/entity/user.entity';
 import { CartService } from 'src/service/cart/cart.service';
+import { CartFoodService } from 'src/service/cart/cartFood.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Cart, Food, User, CartFood])],
   controllers: [CartController],
-  providers: [CartService],
+  providers: [CartService, CartFoodService],
   exports: [CartService],
 })
 export class CartModule {}

@@ -56,14 +56,12 @@ export class DeleteCartFoodDto {
 export class GetCartFoodDto {
   @ApiProperty({
     description: 'Cart Food ID',
-    example: 1,
     required: false,
   })
   CartFoodID?: number;
 
   @ApiProperty({
     description: 'Cart ID',
-    example: 1,
     required: false,
   })
   CartID?: number;

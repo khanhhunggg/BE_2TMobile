@@ -37,12 +37,6 @@ export class Food {
   @Column({ default: true })
   isAvailable: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
   @ManyToOne(() => Category)
   @JoinColumn({ name: 'categoryID' })
   category: Category;
@@ -53,9 +47,6 @@ export class Food {
 
   @OneToMany(() => FoodImage, (foodImage) => foodImage.food)
   images: FoodImage[];
-
-  @OneToMany(() => Cart, (cart) => cart.food)
-  carts: Cart[];
 
   @OneToMany(() => CartFood, (cartFood) => cartFood.food)
   cartFoods: CartFood[];

@@ -31,7 +31,6 @@ export class CartFoodService {
       if (existingCart) {
         existingCart.Quantity =
           Number(existingCart.Quantity) + Number(dto.Quantity);
-        existingCart.UpdatedAt = new Date();
         await this.cartFoodRepository.save(existingCart);
         return existingCart;
       } else {
@@ -39,8 +38,6 @@ export class CartFoodService {
         newCart.food = food;
         newCart.Quantity = dto.Quantity;
         newCart.CartID = dto.CartID;
-        newCart.CreatedAt = new Date();
-        newCart.UpdatedAt = new Date();
         await this.cartFoodRepository.save(newCart);
         return newCart;
       }
@@ -50,8 +47,12 @@ export class CartFoodService {
   }
   public async getCartFood(dto: GetCartFoodDto) {
     try {
-      const cartFood = await this.cartFoodRepository.findOne({
-        where: { CartFoodID: dto.CartFoodID, CartID: dto.CartID },
+      const cartFood = await this.cartFoodRepository.find({
+        where: {
+          CartID: dto.CartID,
+          CartFoodID: dto.CartFoodID,
+          food: { isAvailable: true },
+        },
         relations: ['food'],
       });
       if (!cartFood) {
@@ -66,13 +67,16 @@ export class CartFoodService {
   public async updateCartFood(dto: UpdateCartFoodDto) {
     try {
       const cartFood = await this.cartFoodRepository.findOne({
-        where: { CartFoodID: dto.CartFoodID },
+        where: {
+          CartFoodID: dto.CartFoodID,
+          food: { isAvailable: true },
+        },
+        relations: ['food'],
       });
       if (!cartFood) {
-        throw new BadRequestException('CART_FOOD_NOT_FOUND');
+        throw new BadRequestException('CART_FOOD_NOT_FOUND_OR_NOT_AVAILABLE');
       }
       cartFood.Quantity = dto.Quantity;
-      cartFood.UpdatedAt = new Date();
       await this.cartFoodRepository.save(cartFood);
       return cartFood;
     } catch (error) {
@@ -83,10 +87,14 @@ export class CartFoodService {
   public async deleteCartFood(dto: DeleteCartFoodDto) {
     try {
       const cartFood = await this.cartFoodRepository.findOne({
-        where: { CartFoodID: dto.CartFoodID },
+        where: {
+          CartFoodID: dto.CartFoodID,
+          food: { isAvailable: true },
+        },
+        relations: ['food'],
       });
       if (!cartFood) {
-        throw new BadRequestException('CART_FOOD_NOT_FOUND');
+        throw new BadRequestException('CART_FOOD_NOT_FOUND_OR_NOT_AVAILABLE');
       }
       await this.cartFoodRepository.delete(cartFood);
       return cartFood;
