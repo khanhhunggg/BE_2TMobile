@@ -1,20 +1,18 @@
 import {
   Controller,
-  Post,
-  UseGuards,
-  Body,
-  Put,
-  Query,
   Delete,
   Get,
+  Post,
+  Put,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import {
   AddToCartFoodDto,
   DeleteCartFoodDto,
-  UpdateCartFoodDto,
   GetCartFoodDto,
+  UpdateCartFoodDto,
 } from 'src/database/dto/cart/cartfood.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { CartFoodService } from 'src/service/cart/cartFood.service';

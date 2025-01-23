@@ -1,11 +1,12 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AddToCartDto } from 'src/database/dto/cart/cart.dto';
+import { AddToCartDto, GetCartByDateDto } from 'src/database/dto/cart/cart.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { Cart } from 'src/database/entity/cart.entity';
 import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Repository } from 'typeorm';
 import { CartFoodService } from './cartFood.service';
+import * as moment from 'moment';
 
 @Injectable()
 export class CartService {
@@ -18,7 +19,6 @@ export class CartService {
   ) {}
   public async addToCart(dto: AddToCartDto, userReq: UserJwtDto) {
     try {
-      // Tìm kiếm sản phẩm trong giỏ hàng
       const foodInCart = await this.cartFoodRepository.findOne({
         where: {
           food: { foodID: dto.FoodID },
@@ -43,6 +43,7 @@ export class CartService {
           cart = new Cart();
           cart.UserID = Number(userReq.id);
           cart.TotalQuantity = 0;
+          cart.CreatedAt = new Date();
           await this.cartRepository.save(cart);
         }
         await this.cartFoodService.addToCartFood({
@@ -69,6 +70,22 @@ export class CartService {
         throw new BadRequestException('CART_NOT_FOUND');
       }
       return await this.cartFoodService.getCartFood({ CartID: cart.CartID });
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+  public async getCartByDate(dto: GetCartByDateDto) {
+    try {
+      const date = moment(dto.Date).format('YYYY-MM-DD');
+
+      const cart = await this.cartRepository
+        .createQueryBuilder('cart')
+        .leftJoinAndSelect('cart.cartFoods', 'cartFood')
+        .leftJoinAndSelect('cartFood.food', 'food')
+        .where('DATE(cartFood.CreatedAt) = :date', { date: date })
+        .getMany();
+
+      return cart;
     } catch (error) {
       throw new BadRequestException(error);
     }

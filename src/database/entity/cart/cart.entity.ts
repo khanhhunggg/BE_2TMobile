@@ -21,16 +21,6 @@ export class Cart {
   @Column({ default: 1 })
   TotalQuantity: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  CreatedAt: Date;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  UpdatedAt: Date;
-
   @ManyToOne(() => User, (user) => user.carts, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'UserID' })
   user: User;

@@ -38,6 +38,8 @@ export class CartFoodService {
         newCart.food = food;
         newCart.Quantity = dto.Quantity;
         newCart.CartID = dto.CartID;
+        newCart.CreatedAt = new Date();
+        newCart.UpdatedAt = new Date();
         await this.cartFoodRepository.save(newCart);
         return newCart;
       }
@@ -77,6 +79,7 @@ export class CartFoodService {
         throw new BadRequestException('CART_FOOD_NOT_FOUND_OR_NOT_AVAILABLE');
       }
       cartFood.Quantity = dto.Quantity;
+      cartFood.UpdatedAt = new Date();
       await this.cartFoodRepository.save(cartFood);
       return cartFood;
     } catch (error) {

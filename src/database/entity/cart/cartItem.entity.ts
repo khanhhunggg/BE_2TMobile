@@ -22,15 +22,15 @@ export class CartFood {
   @Column({ default: 1 })
   Quantity: number;
 
-  // @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  // CreatedAt: Date;
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  CreatedAt: Date;
 
-  // @Column({
-  //   type: 'timestamp',
-  //   default: () => 'CURRENT_TIMESTAMP',
-  //   onUpdate: 'CURRENT_TIMESTAMP',
-  // })
-  // UpdatedAt: Date;
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  UpdatedAt: Date;
 
   @ManyToOne(() => Cart, (cart) => cart.cartFoods, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'CartID' })
