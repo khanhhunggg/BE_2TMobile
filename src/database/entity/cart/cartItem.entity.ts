@@ -3,26 +3,24 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { CartFood } from './cartItem.entity';
+import { Cart } from './cart.entity';
 import { Food } from '../food.entity';
-import { User } from '../user.entity';
 
-@Entity('Cart')
-export class Cart {
+@Entity('CartFood')
+export class CartFood {
   @PrimaryGeneratedColumn()
-  CartID: number;
+  CartFoodID: number;
 
   @Column()
-  UserID: number;
+  CartID: number;
 
   @Column()
   FoodID: number;
 
   @Column({ default: 1 })
-  TotalQuantity: number;
+  Quantity: number;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   CreatedAt: Date;
@@ -34,14 +32,11 @@ export class Cart {
   })
   UpdatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.carts, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'UserID' })
-  user: User;
+  @ManyToOne(() => Cart, (cart) => cart.cartFoods, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'CartID' })
+  cart: Cart;
 
-  @ManyToOne(() => Food, (food) => food.carts, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Food, (food) => food.cartFoods, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'FoodID' })
   food: Food;
-
-  @OneToMany(() => CartFood, (cartFood) => cartFood.cart)
-  cartFoods: CartFood[];
 }

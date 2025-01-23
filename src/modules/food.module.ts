@@ -15,5 +15,6 @@ import { FoodImage } from 'src/database/entity/foodImage.entity';
   ],
   controllers: [FoodController],
   providers: [FoodService],
+  exports: [FoodService],
 })
 export class FoodModule {}

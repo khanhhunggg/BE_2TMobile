@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { FoodModule } from './modules/food.module';
 import { UserModule } from './modules/user.module';
 import { CartModule } from './modules/cart/cart.module';
+import { CartFoodModule } from './modules/cart/cartFood.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -24,6 +25,8 @@ import { CartModule } from './modules/cart/cart.module';
     CommonModule,
     FoodModule,
     UserModule,
+    CartModule,
+    CartFoodModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
@@ -31,7 +34,6 @@ import { CartModule } from './modules/cart/cart.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    CartModule,
   ],
   controllers: [],
   providers: [],

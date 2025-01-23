@@ -13,7 +13,6 @@ import { Food } from 'src/database/entity/food.entity';
 import { FoodImage } from 'src/database/entity/foodImage.entity';
 import { Price } from 'src/database/entity/price.entity';
 import { Like, Repository } from 'typeorm';
-import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class FoodService {

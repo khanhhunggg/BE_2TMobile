@@ -8,12 +8,13 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Cart } from './cart/cart.entity';
+import { Cart } from './cart.entity';
 import { Category } from './category.entity';
 import { FoodImage } from './foodImage.entity';
 import { Price } from './price.entity';
+import { CartFood } from './cart/cartItem.entity';
 
-@Entity()
+@Entity('Food')
 export class Food {
   @PrimaryGeneratedColumn()
   foodID: number;
@@ -55,4 +56,7 @@ export class Food {
 
   @OneToMany(() => Cart, (cart) => cart.food)
   carts: Cart[];
+
+  @OneToMany(() => CartFood, (cartFood) => cartFood.food)
+  cartFoods: CartFood[];
 }
