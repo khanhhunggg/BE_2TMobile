@@ -1,6 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { AddToCartDto, GetCartByDateDto } from 'src/database/dto/cart/cart.dto';
+import {
+  AddToCartDto,
+  DeleteCartDto,
+  GetCartByDateDto,
+  UpdateCartDto,
+} from 'src/database/dto/cart/cart.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { Cart } from 'src/database/entity/cart.entity';
 import { CartFood } from 'src/database/entity/cart/cartItem.entity';
@@ -86,6 +91,16 @@ export class CartService {
         .getMany();
 
       return cart;
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  public async deleteCart(dto: DeleteCartDto) {
+    try {
+      await this.cartFoodRepository.delete({ CartID: dto.CartID });
+      await this.cartRepository.delete({ CartID: dto.CartID });
+      return { message: 'CART_DELETED' };
     } catch (error) {
       throw new BadRequestException(error);
     }

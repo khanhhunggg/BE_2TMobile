@@ -11,8 +11,6 @@ export class CartDto {
   @IsNumber()
   TotalQuantity: number;
 }
-export class UpdateCartDto extends CartDto {}
-
 export class AddToCartDto {
   @ApiProperty({
     description: 'Food ID',
@@ -37,4 +35,9 @@ export class GetCartByDateDto {
   })
   @IsDateString()
   Date: Date;
+}
+export class DeleteCartDto {
+  @IsNotEmpty()
+  @IsNumber()
+  CartID: number;
 }
