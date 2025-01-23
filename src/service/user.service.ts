@@ -268,18 +268,6 @@ export class UserService {
     }
   }
 
-  public async updateUserByIds(dto: UpdateDtoIds, userReq: UserJwtDto) {
-    try {
-      await this.helperService.validateAdmin(userReq);
-      for (let i = 0; i < dto.Id.length; i++) {
-        await this.userRepository.update(dto.Id[Number(i)], dto.userDto[i]);
-      }
-      return { message: 'USERS_UPDATED_SUCCESSFULLY' };
-    } catch (error) {
-      throw new BadRequestException('ERROR_UPDATING_USER_BY_ID');
-    }
-  }
-
   public async deleteUserById(dto: DeleteUserDto, userReq: UserJwtDto) {
     try {
       await this.helperService.validateAdmin(userReq);

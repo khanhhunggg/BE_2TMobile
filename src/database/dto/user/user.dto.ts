@@ -125,10 +125,6 @@ export class UpdateDtoIds {
   @ApiProperty({ type: Array, description: 'ID', required: true })
   @IsArray()
   Id: number[];
-
-  @ApiProperty({ type: Array, description: 'UserDto', required: true })
-  @IsArray()
-  userDto: UpdateUserDto[];
 }
 export class UpdateProfileDto {
   @ApiProperty({ type: String, description: 'FullName', required: false })

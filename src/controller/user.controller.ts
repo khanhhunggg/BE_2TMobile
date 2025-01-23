@@ -112,17 +112,6 @@ export class UserController {
     return await this.userService.updateUserById(dto, updateDto, user);
   }
 
-  @Put('update-user-by-ids')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update user by ids' })
-  public async UpdateUserByIds(
-    @Body() dto: UpdateDtoIds,
-    @UserReq() user: UserJwtDto,
-  ) {
-    return await this.userService.updateUserByIds(dto, user);
-  }
-
   @Delete('delete-user-by-id')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
