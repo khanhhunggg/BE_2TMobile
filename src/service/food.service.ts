@@ -6,11 +6,11 @@ import {
   CreateFoodDto,
   UpdateFoodDto,
   UpdateFoodDtoIds,
-} from 'src/database/dto/food.dto';
+} from 'src/database/dto/food/food.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { Category } from 'src/database/entity/category.entity';
-import { Food } from 'src/database/entity/food.entity';
-import { FoodImage } from 'src/database/entity/foodImage.entity';
+import { Food } from 'src/database/entity/food/food.entity';
+import { FoodImage } from 'src/database/entity/food/foodImage.entity';
 import { Price } from 'src/database/entity/price.entity';
 import { Like, Repository } from 'typeorm';
 

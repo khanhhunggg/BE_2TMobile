@@ -7,7 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { CartFood } from './cartItem.entity';
-import { Food } from '../food.entity';
+import { Food } from '../food/food.entity';
 import { User } from '../user.entity';
 
 @Entity('Cart')

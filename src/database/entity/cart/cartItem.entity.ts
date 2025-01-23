@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Cart } from './cart.entity';
-import { Food } from '../food.entity';
+import { Food } from '../food/food.entity';
 
 @Entity('CartFood')
 export class CartFood {

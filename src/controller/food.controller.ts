@@ -15,7 +15,7 @@ import {
   CreateFoodDto,
   UpdateFoodDto,
   UpdateFoodDtoIds,
-} from 'src/database/dto/food.dto';
+} from 'src/database/dto/food/food.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { FoodService } from 'src/service/food.service';

@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UserReq } from 'src/common/user.decorator';
-import { AddToCartDto, GetCartByDateDto } from 'src/database/dto/cart/cart.dto';
+import {
+  AddToCartDto,
+  DeleteCartDto,
+  GetCartByDateDto,
+} from 'src/database/dto/cart/cart.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { CartService } from 'src/service/cart/cart.service';
@@ -34,5 +45,13 @@ export class CartController {
   @ApiOperation({ summary: 'Get cart by date' })
   public async getCartByDate(@Query() dto: GetCartByDateDto) {
     return this.cartService.getCartByDate(dto);
+  }
+
+  @Delete('delete')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete cart' })
+  public async deleteCart(@Query() dto: DeleteCartDto) {
+    return this.cartService.deleteCart(dto);
   }
 }

@@ -9,7 +9,7 @@ import {
   UpdateCartFoodDto,
 } from 'src/database/dto/cart/cartfood.dto';
 import { BadRequestException } from '@nestjs/common';
-import { Food } from 'src/database/entity/food.entity';
+import { Food } from 'src/database/entity/food/food.entity';
 import { Price } from 'src/database/entity/price.entity';
 import * as moment from 'moment';
 

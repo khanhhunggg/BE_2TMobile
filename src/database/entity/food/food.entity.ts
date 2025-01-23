@@ -8,11 +8,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Cart } from './cart.entity';
-import { Category } from './category.entity';
+import { Category } from '../category.entity';
+import { Price } from '../price.entity';
 import { FoodImage } from './foodImage.entity';
-import { Price } from './price.entity';
-import { CartFood } from './cart/cartItem.entity';
+import { CartFood } from '../cart/cartItem.entity';
 
 @Entity('Food')
 export class Food {
