@@ -45,6 +45,14 @@ export class CartFoodController {
     return this.cartFoodService.getCartFood(dto);
   }
 
+  @Get('get-all')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get all food in cart' })
+  public async getAllCartFood(@Query() dto: GetCartFoodDto) {
+    return this.cartFoodService.getAll(dto);
+  }
+
   @Delete('delete')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

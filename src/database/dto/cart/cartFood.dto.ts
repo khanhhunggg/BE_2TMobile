@@ -68,3 +68,11 @@ export class GetCartFoodDto {
   })
   CartID?: number;
 }
+
+export class CalculateTotalPriceDto {
+  @ApiProperty({
+    description: 'Food ID',
+    example: 1,
+  })
+  FoodID: number;
+}
