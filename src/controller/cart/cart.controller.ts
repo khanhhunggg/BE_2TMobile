@@ -1,7 +1,8 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { UserReq } from 'src/common/user.decorator';
+import { AddToCartDto } from 'src/database/dto/cart/cart.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { CartService } from 'src/service/cart/cart.service';
@@ -15,5 +16,16 @@ export class CartController {
   @ApiOperation({ summary: 'Get all cart' })
   public async getAllCart(@UserReq() userRep: UserJwtDto) {
     return this.cartService.getAllCart(userRep);
+  }
+
+  @Post('add')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add food to cart' })
+  public async addToCart(
+    @Query() dto: AddToCartDto,
+    @UserReq() userRep: UserJwtDto,
+  ) {
+    return this.cartService.addToCart(dto, userRep);
   }
 }

@@ -1,19 +1,61 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AddToCartDto } from 'src/database/dto/cart/cart.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
+import { Cart } from 'src/database/entity/cart.entity';
+import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Repository } from 'typeorm';
 import { CartFoodService } from './cartFood.service';
-import { Cart } from 'src/database/entity/cart.entity';
 
 @Injectable()
 export class CartService {
   constructor(
     @InjectRepository(Cart)
     private cartRepository: Repository<Cart>,
+    @InjectRepository(CartFood)
+    private cartFoodRepository: Repository<CartFood>,
     private cartFoodService: CartFoodService,
   ) {}
-  public async addToCart(userReq: UserJwtDto, foodId: number) {
+  public async addToCart(dto: AddToCartDto, userReq: UserJwtDto) {
     try {
+      // Tìm kiếm sản phẩm trong giỏ hàng
+      const foodInCart = await this.cartFoodRepository.findOne({
+        where: {
+          food: { foodID: dto.FoodID },
+          cart: { UserID: Number(userReq.id) },
+        },
+      });
+
+      let cart;
+      if (foodInCart) {
+        cart = await this.cartRepository.findOne({
+          where: { CartID: foodInCart.CartID },
+        });
+        await this.cartFoodRepository.update(
+          { CartID: foodInCart.CartID },
+          { Quantity: Number(foodInCart.Quantity) + Number(dto.Quantity) },
+        );
+      } else {
+        cart = await this.cartRepository.findOne({
+          where: { UserID: Number(userReq.id) },
+        });
+        if (!cart) {
+          cart = new Cart();
+          cart.UserID = Number(userReq.id);
+          cart.TotalQuantity = 0;
+          await this.cartRepository.save(cart);
+        }
+        await this.cartFoodService.addToCartFood({
+          CartID: cart.CartID,
+          FoodID: dto.FoodID,
+          Quantity: dto.Quantity,
+        });
+      }
+
+      cart.TotalQuantity = Number(cart.TotalQuantity) + Number(dto.Quantity);
+      await this.cartRepository.save(cart);
+
+      return cart;
     } catch (error) {
       throw new BadRequestException(error);
     }
