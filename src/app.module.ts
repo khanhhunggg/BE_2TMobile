@@ -7,6 +7,7 @@ import { DataSource } from 'typeorm';
 import { CommonModule } from './common/common.module';
 import { FoodModule } from './modules/food.module';
 import { UserModule } from './modules/user.module';
+import { CartModule } from './modules/cart/cart.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -30,6 +31,7 @@ import { UserModule } from './modules/user.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CartModule,
   ],
   controllers: [],
   providers: [],

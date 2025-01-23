@@ -1,16 +1,17 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Price } from './price.entity';
+import { Cart } from './cart/cart.entity';
 import { Category } from './category.entity';
 import { FoodImage } from './foodImage.entity';
+import { Price } from './price.entity';
 
 @Entity()
 export class Food {
@@ -51,4 +52,7 @@ export class Food {
 
   @OneToMany(() => FoodImage, (foodImage) => foodImage.food)
   images: FoodImage[];
+
+  @OneToMany(() => Cart, (cart) => cart.food)
+  carts: Cart[];
 }
