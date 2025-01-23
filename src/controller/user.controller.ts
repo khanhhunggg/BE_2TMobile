@@ -17,7 +17,6 @@ import {
   DeleteUserDto,
   SignInDto,
   SignUpDto,
-  UpdateDtoIds,
   UpdateDtoQuery,
   UpdateProfileDto,
   UpdateUserDto,
@@ -121,5 +120,16 @@ export class UserController {
     @UserReq() user: UserJwtDto,
   ) {
     return await this.userService.deleteUserById(dto, user);
+  }
+
+  @Delete('delete-user-by-ids')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Delete user by ids' })
+  public async DeleteUserByIds(
+    @Body() ids: number[],
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.deleteUserByIds(ids, user);
   }
 }

@@ -4,18 +4,18 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as sgMail from '@sendgrid/mail';
 import * as bcryptjs from 'bcryptjs';
 import { isEmail } from 'class-validator';
+import * as moment from 'moment';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { HelperService } from 'src/common/helper/helper.service';
 import {
-  DeleteUserDto,
   ChangePassWordDto,
+  DeleteUserDto,
   SignInDto,
   SignUpDto,
-  UpdateDtoIds,
   UpdateDtoQuery,
+  UpdateProfileDto,
   UpdateUserDto,
   UserJwtDto,
-  UpdateProfileDto,
 } from 'src/database/dto/user/user.dto';
 import { User } from 'src/database/entity/user.entity';
 import {
@@ -24,7 +24,6 @@ import {
   checkPhoneNumber,
 } from 'src/util/funtion-util';
 import { Like, Repository } from 'typeorm';
-import * as moment from 'moment';
 
 @Injectable()
 export class UserService {
@@ -278,6 +277,18 @@ export class UserService {
         throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
       }
       return await this.userRepository.delete({ UserID: dto.Id });
+    } catch (error) {
+      throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
+    }
+  }
+
+  public async deleteUserByIds(ids: number[], userReq: UserJwtDto) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      for (let i = 0; i < ids.length; i++) {
+        await this.userRepository.delete({ UserID: ids[i] });
+      }
+      return { message: 'USERS_DELETED_SUCCESSFULLY' };
     } catch (error) {
       throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
     }

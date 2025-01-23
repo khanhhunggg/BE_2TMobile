@@ -121,11 +121,7 @@ export class UpdateDtoQuery {
   @IsNumber()
   Id: number;
 }
-export class UpdateDtoIds {
-  @ApiProperty({ type: Array, description: 'ID', required: true })
-  @IsArray()
-  Id: number[];
-}
+
 export class UpdateProfileDto {
   @ApiProperty({ type: String, description: 'FullName', required: false })
   @IsOptional()
