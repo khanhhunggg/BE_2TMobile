@@ -130,6 +130,35 @@ export class UpdateDtoIds {
   @IsArray()
   userDto: UpdateUserDto[];
 }
+export class UpdateProfileDto {
+  @ApiProperty({ type: String, description: 'FullName', required: false })
+  @IsOptional()
+  @IsString()
+  @Length(3, 100)
+  FullName?: string;
+
+  @ApiProperty({ type: String, description: 'PhoneNumber', required: false })
+  @IsOptional()
+  @IsString()
+  @Length(10, 15)
+  PhoneNumber?: string;
+
+  @ApiProperty({ type: String, description: 'Address', required: false })
+  @IsOptional()
+  @IsString()
+  @Length(5, 255)
+  Address?: string;
+
+  @ApiProperty({ type: String, description: 'Gender', required: false })
+  @IsOptional()
+  @IsEnum(['Male', 'Female', 'Other'])
+  Gender?: 'Male' | 'Female' | 'Other';
+
+  @ApiProperty({ type: String, description: 'BirthDate', required: false })
+  @IsOptional()
+  @IsDateString()
+  BirthDate?: string;
+}
 export class DeleteUserDto {
   @ApiProperty({ type: Number, description: 'ID', required: true })
   @IsNumber()

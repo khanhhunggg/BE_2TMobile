@@ -15,10 +15,16 @@ import {
   UpdateDtoQuery,
   UpdateUserDto,
   UserJwtDto,
+  UpdateProfileDto,
 } from 'src/database/dto/user/user.dto';
 import { User } from 'src/database/entity/user.entity';
-import { checkPassword } from 'src/util/funtion-util';
+import {
+  checkBirthDate,
+  checkPassword,
+  checkPhoneNumber,
+} from 'src/util/funtion-util';
 import { Like, Repository } from 'typeorm';
+import * as moment from 'moment';
 
 @Injectable()
 export class UserService {
@@ -179,13 +185,13 @@ export class UserService {
     }
   }
 
-  public async getUserByID(id: number, userReq: UserJwtDto) {
+  public async getUserByID(id: UpdateDtoQuery, userReq: UserJwtDto) {
     try {
       if (!id) {
         throw new BadRequestException('ID_REQUIRED');
       }
       await this.helperService.validateAdmin(userReq);
-      return await this.userRepository.findOne({ where: { UserID: id } });
+      return await this.userRepository.findOne({ where: { UserID: id.Id } });
     } catch (error) {
       throw new BadRequestException('ERROR_FETCHING_USER_BY_ID');
     }
@@ -211,6 +217,41 @@ export class UserService {
     }
   }
 
+  public async updateProfile(dto: UpdateProfileDto, userReq: UserJwtDto) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { UserID: Number(userReq.id) },
+      });
+      if (!user) {
+        throw new BadRequestException('USER_NOT_FOUND');
+      }
+      if (dto.PhoneNumber) {
+        if (checkPhoneNumber(dto.PhoneNumber)) {
+          throw new BadRequestException('PHONE_NUMBER_INVALID');
+        }
+      }
+      if (dto.BirthDate) {
+        if (checkBirthDate(dto.BirthDate)) {
+          throw new BadRequestException('BIRTH_DATE_INVALID');
+        }
+      }
+      const newUser = new User();
+      newUser.FullName = dto?.FullName;
+      newUser.PhoneNumber = dto?.PhoneNumber;
+      newUser.Address = dto?.Address;
+      newUser.Gender = dto?.Gender;
+      const formattedDate = moment(
+        dto.BirthDate,
+        ['DD-MM-YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'],
+        true,
+      ).format('YYYY-MM-DD');
+      newUser.BirthDate = formattedDate;
+      await this.userRepository.update(user.UserID, newUser);
+      return newUser;
+    } catch (error) {
+      throw new BadRequestException('ERROR_UPDATING_PROFILE');
+    }
+  }
   public async updateUserById(
     dto: UpdateDtoQuery,
     updateDto: UpdateUserDto,

@@ -19,6 +19,7 @@ import {
   SignUpDto,
   UpdateDtoIds,
   UpdateDtoQuery,
+  UpdateProfileDto,
   UpdateUserDto,
   UserJwtDto,
 } from 'src/database/dto/user/user.dto';
@@ -70,7 +71,10 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user by id' })
-  public async GetUserByID(@Query() id: number, @UserReq() user: UserJwtDto) {
+  public async GetUserByID(
+    @Query() id: UpdateDtoQuery,
+    @UserReq() user: UserJwtDto,
+  ) {
     return await this.userService.getUserByID(id, user);
   }
 
@@ -83,6 +87,17 @@ export class UserController {
     @UserReq() user: UserJwtDto,
   ) {
     return await this.userService.getUserByKeyword(dto, user);
+  }
+
+  @Put('update-profile')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update profile' })
+  public async UpdateProfile(
+    @Query() dto: UpdateProfileDto,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.updateProfile(dto, user);
   }
 
   @Put('update-user-by-id')
