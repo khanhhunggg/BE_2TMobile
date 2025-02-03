@@ -11,6 +11,19 @@ export class OrderStatus {
   @Column({ length: 50 })
   StatusName: string;
 
+  @Column('text')
+  Description: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  CreatedAt: Date;
+
+  @Column({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
+  UpdatedAt: Date;
+
   @OneToMany(() => Order, (order) => order.orderStatus)
   orders: Order[];
 }
