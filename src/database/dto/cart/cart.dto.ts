@@ -37,6 +37,10 @@ export class GetCartByDateDto {
   Date: Date;
 }
 export class DeleteCartDto {
+  @ApiProperty({
+    description: 'Cart ID',
+    example: 1,
+  })
   @IsNotEmpty()
   @IsNumber()
   CartID: number;
