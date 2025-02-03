@@ -55,8 +55,11 @@ export class FoodController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get food by keyword' })
-  public async getFoodByKeyword(@Query('keyword') keyword: string) {
-    return this.foodService.getFoodByKeyWord(keyword);
+  public async getFoodByKeyword(
+    @Query('keyword') keyword: string,
+    @Query() paginationDto: PaginationResponseDto,
+  ) {
+    return this.foodService.getFoodByKeyWord(keyword, paginationDto);
   }
 
   @Put('update-food')

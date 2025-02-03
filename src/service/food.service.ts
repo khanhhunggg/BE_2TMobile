@@ -105,31 +105,40 @@ export class FoodService {
     }
   }
 
-  public async getFoodByKeyWord(keyword: string) {
+  public async getFoodByKeyWord(
+    keyword: string,
+    paginationDto: PaginationResponseDto,
+  ) {
     try {
       const parsedPrice = parseFloat(keyword);
-      const isNumber = !isNaN(parsedPrice);
+      const { page, size } = paginationDto;
 
-      const whereConditions = [];
+      const query = this.foodRepository
+        .createQueryBuilder('food')
+        .leftJoinAndSelect('food.category', 'category')
+        .leftJoinAndSelect('food.price', 'price')
+        .leftJoinAndSelect('food.images', 'images')
+        .select([
+          'food.foodID',
+          'food.name',
+          'food.description',
+          'food.stock',
+          'food.isAvailable',
+          'category.CategoryName',
+          'price.Price',
+          'images.ImageURL',
+          'images.IsPrimary',
+        ])
+        .where('food.name LIKE :keyword', { keyword: `%${keyword}%` });
 
-      whereConditions.push({ name: Like(`%${keyword}%`) });
-
-      if (isNumber) {
-        whereConditions.push({ price: { Price: parsedPrice } });
+      if (!isNaN(parsedPrice)) {
+        query.orWhere('price.Price = :parsedPrice', { parsedPrice });
       }
 
-      const category = await this.categoryRepository.findOne({
-        where: { CategoryName: Like(`%${keyword}%`) },
-      });
-      if (category) {
-        whereConditions.push({ category: { CategoryID: category.CategoryID } });
-      }
+      query.skip((page - 1) * size).take(size);
 
-      const food = await this.foodRepository.find({
-        where: whereConditions,
-        relations: ['category', 'price', 'images'],
-      });
-      return food;
+      const [data, total] = await query.getManyAndCount();
+      return { data, total, page, size };
     } catch (error) {
       throw new BadRequestException(error);
     }
