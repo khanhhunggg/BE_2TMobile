@@ -161,24 +161,28 @@ export class UserService {
     }
   }
   //Admin-GetAllUser
-  public async getAll(
-    dto: PaginationResponseDto,
-    userReq: UserJwtDto,
-  ): Promise<{ data: User[]; total: number }> {
+  public async getAll(dto: PaginationResponseDto, userReq: UserJwtDto) {
     try {
       await this.helperService.validateAdmin(userReq);
       const { page, size } = dto;
-      const [data, total] = await this.userRepository.findAndCount({
-        skip: (page - 1) * size,
-        take: size,
-      });
-      const getAll = {
-        data,
-        total,
-        page,
-        size,
-      };
-      return getAll;
+      const query = this.userRepository
+        .createQueryBuilder('user')
+        .select([
+          'user.UserID',
+          'user.Username',
+          'user.FullName',
+          'user.Email',
+          'user.PhoneNumber',
+          'user.Address',
+          'user.Gender',
+          'user.BirthDate',
+          'user.Role',
+        ])
+        .skip((page - 1) * size)
+        .take(size);
+
+      const [data, total] = await query.getManyAndCount();
+      return { data, total, page, size };
     } catch (error) {
       throw new BadRequestException('ERROR_FETCHING_USERS');
     }
