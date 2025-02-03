@@ -12,6 +12,7 @@ import { Category } from './category.entity';
 import { Price } from './price.entity';
 import { FoodImage } from './foodImage.entity';
 import { CartFood } from '../cart/cartItem.entity';
+import { OrderDetail } from '../order/orderDetail.entity';
 
 @Entity('Food')
 export class Food {
@@ -49,4 +50,7 @@ export class Food {
 
   @OneToMany(() => CartFood, (cartFood) => cartFood.food)
   cartFoods: CartFood[];
+
+  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.food)
+  orderDetails: OrderDetail[];
 }

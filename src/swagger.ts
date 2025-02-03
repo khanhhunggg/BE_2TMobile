@@ -6,7 +6,7 @@ export const setupSwagger = (app: INestApplication) => {
   const configService: ConfigService = app.get(ConfigService);
 
   const config = new DocumentBuilder()
-    .setTitle(configService.get<string>('FOODIE'))
+    .setTitle(configService.get<string>('PROJECT_NAME'))
     .setDescription(
       `Api for ${configService.get<string>('NODE_ENV')} - v${configService.get<string>('VERSION')}`,
     )
