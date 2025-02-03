@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Cart } from './cart.entity';
+import { Cart } from './cart/cart.entity';
 
 @Entity('User')
 export class User {

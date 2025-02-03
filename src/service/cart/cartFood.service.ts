@@ -10,7 +10,7 @@ import {
 } from 'src/database/dto/cart/cartfood.dto';
 import { BadRequestException } from '@nestjs/common';
 import { Food } from 'src/database/entity/food/food.entity';
-import { Price } from 'src/database/entity/price.entity';
+import { Price } from 'src/database/entity/food/price.entity';
 import * as moment from 'moment';
 
 export class CartFoodService {
@@ -126,14 +126,12 @@ export class CartFoodService {
             where: { PriceID: cartFood.food.priceID },
           });
           const today = moment().format('YYYY-MM-DD');
-          console.log(today);
           if (
             new Date(price.ValidFrom) < new Date(today) &&
             new Date(price.ValidTo) > new Date(today)
           ) {
             return price.Price;
           } else {
-            console.log(price);
             throw new BadRequestException(
               'PRICE_NOT_VALID_FOR_FOOD_ID_' + cartFood.food.foodID,
             );

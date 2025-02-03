@@ -8,8 +8,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Category } from '../category.entity';
-import { Price } from '../price.entity';
+import { Category } from './category.entity';
+import { Price } from './price.entity';
 import { FoodImage } from './foodImage.entity';
 import { CartFood } from '../cart/cartItem.entity';
 

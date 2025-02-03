@@ -7,10 +7,10 @@ import {
   GetCartByDateDto,
 } from 'src/database/dto/cart/cart.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
-import { Cart } from 'src/database/entity/cart.entity';
 import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Repository } from 'typeorm';
 import { CartFoodService } from './cartFood.service';
+import { Cart } from 'src/database/entity/cart/cart.entity';
 
 @Injectable()
 export class CartService {
