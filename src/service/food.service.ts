@@ -80,11 +80,25 @@ export class FoodService {
   public async getAllFoood(paginationDto: PaginationResponseDto) {
     try {
       const { page, size } = paginationDto;
-      const [data, total] = await this.foodRepository.findAndCount({
-        skip: (page - 1) * size,
-        take: size,
-        relations: ['category', 'price', 'images'],
-      });
+      const query = this.foodRepository
+        .createQueryBuilder('food')
+        .select([
+          'food.foodID',
+          'food.name',
+          'food.description',
+          'food.stock',
+          'food.isAvailable',
+          'CategoryName',
+          'Price',
+          'ImageURL',
+          'IsPrimary',
+        ])
+        .leftJoinAndSelect('food.category', 'category')
+        .leftJoinAndSelect('food.price', 'price')
+        .leftJoinAndSelect('food.images', 'images')
+        .skip((page - 1) * size)
+        .take(size);
+      const [data, total] = await query.getManyAndCount();
       return { data, total, page, size };
     } catch (error) {
       throw new BadRequestException(error);

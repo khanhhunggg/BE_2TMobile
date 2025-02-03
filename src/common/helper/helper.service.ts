@@ -25,7 +25,7 @@ export class HelperService {
     }
 
     if (user.Role !== 'Admin') {
-      throw new ForbiddenException('USER_NOT_ADMIN');
+      throw new BadRequestException('USER_NOT_ADMIN');
     }
 
     return true;
