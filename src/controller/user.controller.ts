@@ -83,9 +83,10 @@ export class UserController {
   @ApiOperation({ summary: 'Get user by keyword' })
   public async GetUserByKeyword(
     @Query() dto: SearchDto,
+    @Query() paginationDto: PaginationResponseDto,
     @UserReq() user: UserJwtDto,
   ) {
-    return await this.userService.getUserByKeyword(dto, user);
+    return await this.userService.getUserByKeyword(dto, paginationDto, user);
   }
 
   @Put('update-profile')

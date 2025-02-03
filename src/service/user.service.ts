@@ -194,29 +194,63 @@ export class UserService {
         throw new BadRequestException('ID_REQUIRED');
       }
       await this.helperService.validateAdmin(userReq);
-      return await this.userRepository.findOne({ where: { UserID: id.Id } });
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .select([
+          'user.UserID',
+          'user.Username',
+          'user.FullName',
+          'user.Email',
+          'user.PhoneNumber',
+          'user.Address',
+          'user.Gender',
+          'user.BirthDate',
+          'user.Role',
+        ])
+        .where('user.UserID = :id', { id: id.Id })
+        .getOne();
+      return user;
     } catch (error) {
       throw new BadRequestException('ERROR_FETCHING_USER_BY_ID');
     }
   }
 
-  public async getUserByKeyword(dto: SearchDto, userReq: UserJwtDto) {
+  public async getUserByKeyword(
+    dto: SearchDto,
+    paginationDto: PaginationResponseDto,
+    userReq: UserJwtDto,
+  ) {
     try {
       if (!dto.search) {
         throw new BadRequestException('NO_KEYWORD_FOUND');
       }
       const { search } = dto;
+      const { page, size } = paginationDto;
       await this.helperService.validateAdmin(userReq);
-      const users = await this.userRepository.find({
-        where: [
-          { FullName: Like(`%${search}%`) },
-          { Email: Like(`%${search}%`) },
-          { PhoneNumber: Like(`%${search}%`) },
-        ],
-      });
-      return users;
+
+      const query = this.userRepository
+        .createQueryBuilder('user')
+        .select([
+          'user.UserID',
+          'user.Username',
+          'user.FullName',
+          'user.Email',
+          'user.PhoneNumber',
+          'user.Address',
+          'user.Gender',
+          'user.BirthDate',
+          'user.Role',
+        ])
+        .skip((page - 1) * size)
+        .take(size)
+        .where('user.FullName LIKE :search', { search: `%${search}%` })
+        .orWhere('user.Email LIKE :search', { search: `%${search}%` })
+        .orWhere('user.PhoneNumber LIKE :search', { search: `%${search}%` });
+
+      const [data, total] = await query.getManyAndCount();
+      return { data, total, page, size };
     } catch (error) {
-      throw new BadRequestException('ERROR_FETCHING_USERS_BY_KEYWORD');
+      throw new BadRequestException(error);
     }
   }
 
