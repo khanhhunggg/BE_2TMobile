@@ -129,7 +129,8 @@ export class FoodService {
           'images.ImageURL',
           'images.IsPrimary',
         ])
-        .where('food.name LIKE :keyword', { keyword: `%${keyword}%` });
+        .where('food.name LIKE :keyword', { keyword: `%${keyword}%` })
+        .orWhere('category.CategoryName = :keyword', { keyword });
 
       if (!isNaN(parsedPrice)) {
         query.orWhere('price.Price = :parsedPrice', { parsedPrice });
