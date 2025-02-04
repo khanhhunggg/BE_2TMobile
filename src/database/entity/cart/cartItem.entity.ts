@@ -16,8 +16,8 @@ export class CartFood {
   @Column()
   CartID: number;
 
-  // @Column()
-  // FoodID: number;
+  @Column()
+  FoodID: number;
 
   @Column({ default: 1 })
   Quantity: number;

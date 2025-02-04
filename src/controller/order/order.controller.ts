@@ -1,10 +1,11 @@
-import { Body, Controller, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { PaginationResponseDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
 import { CreateIdDto, CreateOrderDto } from 'src/database/dto/order/order.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
-import { OrderService } from 'src/service/order.service';
+import { OrderService } from 'src/service/order/order.service';
 
 @Controller('order')
 export class OrderController {
@@ -20,5 +21,19 @@ export class OrderController {
     @UserReq() userReq: UserJwtDto,
   ) {
     return await this.orderService.createOrder(cartFoodId, dto, userReq);
+  }
+
+  @Get('admin-get-all-order')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Admin get all order' })
+  public async adminGetAllOrderByUserId(
+    @UserReq() userReq: UserJwtDto,
+    @Query() paginationDto: PaginationResponseDto,
+  ) {
+    return await this.orderService.getAllOrderInfomation(
+      userReq,
+      paginationDto,
+    );
   }
 }

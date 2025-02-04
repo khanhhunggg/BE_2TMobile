@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { OrderController } from 'src/controller/order/order.controller';
-import { OrderService } from 'src/service/order.service';
+import { OrderService } from 'src/service/order/order.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Order } from 'src/database/entity/order/order.entity';
 import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
@@ -12,6 +12,9 @@ import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Food } from 'src/database/entity/food/food.entity';
 import { Price } from 'src/database/entity/food/price.entity';
 import { CartFoodModule } from './cart/cartFood.module';
+import { HelperModule } from 'src/common/helper/helper.module';
+import { OrderDetail } from 'src/database/entity/order/orderDetail.entity';
+import { OrderDetailService } from 'src/service/order/orderDetail.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -23,11 +26,13 @@ import { CartFoodModule } from './cart/cartFood.module';
       CartFood,
       Food,
       Price,
+      OrderDetail,
     ]),
     CartFoodModule,
+    HelperModule,
   ],
   controllers: [OrderController],
-  providers: [OrderService, CartFoodService],
+  providers: [OrderService, CartFoodService, OrderDetailService],
   exports: [OrderService],
 })
 export class OrderModule {}
