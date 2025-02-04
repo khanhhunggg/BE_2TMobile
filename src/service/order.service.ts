@@ -6,7 +6,7 @@ import {
   UpdateOrderDto,
 } from 'src/database/dto/order/order.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
-import { Cart } from 'src/database/entity/cart/cart.entity';
+import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Order } from 'src/database/entity/order/order.entity';
 import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
 import { PaymentMethod } from 'src/database/entity/paymentMethod.entity';
@@ -22,7 +22,8 @@ export class OrderService {
     private readonly orderStatusRepository: Repository<OrderStatus>,
     @InjectRepository(PaymentMethod)
     private readonly paymentMethodRepository: Repository<PaymentMethod>,
-    @InjectRepository(Cart)
+    @InjectRepository(CartFood)
+    private readonly cartFoodRepository: Repository<CartFood>,
     private readonly cartFoodService: CartFoodService,
   ) {}
 
@@ -43,17 +44,17 @@ export class OrderService {
       }
       let cart;
       let cartPrice = 0;
-      for (let i = 0; i < cartFoodId.CartFoodID.length; i++) {
-        cart = await this.cartFoodService.getCartFood({
-          CartFoodID: cartFoodId.CartFoodID[i],
-        });
-        if (!cart) {
-          throw new BadRequestException('CART_NOT_FOUND');
-        } else {
+      if (cartFoodId.CartFoodID.length > 0) {
+        for (const id of cartFoodId.CartFoodID) {
+          const cart = await this.cartFoodRepository.findOne({
+            where: { CartFoodID: Number(id) },
+          });
+          if (!cart) throw new BadRequestException('CART_NOT_FOUND');
           const totalPrice =
             await this.cartFoodService.calculatePriceForEachFoodInCart(
-              cart.CartID,
+              cart.CartFoodID,
             );
+          console.log(totalPrice);
           cartPrice += totalPrice.reduce((a, b) => a + b, 0);
         }
       }

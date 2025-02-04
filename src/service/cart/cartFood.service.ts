@@ -113,13 +113,22 @@ export class CartFoodService {
 
   public async calculatePriceForEachFoodInCart(cartId: number) {
     try {
-      const cartFoods = await this.cartFoodRepository.find({
-        where: { CartID: cartId },
+      let cartFoods = await this.cartFoodRepository.find({
+        where: { CartFoodID: cartId },
         relations: ['food'],
       });
+
+      if (!cartFoods.length) {
+        cartFoods = await this.cartFoodRepository.find({
+          where: { CartID: cartId },
+          relations: ['food'],
+        });
+      }
+
       if (!cartFoods.length) {
         throw new BadRequestException('NO_FOOD_IN_CART');
       }
+
       const prices = await Promise.all(
         cartFoods.map(async (cartFood) => {
           const price = await this.priceRepository.findOne({
