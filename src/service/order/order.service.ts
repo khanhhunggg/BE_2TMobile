@@ -88,54 +88,6 @@ export class OrderService {
     }
   }
 
-  public async getAllOrderInformation(
-    userReq: UserJwtDto,
-    paginationDto: PaginationResponseDto,
-  ) {
-    try {
-      const { page, size } = paginationDto;
-      const skip = (page - 1) * size;
-
-      const orderIds = (
-        await this.orderRepository.find({
-          select: ['OrderID'],
-          where: { UserID: Number(userReq.id) },
-        })
-      ).map((o) => o.OrderID);
-
-      if (orderIds.length === 0) {
-        return { orderDetails: [] };
-      }
-
-      const orderDetails = await this.orderDetailRepository
-        .createQueryBuilder('orderDetail')
-        .leftJoinAndSelect('orderDetail.food', 'food')
-        .leftJoinAndSelect('food.category', 'category')
-        .leftJoinAndSelect('food.price', 'price')
-        .where('orderDetail.OrderID IN (:...orderIds)', { orderIds })
-        .select([
-          'orderDetail.OrderID',
-          'orderDetail.OrderDetailID',
-          'orderDetail.Quantity',
-          'orderDetail.UnitPrice',
-          'orderDetail.Total',
-          'food.name',
-          'food.description',
-          'food.stock',
-          'food.isAvailable',
-          'category.CategoryName',
-          'price.Price',
-        ])
-        .skip(skip)
-        .take(size)
-        .getMany();
-
-      return { orderDetails };
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-
   public async getOrderInformation(
     userReq: UserJwtDto,
     paginationDto: PaginationResponseDto,

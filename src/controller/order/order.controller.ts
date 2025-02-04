@@ -23,11 +23,11 @@ export class OrderController {
     return await this.orderService.createOrder(cartFoodId, dto, userReq);
   }
 
-  @Get('admin-get-all-order')
+  @Get('get-all-order')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Admin get all order' })
-  public async adminGetAllOrderByUserId(
+  @ApiOperation({ summary: 'Get all order' })
+  public async getAllOrderByUserId(
     @UserReq() userReq: UserJwtDto,
     @Query() paginationDto: PaginationResponseDto,
   ) {
