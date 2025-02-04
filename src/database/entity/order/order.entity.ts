@@ -1,3 +1,4 @@
+import { IsOptional } from 'class-validator';
 import {
   Column,
   Entity,
@@ -9,13 +10,12 @@ import {
 import { Cart } from '../cart/cart.entity';
 import { PaymentMethod } from '../paymentMethod.entity';
 import { Purchase } from '../purchase.entity';
+import { ShippingMethod } from '../shippingMethod.entity';
 import { User } from '../user.entity';
 import { OrderDetail } from './orderDetail.entity';
 import { OrderStatus } from './orderStatus.entity';
-import { IsOptional } from 'class-validator';
-import { BaseEntity } from 'src/common/common.entity';
 @Entity('Order')
-export class Order extends BaseEntity {
+export class Order {
   @PrimaryGeneratedColumn()
   @IsOptional()
   OrderID: number;
@@ -62,4 +62,8 @@ export class Order extends BaseEntity {
 
   @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order)
   orderDetails: OrderDetail[];
+
+  @ManyToOne(() => ShippingMethod, (shippingMethod) => shippingMethod.orders)
+  @JoinColumn({ name: 'ShippingID' })
+  shippingMethod: ShippingMethod;
 }

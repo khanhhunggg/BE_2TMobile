@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationResponseDto } from 'src/common/common.dto';
+import { HelperService } from 'src/common/helper/helper.service';
 import {
   CreateIdDto,
   CreateOrderDto,
@@ -10,13 +11,12 @@ import {
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Order } from 'src/database/entity/order/order.entity';
+import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
 import { PaymentMethod } from 'src/database/entity/paymentMethod.entity';
+import { ShippingMethod } from 'src/database/entity/shippingMethod.entity';
 import { Repository } from 'typeorm';
 import { CartFoodService } from '../cart/cartFood.service';
 import { OrderDetailService } from './orderDetail.service';
-import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
-import { MESSAGES } from '@nestjs/core/constants';
-import { HelperService } from 'src/common/helper/helper.service';
 
 @Injectable()
 export class OrderService {
@@ -29,6 +29,8 @@ export class OrderService {
     private readonly cartFoodRepository: Repository<CartFood>,
     @InjectRepository(OrderStatus)
     private readonly orderStatusRepository: Repository<OrderStatus>,
+    @InjectRepository(ShippingMethod)
+    private readonly shippingMethodRepository: Repository<ShippingMethod>,
     private readonly cartFoodService: CartFoodService,
     private readonly orderDetailService: OrderDetailService,
     private readonly helperService: HelperService,
@@ -49,11 +51,18 @@ export class OrderService {
       if (!paymentMethod) {
         throw new BadRequestException('PAYMENT_METHOD_NOT_FOUND');
       }
+      const shippingMethod = await this.shippingMethodRepository.findOne({
+        where: { ShippingID: order.ShippingMethodID },
+      });
+      if (!shippingMethod) {
+        throw new BadRequestException('SHIPPING_METHOD_NOT_FOUND');
+      }
       let cart;
       let cartPrice = 0;
       const newOrder = new Order();
       newOrder.UserID = Number(userReq.id);
       newOrder.StatusID = 1;
+      newOrder.shippingMethod = shippingMethod;
       newOrder.PaymentMethodID = order.PaymentMethodID;
       newOrder.DeliveryAddress = order.DeliveryAddress;
       newOrder.Note = order.Note;

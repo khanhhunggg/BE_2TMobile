@@ -6,10 +6,9 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { CartFood } from './cartItem.entity';
-import { Food } from '../food/food.entity';
-import { User } from '../user.entity';
 import { Order } from '../order/order.entity';
+import { User } from '../user.entity';
+import { CartFood } from './cartItem.entity';
 
 @Entity('Cart')
 export class Cart {

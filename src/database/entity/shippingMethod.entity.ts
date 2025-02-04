@@ -1,10 +1,10 @@
-import { BaseEntity } from 'src/common/common.entity';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Order } from './order/order.entity';
 
 @Entity('ShippingMethods')
-export class ShippingMethodEntity extends BaseEntity {
+export class ShippingMethod {
   @PrimaryGeneratedColumn()
-  ShippingMethodID: number;
+  ShippingID: number;
 
   @Column({ type: 'varchar', length: 50, unique: true })
   Name: string;
@@ -20,4 +20,7 @@ export class ShippingMethodEntity extends BaseEntity {
 
   @Column({ type: 'boolean', default: true })
   IsActive: boolean;
+
+  @OneToMany(() => Order, (order) => order.shippingMethod)
+  orders: Order[];
 }

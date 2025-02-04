@@ -1,11 +1,10 @@
 import { Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
-import { BaseEntity } from 'src/common/common.entity';
 import { Column } from 'typeorm';
 import { Order } from './order.entity';
 
 @Entity('OrderStatus')
-export class OrderStatus extends BaseEntity {
+export class OrderStatus {
   @PrimaryGeneratedColumn()
   StatusID: number;
 

@@ -1,4 +1,3 @@
-import { BaseEntity } from 'src/common/common.entity';
 import {
   Column,
   Entity,
@@ -10,7 +9,7 @@ import { Order } from './order/order.entity';
 import { PaymentMethod } from './paymentMethod.entity';
 
 @Entity('Purchase')
-export class Purchase extends BaseEntity {
+export class Purchase {
   @PrimaryGeneratedColumn()
   PurchaseID: number;
 

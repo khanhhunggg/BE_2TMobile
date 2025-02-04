@@ -1,10 +1,9 @@
-import { BaseEntity } from 'src/common/common.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Cart } from './cart/cart.entity';
 import { Order } from './order/order.entity';
 
 @Entity('User')
-export class User extends BaseEntity {
+export class User {
   @PrimaryGeneratedColumn()
   UserID: number;
 

@@ -24,6 +24,14 @@ export class CreateOrderDto {
   PaymentMethodID: number;
 
   @ApiProperty({
+    type: Number,
+    description: 'Shipping Method ID',
+    required: true,
+  })
+  @IsNotEmpty()
+  ShippingMethodID: number;
+
+  @ApiProperty({
     type: String,
     description: 'Delivery Address',
     required: true,
