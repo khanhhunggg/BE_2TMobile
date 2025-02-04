@@ -115,7 +115,7 @@ export class OrderService {
       const skip = (page - 1) * size;
       const [orders, total] = await this.orderRepository.findAndCount({
         where: { UserID: Number(userReq.id) },
-        relations: ['orderDetails', 'orderDetails.food'],
+        relations: ['shippingMethod', 'orderDetails', 'orderDetails.food'],
         order: { OrderID: 'DESC' },
         skip: skip,
         take: size,
@@ -145,7 +145,7 @@ export class OrderService {
       const skip = (page - 1) * size;
       const [orders, total] = await this.orderRepository.findAndCount({
         where: { StatusID: dto.OrderStatusID, UserID: Number(userReq.id) },
-        relations: ['orderDetails', 'orderDetails.food'],
+        relations: ['shippingMethod', 'orderDetails', 'orderDetails.food'],
         order: { OrderID: 'DESC' },
         skip: skip,
         take: size,
