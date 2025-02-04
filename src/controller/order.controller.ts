@@ -18,7 +18,7 @@ import {
 } from 'src/database/dto/order/order.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
-import { OrderService } from 'src/service/order/order.service';
+import { OrderService } from 'src/service/order.service';
 
 @Controller('order')
 export class OrderController {

@@ -15,7 +15,7 @@ import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
 import { PaymentMethod } from 'src/database/entity/paymentMethod.entity';
 import { ShippingMethod } from 'src/database/entity/shippingMethod.entity';
 import { Repository } from 'typeorm';
-import { CartFoodService } from '../cart/cartFood.service';
+import { CartFoodService } from './cartFood.service';
 import { OrderDetailService } from './orderDetail.service';
 
 @Injectable()

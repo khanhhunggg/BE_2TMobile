@@ -16,7 +16,7 @@ import {
 } from 'src/database/dto/cart/cart.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
-import { CartService } from 'src/service/cart/cart.service';
+import { CartService } from 'src/service/cart.service';
 
 @Controller('cart')
 export class CartController {

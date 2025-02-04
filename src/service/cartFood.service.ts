@@ -1,17 +1,16 @@
+import { BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CartFood } from 'src/database/entity/cart/cartItem.entity';
+import * as moment from 'moment';
 import {
   AddToCartFoodDto,
-  CalculateTotalPriceDto,
   DeleteCartFoodDto,
   GetCartFoodDto,
   UpdateCartFoodDto,
 } from 'src/database/dto/cart/cartfood.dto';
-import { BadRequestException } from '@nestjs/common';
+import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Food } from 'src/database/entity/food/food.entity';
 import { Price } from 'src/database/entity/food/price.entity';
-import * as moment from 'moment';
+import { Repository } from 'typeorm';
 
 export class CartFoodService {
   constructor(

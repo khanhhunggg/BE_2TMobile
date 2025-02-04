@@ -7,8 +7,8 @@ import { DataSource } from 'typeorm';
 import { CommonModule } from './common/common.module';
 import { FoodModule } from './modules/food.module';
 import { UserModule } from './modules/user.module';
-import { CartModule } from './modules/cart/cart.module';
-import { CartFoodModule } from './modules/cart/cartFood.module';
+import { CartModule } from './modules/cart.module';
+import { CartFoodModule } from './modules/cartFood.module';
 import { OrderModule } from './modules/order.module';
 @Module({
   imports: [

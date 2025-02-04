@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { HelperModule } from 'src/common/helper/helper.module';
-import { OrderController } from 'src/controller/order/order.controller';
+import { OrderController } from 'src/controller/order.controller';
 import { Cart } from 'src/database/entity/cart/cart.entity';
 import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Food } from 'src/database/entity/food/food.entity';
@@ -12,10 +12,10 @@ import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
 import { PaymentMethod } from 'src/database/entity/paymentMethod.entity';
 import { Purchase } from 'src/database/entity/purchase.entity';
 import { ShippingMethod } from 'src/database/entity/shippingMethod.entity';
-import { CartFoodService } from 'src/service/cart/cartFood.service';
-import { OrderService } from 'src/service/order/order.service';
-import { OrderDetailService } from 'src/service/order/orderDetail.service';
-import { CartFoodModule } from './cart/cartFood.module';
+import { CartFoodService } from 'src/service/cartFood.service';
+import { OrderService } from 'src/service/order.service';
+import { OrderDetailService } from 'src/service/orderDetail.service';
+import { CartFoodModule } from './cartFood.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([

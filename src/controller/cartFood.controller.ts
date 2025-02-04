@@ -15,7 +15,7 @@ import {
   UpdateCartFoodDto,
 } from 'src/database/dto/cart/cartfood.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
-import { CartFoodService } from 'src/service/cart/cartFood.service';
+import { CartFoodService } from 'src/service/cartFood.service';
 
 @Controller('cart-food')
 export class CartFoodController {
