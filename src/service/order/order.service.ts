@@ -48,6 +48,13 @@ export class OrderService {
       }
       let cart;
       let cartPrice = 0;
+      const newOrder = new Order();
+      newOrder.UserID = Number(userReq.id);
+      newOrder.StatusID = 1;
+      newOrder.PaymentMethodID = order.PaymentMethodID;
+      newOrder.DeliveryAddress = order.DeliveryAddress;
+      newOrder.Note = order.Note;
+
       if (cartFoodId.CartFoodID.length > 0) {
         for (const id of cartFoodId.CartFoodID) {
           cart = await this.cartFoodRepository.findOne({
@@ -62,46 +69,52 @@ export class OrderService {
         }
       }
 
-      const newOrder = new Order();
-      newOrder.UserID = Number(userReq.id);
-      newOrder.StatusID = 1;
-      newOrder.PaymentMethodID = order.PaymentMethodID;
       newOrder.cart = cart;
-      newOrder.DeliveryAddress = order.DeliveryAddress;
-      newOrder.Note = order.Note;
       newOrder.TotalPrice = Number(cartPrice);
-
       await this.orderRepository.save(newOrder);
-      await this.orderDetailService.createOrderDetail({
-        OrderID: newOrder.OrderID,
-      });
+
+      if (cartFoodId.CartFoodID.length > 0) {
+        for (const id of cartFoodId.CartFoodID) {
+          await this.orderDetailService.createOrderDetail({
+            OrderID: newOrder.OrderID,
+            CartFoodID: Number(id),
+          });
+        }
+      }
+
       return { newOrder };
     } catch (error) {
       throw new BadRequestException(error);
     }
   }
 
-  public async getAllOrderInfomation(
+  public async getAllOrderInformation(
     userReq: UserJwtDto,
     paginationDto: PaginationResponseDto,
   ) {
     try {
       const { page, size } = paginationDto;
       const skip = (page - 1) * size;
+
+      const orderIds = (
+        await this.orderRepository.find({
+          select: ['OrderID'],
+          where: { UserID: Number(userReq.id) },
+        })
+      ).map((o) => o.OrderID);
+
+      if (orderIds.length === 0) {
+        return { orderDetails: [] };
+      }
+
       const orderDetails = await this.orderDetailRepository
         .createQueryBuilder('orderDetail')
         .leftJoinAndSelect('orderDetail.food', 'food')
         .leftJoinAndSelect('food.category', 'category')
         .leftJoinAndSelect('food.price', 'price')
-        .where('orderDetail.OrderID IN (:...orderIds)', {
-          orderIds: (
-            await this.orderRepository.find({
-              select: ['OrderID'],
-              where: { UserID: Number(userReq.id) },
-            })
-          ).map((o) => o.OrderID),
-        })
+        .where('orderDetail.OrderID IN (:...orderIds)', { orderIds })
         .select([
+          'orderDetail.OrderID',
           'orderDetail.OrderDetailID',
           'orderDetail.Quantity',
           'orderDetail.UnitPrice',
@@ -117,8 +130,34 @@ export class OrderService {
         .take(size)
         .getMany();
 
+      return { orderDetails };
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  public async getOrderInformation(
+    userReq: UserJwtDto,
+    paginationDto: PaginationResponseDto,
+  ) {
+    try {
+      let { page, size } = paginationDto;
+      page = Math.max(1, page);
+      size = size > 0 ? size : 10;
+
+      const skip = (page - 1) * size;
+      const [orders, total] = await this.orderRepository.findAndCount({
+        where: { UserID: Number(userReq.id) },
+        relations: ['orderDetails', 'orderDetails.food'],
+        order: { OrderID: 'DESC' },
+        skip: skip,
+        take: size,
+      });
       return {
-        orderDetails,
+        orders,
+        totalItems: total,
+        currentPage: page,
+        pageSize: size,
       };
     } catch (error) {
       throw new BadRequestException(error);

@@ -33,7 +33,8 @@ export class OrderDetailService {
         throw new BadRequestException('ORDER_CART_NOT_LOADED');
       }
       const cartFood = await this.cartFoodRepository.findOne({
-        where: { CartID: order.cart.CartID },
+        where: { CartFoodID: dto.CartFoodID },
+        relations: ['food'],
       });
       if (!cartFood) {
         throw new BadRequestException('CART_FOOD_NOT_FOUND');
@@ -46,7 +47,7 @@ export class OrderDetailService {
         throw new BadRequestException('FOOD_NOT_FOUND');
       }
       const orderDetail = new OrderDetail();
-      orderDetail.OrderID = dto.OrderID;
+      orderDetail.OrderID = order.OrderID;
       orderDetail.FoodID = food.foodID;
       orderDetail.Quantity = cartFood.Quantity;
       orderDetail.UnitPrice = food.price.Price;

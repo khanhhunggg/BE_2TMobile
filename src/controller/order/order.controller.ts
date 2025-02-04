@@ -31,9 +31,6 @@ export class OrderController {
     @UserReq() userReq: UserJwtDto,
     @Query() paginationDto: PaginationResponseDto,
   ) {
-    return await this.orderService.getAllOrderInfomation(
-      userReq,
-      paginationDto,
-    );
+    return await this.orderService.getOrderInformation(userReq, paginationDto);
   }
 }

@@ -41,17 +41,9 @@ export class CreateOrderDetailDto {
   @IsNotEmpty()
   OrderID: number;
 
-  // @ApiProperty({ type: Number, description: 'Food ID', required: true })
-  // @IsNotEmpty()
-  // FoodID: number;
-
-  // @ApiProperty({ type: Number, description: 'Quantity', required: true })
-  // @IsNotEmpty()
-  // Quantity: number;
-
-  // @ApiProperty({ type: Number, description: 'Unit Price', required: true })
-  // @IsNotEmpty()
-  // UnitPrice: number;
+  @ApiProperty({ type: Number, description: 'Cart Food ID', required: true })
+  @IsNotEmpty()
+  CartFoodID: number;
 }
 
 export class UpdateOrderDto extends CreateOrderDto {}
