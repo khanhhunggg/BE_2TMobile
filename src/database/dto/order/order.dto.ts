@@ -36,6 +36,30 @@ export class CreateOrderDto {
   Note: string;
 }
 
+export class UpdateOrderDto extends CreateOrderDto {}
+
+export class UpdateOrderStatusDto {
+  @ApiProperty({ type: Number, description: 'Order ID', required: true })
+  @IsNotEmpty()
+  OrderID: number;
+
+  @ApiProperty({ type: Number, description: 'Order Status ID', required: true })
+  @IsNotEmpty()
+  OrderStatusID: number;
+}
+
+export class GetAllOrderByStatusIdDto {
+  @ApiProperty({ type: Number, description: 'Order Status ID', required: true })
+  @IsNotEmpty()
+  OrderStatusID: number;
+}
+
+export class AdminGetAllOrderByUserIdDto {
+  @ApiProperty({ type: Number, description: 'User ID', required: true })
+  @IsNotEmpty()
+  UserID: number;
+}
+
 export class CreateOrderDetailDto {
   @ApiProperty({ type: Number, description: 'Order ID', required: true })
   @IsNotEmpty()
@@ -45,11 +69,4 @@ export class CreateOrderDetailDto {
   @IsNotEmpty()
   CartFoodID: number;
 }
-
-export class UpdateOrderDto extends CreateOrderDto {}
-
-export class AdminGetAllOrderByUserIdDto {
-  @ApiProperty({ type: Number, description: 'User ID', required: true })
-  @IsNotEmpty()
-  UserID: number;
-}
+export class UpdateOrderDetailDto extends CreateOrderDetailDto {}

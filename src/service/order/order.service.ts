@@ -1,34 +1,37 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationResponseDto } from 'src/common/common.dto';
-import { HelperService } from 'src/common/helper/helper.service';
-import { CreateIdDto, CreateOrderDto } from 'src/database/dto/order/order.dto';
+import {
+  CreateIdDto,
+  CreateOrderDto,
+  GetAllOrderByStatusIdDto,
+  UpdateOrderStatusDto,
+} from 'src/database/dto/order/order.dto';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Order } from 'src/database/entity/order/order.entity';
-import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
 import { PaymentMethod } from 'src/database/entity/paymentMethod.entity';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CartFoodService } from '../cart/cartFood.service';
-import { OrderDetail } from 'src/database/entity/order/orderDetail.entity';
 import { OrderDetailService } from './orderDetail.service';
+import { OrderStatus } from 'src/database/entity/order/orderStatus.entity';
+import { MESSAGES } from '@nestjs/core/constants';
+import { HelperService } from 'src/common/helper/helper.service';
 
 @Injectable()
 export class OrderService {
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
-    @InjectRepository(OrderStatus)
-    private readonly orderStatusRepository: Repository<OrderStatus>,
     @InjectRepository(PaymentMethod)
     private readonly paymentMethodRepository: Repository<PaymentMethod>,
     @InjectRepository(CartFood)
     private readonly cartFoodRepository: Repository<CartFood>,
-    @InjectRepository(OrderDetail)
-    private readonly orderDetailRepository: Repository<OrderDetail>,
+    @InjectRepository(OrderStatus)
+    private readonly orderStatusRepository: Repository<OrderStatus>,
     private readonly cartFoodService: CartFoodService,
-    private readonly helperService: HelperService,
     private readonly orderDetailService: OrderDetailService,
+    private readonly helperService: HelperService,
   ) {}
 
   public async createOrder(
@@ -82,7 +85,10 @@ export class OrderService {
         }
       }
 
-      return { newOrder };
+      return {
+        newOrder,
+        MESSAGES: 'CREATE_ORDER_SUCCESS',
+      };
     } catch (error) {
       throw new BadRequestException(error);
     }
@@ -110,6 +116,110 @@ export class OrderService {
         totalItems: total,
         currentPage: page,
         pageSize: size,
+        MESSAGES: 'GET_ORDER_INFORMATION_SUCCESS',
+      };
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  public async getAllOrderByStatusId(
+    dto: GetAllOrderByStatusIdDto,
+    userReq: UserJwtDto,
+    paginationDto: PaginationResponseDto,
+  ) {
+    try {
+      let { page, size } = paginationDto;
+      page = Math.max(1, page);
+      size = size > 0 ? size : 10;
+
+      const skip = (page - 1) * size;
+      const [orders, total] = await this.orderRepository.findAndCount({
+        where: { StatusID: dto.OrderStatusID, UserID: Number(userReq.id) },
+        relations: ['orderDetails', 'orderDetails.food'],
+        order: { OrderID: 'DESC' },
+        skip: skip,
+        take: size,
+      });
+      return {
+        orders,
+        totalItems: total,
+        currentPage: page,
+        pageSize: size,
+        MESSAGES: 'GET_ALL_ORDER_BY_STATUS_ID_SUCCESS',
+      };
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  public async updateOrderStatusUser(
+    dto: UpdateOrderStatusDto,
+    userReq: UserJwtDto,
+  ) {
+    try {
+      const orderStatus = await this.orderStatusRepository.findOne({
+        where: { StatusID: dto.OrderStatusID },
+      });
+      if (!orderStatus) {
+        throw new BadRequestException('ORDER_STATUS_NOT_FOUND');
+      }
+      const order = await this.orderRepository.findOne({
+        where: { OrderID: dto.OrderID, UserID: Number(userReq.id) },
+      });
+      if (!order) {
+        throw new BadRequestException('ORDER_NOT_FOUND');
+      }
+      if (!userReq.isAdmin) {
+        if (order.StatusID === 1 || order.StatusID === 2) {
+          if (dto.OrderStatusID === 5) {
+            order.StatusID = dto.OrderStatusID;
+            await this.orderRepository.save(order);
+          } else {
+            throw new BadRequestException('CANNOT_UPDATE_ORDER_STATUS');
+          }
+        } else if (order.StatusID === 3 && dto.OrderStatusID === 7) {
+          order.StatusID = dto.OrderStatusID;
+          await this.orderRepository.save(order);
+        } else {
+          throw new BadRequestException('CANNOT_UPDATE_ORDER_STATUS');
+        }
+      } else {
+        order.StatusID = dto.OrderStatusID;
+        await this.orderRepository.save(order);
+      }
+      return {
+        order,
+        MESSAGES: 'UPDATE_ORDER_STATUS_SUCCESS',
+      };
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  public async updateOrderStatusAdmin(
+    dto: UpdateOrderStatusDto,
+    userReq: UserJwtDto,
+  ) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      const order = await this.orderRepository.findOne({
+        where: { OrderID: dto.OrderID },
+      });
+      if (!order) {
+        throw new BadRequestException('ORDER_NOT_FOUND');
+      }
+      const orderStatus = await this.orderStatusRepository.findOne({
+        where: { StatusID: dto.OrderStatusID },
+      });
+      if (!orderStatus) {
+        throw new BadRequestException('INVALID_ORDER_STATUS_ID');
+      }
+      order.StatusID = dto.OrderStatusID;
+      await this.orderRepository.save(order);
+      return {
+        order,
+        MESSAGES: 'UPDATE_ORDER_STATUS_SUCCESS',
       };
     } catch (error) {
       throw new BadRequestException(error);

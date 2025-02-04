@@ -13,9 +13,9 @@ import { User } from '../user.entity';
 import { OrderDetail } from './orderDetail.entity';
 import { OrderStatus } from './orderStatus.entity';
 import { IsOptional } from 'class-validator';
-
+import { BaseEntity } from 'src/common/common.entity';
 @Entity('Order')
-export class Order {
+export class Order extends BaseEntity {
   @PrimaryGeneratedColumn()
   @IsOptional()
   OrderID: number;
@@ -40,12 +40,6 @@ export class Order {
 
   @Column('text', { nullable: true })
   Note: string;
-
-  @Column('timestamp', {
-    onUpdate: 'CURRENT_TIMESTAMP',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  UpdatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn({ name: 'UserID' })

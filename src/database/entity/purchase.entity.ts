@@ -1,15 +1,16 @@
+import { BaseEntity } from 'src/common/common.entity';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { PaymentMethod } from './paymentMethod.entity';
 import { Order } from './order/order.entity';
+import { PaymentMethod } from './paymentMethod.entity';
 
 @Entity('Purchase')
-export class Purchase {
+export class Purchase extends BaseEntity {
   @PrimaryGeneratedColumn()
   PurchaseID: number;
 
@@ -27,16 +28,6 @@ export class Purchase {
 
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   Amount: number;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  CreatedAt: Date;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  UpdatedAt: Date;
 
   @ManyToOne(() => Order, (order) => order.purchases, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'OrderID' })

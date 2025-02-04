@@ -2,7 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OrderDetail } from 'src/database/entity/order/orderDetail.entity';
-import { CreateOrderDetailDto } from 'src/database/dto/order/order.dto';
+import {
+  CreateOrderDetailDto,
+  UpdateOrderDetailDto,
+} from 'src/database/dto/order/order.dto';
 import { Order } from 'src/database/entity/order/order.entity';
 import { CartFood } from 'src/database/entity/cart/cartItem.entity';
 import { Food } from 'src/database/entity/food/food.entity';
@@ -58,4 +61,17 @@ export class OrderDetailService {
       throw new BadRequestException(error);
     }
   }
+
+  // public async updateOrderDetail(dto: UpdateOrderDetailDto) {
+  //   try {
+  //     const orderDetail = await this.orderDetailRepository.findOne({
+  //       where: { OrderDetailID: dto.OrderDetailID },
+  //     });
+  //     if (!orderDetail) {
+  //       throw new BadRequestException('ORDER_DETAIL_NOT_FOUND');
+  //     }
+  //   } catch (error) {
+  //     throw new BadRequestException(error);
+  //   }
+  // }
 }

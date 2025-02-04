@@ -1,10 +1,10 @@
-import { Entity } from "typeorm";
+import { Entity } from 'typeorm';
 
-import { Column, PrimaryGeneratedColumn } from "typeorm";
+import { Column, PrimaryGeneratedColumn } from 'typeorm';
 
-import { JoinColumn, ManyToOne } from "typeorm";
-import { Cart } from "../cart/cart.entity";
-import { Order } from "./order.entity";
+import { JoinColumn, ManyToOne } from 'typeorm';
+import { Cart } from '../cart/cart.entity';
+import { Order } from './order.entity';
 
 @Entity('OrderCart')
 export class OrderCart {

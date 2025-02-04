@@ -1,15 +1,15 @@
+import { BaseEntity } from 'src/common/common.entity';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
-  CreateDateColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Food } from './food.entity';
 
 @Entity('FoodImage')
-export class FoodImage {
+export class FoodImage extends BaseEntity {
   @PrimaryGeneratedColumn()
   ImageID: number;
 
@@ -21,9 +21,6 @@ export class FoodImage {
 
   @Column({ default: false })
   IsPrimary: boolean;
-
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  CreatedAt: Date;
 
   @ManyToOne(() => Food, (food) => food.foodID)
   @JoinColumn({ name: 'FoodID' })

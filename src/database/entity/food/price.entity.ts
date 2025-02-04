@@ -1,13 +1,6 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-
-@Entity('Price')
-export class Price {
+import { BaseEntity } from 'src/common/common.entity';
+import { Column, PrimaryGeneratedColumn } from 'typeorm';
+export class Price extends BaseEntity {
   @PrimaryGeneratedColumn()
   PriceID: number;
 
@@ -30,17 +23,4 @@ export class Price {
     nullable: true,
   })
   ValidTo: Date;
-
-  @CreateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  CreatedAt: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  UpdatedAt: Date;
 }

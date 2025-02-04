@@ -1,9 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { BaseEntity } from 'src/common/common.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Order } from './order/order.entity';
 import { Purchase } from './purchase.entity';
 
 @Entity('PaymentMethods')
-export class PaymentMethod {
+export class PaymentMethod extends BaseEntity {
   @PrimaryGeneratedColumn()
   PaymentMethodID: number;
 
@@ -12,16 +13,6 @@ export class PaymentMethod {
 
   @Column({ type: 'text', nullable: true })
   Description: string | null;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  CreatedAt: Date;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  UpdatedAt: Date;
 
   @OneToMany(() => Order, (order) => order.paymentMethod)
   orders: Order[];

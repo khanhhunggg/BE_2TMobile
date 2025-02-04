@@ -1,8 +1,21 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { PaginationResponseDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
-import { CreateIdDto, CreateOrderDto } from 'src/database/dto/order/order.dto';
+import {
+  CreateIdDto,
+  CreateOrderDto,
+  GetAllOrderByStatusIdDto,
+  UpdateOrderStatusDto,
+} from 'src/database/dto/order/order.dto';
 import { JwtAuthGuard } from 'src/database/dto/user/jwt-auth.guard';
 import { UserJwtDto } from 'src/database/dto/user/user.dto';
 import { OrderService } from 'src/service/order/order.service';
@@ -32,5 +45,43 @@ export class OrderController {
     @Query() paginationDto: PaginationResponseDto,
   ) {
     return await this.orderService.getOrderInformation(userReq, paginationDto);
+  }
+
+  @Get('get-by-status-id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get all order by status id' })
+  public async getAllOrderByStatusId(
+    @Query() dto: GetAllOrderByStatusIdDto,
+    @UserReq() userReq: UserJwtDto,
+    @Query() paginationDto: PaginationResponseDto,
+  ) {
+    return await this.orderService.getAllOrderByStatusId(
+      dto,
+      userReq,
+      paginationDto,
+    );
+  }
+
+  @Put('update-order-status')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update order status' })
+  public async updateOrderStatus(
+    @Body() dto: UpdateOrderStatusDto,
+    @UserReq() userReq: UserJwtDto,
+  ) {
+    return await this.orderService.updateOrderStatusUser(dto, userReq);
+  }
+
+  @Put('update-order-status-admin')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update order status admin' })
+  public async updateOrderStatusAdmin(
+    @Body() dto: UpdateOrderStatusDto,
+    @UserReq() userReq: UserJwtDto,
+  ) {
+    return await this.orderService.updateOrderStatusAdmin(dto, userReq);
   }
 }

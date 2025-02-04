@@ -1,16 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-} from 'typeorm';
+import { BaseEntity } from 'src/common/common.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Cart } from './cart/cart.entity';
 import { Order } from './order/order.entity';
 
 @Entity('User')
-export class User {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   UserID: number;
 
@@ -48,16 +42,6 @@ export class User {
 
   @Column({ type: 'date', nullable: true })
   BirthDate: string;
-
-  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  CreatedAt: Date;
-
-  @UpdateDateColumn({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  UpdatedAt: Date;
 
   @OneToMany(() => Cart, (cart) => cart.user)
   carts: Cart[];

@@ -1,10 +1,11 @@
 import { Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
+import { BaseEntity } from 'src/common/common.entity';
 import { Column } from 'typeorm';
 import { Order } from './order.entity';
 
 @Entity('OrderStatus')
-export class OrderStatus {
+export class OrderStatus extends BaseEntity {
   @PrimaryGeneratedColumn()
   StatusID: number;
 
@@ -13,16 +14,6 @@ export class OrderStatus {
 
   @Column('text')
   Description: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  CreatedAt: Date;
-
-  @Column({
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  UpdatedAt: Date;
 
   @OneToMany(() => Order, (order) => order.orderStatus)
   orders: Order[];
