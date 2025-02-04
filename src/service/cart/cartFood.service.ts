@@ -130,7 +130,7 @@ export class CartFoodService {
             new Date(price.ValidFrom) < new Date(today) &&
             new Date(price.ValidTo) > new Date(today)
           ) {
-            return price.Price;
+            return price.Price * cartFood.Quantity;
           } else {
             throw new BadRequestException(
               'PRICE_NOT_VALID_FOR_FOOD_ID_' + cartFood.food.foodID,
@@ -168,7 +168,7 @@ export class CartFoodService {
         priceID: cartFood.food.priceID,
         stock: cartFood.food.stock,
         isAvailable: cartFood.food.isAvailable,
-        price: prices[index],
+        price: prices[index].toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, '.'),
       }));
       return result;
     } catch (error) {

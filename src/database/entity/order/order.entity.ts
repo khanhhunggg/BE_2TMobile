@@ -12,10 +12,12 @@ import { Purchase } from '../purchase.entity';
 import { User } from '../user.entity';
 import { OrderDetail } from './orderDetail.entity';
 import { OrderStatus } from './orderStatus.entity';
+import { IsOptional } from 'class-validator';
 
 @Entity('Order')
 export class Order {
   @PrimaryGeneratedColumn()
+  @IsOptional()
   OrderID: number;
 
   @Column()
@@ -38,9 +40,6 @@ export class Order {
 
   @Column('text', { nullable: true })
   Note: string;
-
-  @Column('timestamp', { default: () => 'CURRENT_TIMESTAMP' })
-  CreatedAt: Date;
 
   @Column('timestamp', {
     onUpdate: 'CURRENT_TIMESTAMP',
