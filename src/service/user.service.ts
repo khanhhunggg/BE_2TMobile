@@ -17,6 +17,7 @@ import {
   UpdateUserDto,
   UserJwtDto,
 } from 'src/database/dto/user/user.dto';
+import { Food } from 'src/database/entity/food/food.entity';
 import { User } from 'src/database/entity/user.entity';
 import {
   checkBirthDate,
@@ -27,6 +28,7 @@ import { Like, Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
+  //Khai báo.
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -40,27 +42,6 @@ export class UserService {
   //Main Function
   public async SignUp(user: SignUpDto) {
     try {
-      if (!isEmail(user.Email)) {
-        throw new BadRequestException('EMAIL_INVALID');
-      }
-      const existingUser = await this.userRepository.findOne({
-        where: { Email: user.Email },
-      });
-      if (existingUser) {
-        throw new BadRequestException('EMAIL_ALREADY_EXISTS');
-      }
-      if (!user.Password) {
-        throw new BadRequestException('PASSWORD_REQUIRED');
-      }
-      if (checkPassword(user.Password)) {
-        throw new BadRequestException('PASSWORD_INVALID');
-      }
-      if (!user.FullName) {
-        throw new BadRequestException('FULLNAME_REQUIRED');
-      }
-      if (!user.PhoneNumber) {
-        throw new BadRequestException('PHONE_NUMBER_REQUIRED');
-      }
       const newUser = new User();
       newUser.Username = await this.GetUserName(user.FullName);
       newUser.Email = user.Email;
@@ -76,29 +57,9 @@ export class UserService {
 
   public async LogIn(user: SignInDto) {
     try {
-      if (!isEmail(user.Email)) {
-        throw new BadRequestException('EMAIL_INVALID');
-      }
       const existingUser = await this.userRepository.findOne({
         where: { Email: user.Email },
       });
-      if (!existingUser) {
-        throw new BadRequestException('EMAIL_IS_INCORRECT');
-      }
-
-      if (!user.Password) {
-        throw new BadRequestException('PASSWORD_REQUIRED');
-      }
-      if (checkPassword(user.Password)) {
-        throw new BadRequestException('PASSWORD_INVALID');
-      }
-      const isMatch = await bcryptjs.compare(
-        user.Password,
-        existingUser.PasswordHash,
-      );
-      if (!isMatch) {
-        throw new BadRequestException('PASSWORD_IS_INCORRECT');
-      }
       return {
         ...(await this.encode(existingUser)),
         isAdmin: existingUser.Role === 'Admin',
@@ -123,34 +84,10 @@ export class UserService {
 
   public async ResetPassword(dto: ChangePassWordDto) {
     try {
-      if (!isEmail(dto.Email)) {
-        throw new BadRequestException('EMAIL_INVALID');
-      }
       const user = await this.userRepository.findOne({
         where: { Email: dto.Email },
       });
-      if (!user) {
-        throw new BadRequestException('EMAIL_NOT_FOUND');
-      }
-      if (!dto.OldPassWord) {
-        throw new BadRequestException('OLD_PASSWORD_REQUIRED');
-      }
-      if (checkPassword(dto.OldPassWord)) {
-        throw new BadRequestException('OLD_PASSWORD_INVALID');
-      }
-      const isMatch = await bcryptjs.compare(
-        dto.OldPassWord,
-        user.PasswordHash,
-      );
-      if (!isMatch) {
-        throw new BadRequestException('OLD_PASSWORD_INCORRECT');
-      }
-      if (!dto.NewPassWord) {
-        throw new BadRequestException('PASSWORD_REQUIRED');
-      }
-      if (checkPassword(dto.NewPassWord)) {
-        throw new BadRequestException('PASSWORD_INVALID');
-      }
+
       const salt = await bcryptjs.genSalt();
       user.PasswordHash = await bcryptjs.hash(dto.NewPassWord, salt);
       return await this.userRepository.update(user.UserID, {

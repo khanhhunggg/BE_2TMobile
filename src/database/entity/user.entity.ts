@@ -7,14 +7,14 @@ export class User {
   @PrimaryGeneratedColumn()
   UserID: number;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
-  Username: string;
+  @Column({ type: 'varchar', length: 50, unique: true }) //Tag
+  Username: string; //Tên đăng nhập của người dùng, phải là duy nhất trong hệ thống
 
   @Column({ type: 'varchar', length: 255 })
   PasswordHash: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
-  FullName: string;
+  @Column({ type: 'varchar', length: 100, nullable: true }) //Tag
+  FullName: string; //Tên đầy đủ của người dùng, có thể để trống
 
   @Column({ type: 'varchar', length: 100, unique: true, nullable: true })
   Email: string;
@@ -41,7 +41,11 @@ export class User {
 
   @Column({ type: 'date', nullable: true })
   BirthDate: string;
-
+  //Quan hệ khóa chính và khóa ngoai giữa bảng User và bảng Cart, Order
+  // Một User có thể có nhiều Cart và Order, nhưng một Cart và Order chỉ thuộc về một User
+  // Quan hệ một-nhiều giữa User và Cart
+  // Quan hệ một-nhiều giữa User và Order
+  // Một User có thể có nhiều Cart và Order, nhưng một Cart và Order chỉ thuộc về một User
   @OneToMany(() => Cart, (cart) => cart.user)
   carts: Cart[];
 
