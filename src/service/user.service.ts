@@ -42,14 +42,16 @@ export class UserService {
   //Main Function
   public async SignUp(user: SignUpDto) {
     try {
-      const newUser = new User();
+      const newUser = new User(); // Tạo đối tượng User();
+
       newUser.Username = await this.GetUserName(user.FullName);
       newUser.Email = user.Email;
       const salt = await bcryptjs.genSalt();
       newUser.PasswordHash = await bcryptjs.hash(user.Password, salt);
       newUser.FullName = user.FullName;
       newUser.PhoneNumber = user.PhoneNumber;
-      return await this.userRepository.save(newUser);
+      //Thêm dữ liệu cho người dùng mới.
+      return await this.userRepository.save(newUser); // Lưu vào.
     } catch (error) {
       throw new BadRequestException(error);
     }
