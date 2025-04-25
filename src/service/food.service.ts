@@ -143,7 +143,7 @@ export class FoodService {
       throw new BadRequestException(error);
     }
   }
-
+  //Read: findOne, FindAll, findById, findByIds, findByName, findByCategory
   public async getFoodById(id: number) {
     try {
       const food = await this.foodRepository.findOne({

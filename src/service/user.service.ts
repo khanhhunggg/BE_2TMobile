@@ -38,8 +38,10 @@ export class UserService {
   ) {
     sgMail.setApiKey(this.sendGridApiKey);
   }
+  //CRUD: Create Read Update Delete.
 
   //Main Function
+  //Create
   public async SignUp(user: SignUpDto) {
     try {
       const newUser = new User(); // Tạo đối tượng User();
@@ -104,7 +106,7 @@ export class UserService {
     try {
       await this.helperService.validateAdmin(userReq);
       const { page, size } = dto;
-      const query = this.userRepository
+      const query = this.userRepository //Custome Query
         .createQueryBuilder('user')
         .select([
           'user.UserID',
