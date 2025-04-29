@@ -23,6 +23,7 @@ import {
 import { Repository } from 'typeorm';
 import * as bcryptjs from 'bcryptjs';
 import * as moment from 'moment';
+import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 
 @Injectable()
 export class UserService {
@@ -339,6 +340,129 @@ export class UserService {
   }
 
   //Admin API
+
+  public async getAll(dto: PaginationResponseDto, userReq: UserJwtDto) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      const { page, size } = dto;
+      const query = this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.userInformation', 'userInformation')
+        .select([
+          'user.id',
+          'user.userName',
+          'user.phoneNumber',
+          'user.email',
+          'user.isAdmin',
+          'user.userRank',
+          'user.isActive',
+          'user.createdAt',
+          'user.updatedAt',
+          'userInformation.informationId',
+          'userInformation.fullName',
+          'userInformation.address',
+          'userInformation.gender',
+          'userInformation.dateOfBirth',
+          'userInformation.avatar',
+          'userInformation.createdAt',
+          'userInformation.updatedAt',
+        ])
+        .skip((page - 1) * size)
+        .take(size);
+
+      const [data, total] = await query.getManyAndCount();
+      return { data, total, page, size };
+    } catch (error) {
+      throw new BadRequestException('ERROR_FETCHING_USERS');
+    }
+  }
+
+  public async getUserByID(id: UpdateDtoQuery, userReq: UserJwtDto) {
+    try {
+      if (!id) {
+        throw new BadRequestException('ID_REQUIRED');
+      }
+      await this.helperService.validateAdmin(userReq);
+      const user = await this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.userInformation', 'userInformation')
+        .select([
+          'user.id',
+          'user.userName',
+          'user.phoneNumber',
+          'user.email',
+          'user.isAdmin',
+          'user.userRank',
+          'user.isActive',
+          'user.createdAt',
+          'user.updatedAt',
+          'userInformation.informationId',
+          'userInformation.fullName',
+          'userInformation.address',
+          'userInformation.gender',
+          'userInformation.dateOfBirth',
+          'userInformation.avatar',
+          'userInformation.createdAt',
+          'userInformation.updatedAt',
+        ])
+        .where('user.id = :id', { id: id.Id })
+        .getOne();
+      return user;
+    } catch (error) {
+      throw new BadRequestException('ERROR_FETCHING_USER_BY_ID');
+    }
+  }
+
+  public async getUserByKeyword(
+    dto: SearchDto,
+    paginationDto: PaginationResponseDto,
+    userReq: UserJwtDto,
+  ) {
+    try {
+      if (!dto.search) {
+        throw new BadRequestException('NO_KEYWORD_FOUND');
+      }
+      const { search } = dto;
+      const { page, size } = paginationDto;
+      await this.helperService.validateAdmin(userReq);
+
+      const query = this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.userInformation', 'userInformation')
+        .select([
+          'user.id',
+          'user.userName',
+          'user.phoneNumber',
+          'user.email',
+          'user.isAdmin',
+          'user.userRank',
+          'user.isActive',
+          'user.createdAt',
+          'user.updatedAt',
+          'userInformation.informationId',
+          'userInformation.fullName',
+          'userInformation.address',
+          'userInformation.gender',
+          'userInformation.dateOfBirth',
+          'userInformation.avatar',
+          'userInformation.createdAt',
+          'userInformation.updatedAt',
+        ])
+        .skip((page - 1) * size)
+        .take(size)
+        .where('user.userName LIKE :search', { search: `%${search}%` })
+        .orWhere('user.email LIKE :search', { search: `%${search}%` })
+        .orWhere('user.phoneNumber LIKE :search', { search: `%${search}%` })
+        .orWhere('userInformation.fullName LIKE :search', {
+          search: `%${search}%`,
+        });
+
+      const [data, total] = await query.getManyAndCount();
+      return { data, total, page, size };
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
 
   private async encode(user: User) {
     try {

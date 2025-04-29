@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Post,
   Put,
   Query,
@@ -21,6 +22,8 @@ import {
 } from 'src/dto/user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { UserReq } from 'src/common/user.decorator';
+import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
+import { User } from 'src/entity/user.entity';
 
 @Controller('user')
 export class UserController {
@@ -95,5 +98,39 @@ export class UserController {
     @UserReq() user: UserJwtDto,
   ) {
     return await this.userService.deleteUserByIds(ids, user);
+  }
+
+  @Get('get-all-user')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by email' })
+  public async GetUserByEmail(
+    @Query() dto: PaginationResponseDto,
+    @UserReq() user: UserJwtDto,
+  ): Promise<{ data: User[]; total: number }> {
+    return await this.userService.getAll(dto, user);
+  }
+
+  @Get('get-user-by-id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by id' })
+  public async GetUserByID(
+    @Query() id: UpdateDtoQuery,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.getUserByID(id, user);
+  }
+
+  @Get('search-user')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get user by keyword' })
+  public async GetUserByKeyword(
+    @Query() dto: SearchDto,
+    @Query() paginationDto: PaginationResponseDto,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.getUserByKeyword(dto, paginationDto, user);
   }
 }
