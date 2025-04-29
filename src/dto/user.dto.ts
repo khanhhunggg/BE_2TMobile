@@ -36,10 +36,10 @@ export class SignUpDto {
 }
 
 export class SignInDto {
-  @ApiProperty({ type: String, description: 'Email', required: true })
+  @ApiProperty({ type: String, description: 'PhoneNumber', required: true })
   @IsOptional()
-  @IsEmail()
-  Email: string;
+  @IsPhoneNumber()
+  PhoneNumber: string;
 
   @ApiProperty({ type: String, description: 'PassWord', required: true })
   @IsString()

@@ -8,10 +8,11 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { JwtStrategy } from './jwt.strategy';
 import { User } from 'src/entity/user.entity';
+import { UserInformation } from 'src/entity/user-information.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserInformation]),
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
