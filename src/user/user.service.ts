@@ -5,9 +5,12 @@ import { isEmail } from 'class-validator';
 import { HelperService } from 'src/common/helper/helper.service';
 import {
   ChangePassWordDto,
+  DeleteUserDto,
   SignInDto,
   SignUpDto,
+  UpdateDtoQuery,
   UpdateProfileDto,
+  UpdateUserDto,
   UserJwtDto,
 } from 'src/dto/user.dto';
 import { User } from 'src/entity/user.entity';
@@ -211,6 +214,127 @@ export class UserService {
       };
     } catch (error) {
       throw new BadRequestException('ERROR_UPDATING_PROFILE');
+    }
+  }
+
+  public async updateUserById(
+    dto: UpdateDtoQuery,
+    updateDto: UpdateUserDto,
+    userReq: UserJwtDto,
+  ) {
+    try {
+      if (!dto.Id) {
+        throw new BadRequestException('ID_REQUIRED');
+      }
+      await this.helperService.validateAdmin(userReq);
+
+      const user = await this.userRepository.findOne({
+        where: { id: dto.Id },
+        relations: ['userInformation'],
+      });
+
+      if (!user) {
+        throw new BadRequestException('USER_NOT_FOUND');
+      }
+
+      const userUpdateData: Partial<User> = {};
+
+      if (updateDto.Username !== undefined) {
+        userUpdateData.userName = updateDto.Username;
+      }
+
+      if (updateDto.PhoneNumber !== undefined) {
+        userUpdateData.phoneNumber = updateDto.PhoneNumber;
+      }
+
+      if (updateDto.Email !== undefined) {
+        userUpdateData.email = updateDto.Email;
+      }
+
+      let userInformation = user.userInformation;
+      let userInformationUpdateData: Partial<UserInformation> = {};
+
+      if (
+        updateDto.FullName !== undefined ||
+        updateDto.Address !== undefined ||
+        updateDto.Gender !== undefined ||
+        updateDto.BirthDate !== undefined
+      ) {
+        if (!userInformation) {
+          userInformation = new UserInformation();
+          userInformationUpdateData = {
+            fullName: updateDto.FullName || '',
+            address: updateDto.Address || '',
+            gender: updateDto.Gender,
+            dateOfBirth: updateDto.BirthDate
+              ? new Date(updateDto.BirthDate)
+              : null,
+          };
+        } else {
+          if (updateDto.FullName !== undefined) {
+            userInformationUpdateData.fullName = updateDto.FullName;
+          }
+
+          if (updateDto.Address !== undefined) {
+            userInformationUpdateData.address = updateDto.Address;
+          }
+
+          if (updateDto.Gender !== undefined) {
+            userInformationUpdateData.gender = updateDto.Gender;
+          }
+
+          if (updateDto.BirthDate !== undefined) {
+            userInformationUpdateData.dateOfBirth = new Date(
+              updateDto.BirthDate,
+            );
+          }
+        }
+
+        const savedUserInformation = await this.userInformationRepository.save({
+          ...userInformation,
+          ...userInformationUpdateData,
+        });
+
+        userUpdateData.informationId = savedUserInformation.informationId;
+      }
+
+      await this.userRepository.update(dto.Id, userUpdateData);
+
+      const updatedUser = await this.userRepository.findOne({
+        where: { id: dto.Id },
+        relations: ['userInformation'],
+      });
+
+      return updatedUser;
+    } catch (error) {
+      throw new BadRequestException('ERROR_UPDATING_USER_BY_ID');
+    }
+  }
+
+  public async deleteUserById(dto: DeleteUserDto, userReq: UserJwtDto) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      const user = await this.userRepository.findOne({
+        where: { id: dto.Id },
+      });
+      if (user.isAdmin) {
+        throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
+      }
+      return await this.userRepository.delete({ id: dto.Id });
+    } catch (error) {
+      throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
+    }
+  }
+
+  public async deleteUserByIds(ids: number[], userReq: UserJwtDto) {
+    try {
+      await this.helperService.validateAdmin(userReq);
+      for (let i = 0; i < ids.length; i++) {
+        await this.userRepository.delete({ id: ids[i] });
+      }
+      return { message: 'USERS_DELETED_SUCCESSFULLY' };
+    } catch (error) {
+      throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
     }
   }
 

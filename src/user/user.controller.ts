@@ -1,11 +1,22 @@
-import { Body, Controller, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import {
   ChangePassWordDto,
+  DeleteUserDto,
   SignInDto,
   SignUpDto,
+  UpdateDtoQuery,
   UpdateProfileDto,
+  UpdateUserDto,
   UserJwtDto,
 } from 'src/dto/user.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -30,13 +41,13 @@ export class UserController {
   @Post('log-out')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Log out' })
+  @ApiOperation({ summary: 'Đăng xuất' })
   public async LogOut(@UserReq() user: UserJwtDto) {
     return await this.userService.LogOut(user);
   }
 
   @Post('reset-password')
-  @ApiOperation({ summary: 'Reset password' })
+  @ApiOperation({ summary: 'Đổi mật khẩu' })
   public async ForgotPassword(@Body() dto: ChangePassWordDto) {
     return await this.userService.ResetPassword(dto);
   }
@@ -44,11 +55,45 @@ export class UserController {
   @Put('update-profile')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update profile' })
+  @ApiOperation({ summary: 'Cập nhật thông tin tài khoản' })
   public async UpdateProfile(
     @Query() dto: UpdateProfileDto,
     @UserReq() user: UserJwtDto,
   ) {
     return await this.userService.UpdateProfile(dto, user);
+  }
+
+  @Put('update-user-by-id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Cập nhật thông tin người dùng bằng id' })
+  public async UpdateUserByID(
+    @Query() dto: UpdateDtoQuery,
+    @Body() updateDto: UpdateUserDto,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.updateUserById(dto, updateDto, user);
+  }
+
+  @Delete('delete-user-by-id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Xóa người dùng bằng id' })
+  public async DeleteUserById(
+    @Query() dto: DeleteUserDto,
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.deleteUserById(dto, user);
+  }
+
+  @Delete('delete-user-by-ids')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Xóa nhiều người dùng bằng id' })
+  public async DeleteUserByIds(
+    @Body() ids: number[],
+    @UserReq() user: UserJwtDto,
+  ) {
+    return await this.userService.deleteUserByIds(ids, user);
   }
 }
