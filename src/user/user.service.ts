@@ -42,6 +42,7 @@ export class UserService {
       if (!isEmail(user.Email)) {
         throw new BadRequestException('EMAIL_INVALID');
       }
+      console.log(user);
       const existingUser = await this.userRepository.findOne({
         where: { email: user.Email },
       });
@@ -51,9 +52,9 @@ export class UserService {
       if (!user.Password) {
         throw new BadRequestException('PASSWORD_REQUIRED');
       }
-      if (checkPassword(user.Password)) {
-        throw new BadRequestException('PASSWORD_INVALID');
-      }
+      // if (checkPassword(user.Password)) {
+      //   throw new BadRequestException('PASSWORD_INVALID');
+      // }
       if (!user.PhoneNumber) {
         throw new BadRequestException('PHONE_NUMBER_REQUIRED');
       }
