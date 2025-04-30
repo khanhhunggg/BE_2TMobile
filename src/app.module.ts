@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { CartModule } from './cart/cart.module';
+import { ColorModule } from './color/color.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { CartModule } from './cart/cart.module';
     }),
     UserModule,
     ProductModule,
+    ColorModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },

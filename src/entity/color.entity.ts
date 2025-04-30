@@ -1,12 +1,10 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
+  PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
 } from 'typeorm';
-import { ProductDetail } from './product-detail.entity';
 
 @Entity('tbl_colors')
 export class Color {
@@ -24,7 +22,4 @@ export class Color {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @OneToMany(() => ProductDetail, (productDetail) => productDetail.color)
-  productDetails: ProductDetail[];
 }
