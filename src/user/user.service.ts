@@ -60,7 +60,6 @@ export class UserService {
       }
       const newUser = new User();
       newUser.email = user.Email;
-      newUser.userName = '';
       const salt = await bcryptjs.genSalt();
       newUser.password = await bcryptjs.hash(user.Password, salt);
       newUser.phoneNumber = user.PhoneNumber;
