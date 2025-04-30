@@ -6,6 +6,8 @@ import { join } from 'path';
 import { DataSource } from 'typeorm';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -18,8 +20,10 @@ import { ProductModule } from './product/product.module';
       entities: [join(__dirname, '**', '*.entity{.ts,.js}')],
       synchronize: false,
       logging: false,
+      namingStrategy: new SnakeNamingStrategy(),
     }),
     UserModule,
+    ProductModule,
     JwtModule.register({
       secret: process.env.JWT_SECRET_KEY,
       signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
@@ -27,8 +31,6 @@ import { ProductModule } from './product/product.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    UserModule,
-    ProductModule,
   ],
   controllers: [],
   providers: [],

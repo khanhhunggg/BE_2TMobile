@@ -66,6 +66,11 @@ export class CreateProductDto {
   @IsBoolean()
   @IsOptional()
   is_featured?: boolean;
+
+  @ApiProperty({ type: String, description: 'Model sản phẩm', required: false })
+  @IsString()
+  @IsOptional()
+  model?: string;
 }
 
 export class UpdateProductDto {
