@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { Capacity } from './capacity.entity';
@@ -37,11 +38,14 @@ export class ProductDetail {
   updated_at: Date;
 
   @ManyToOne(() => Product, (product) => product.productDetails)
+  @JoinColumn({ name: 'product_id' })
   product: Product;
 
   @ManyToOne(() => Color, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'color_id' })
   color: Color;
 
   @ManyToOne(() => Capacity, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'capacity_id' })
   capacity: Capacity;
 }

@@ -117,21 +117,22 @@ export class ProductService {
         }
       }
 
-      // Validate color_id and capacity_id
-      if (product.color_id) {
-        const color = await this.productRepository.manager.findOne('Color', {
-          where: { id: product.color_id },
-        });
-        if (!color) {
-          throw new BadRequestException({
-            message: 'Thông tin sản phẩm không hợp lệ',
-            errors: [
-              {
-                field: 'color_id',
-                message: `Không tìm thấy màu sắc với ID: ${product.color_id}`,
-              },
-            ],
+      if (product.color_ids && product.color_ids.length > 0) {
+        for (const colorId of product.color_ids) {
+          const color = await this.productRepository.manager.findOne('Color', {
+            where: { id: colorId },
           });
+          if (!color) {
+            throw new BadRequestException({
+              message: 'Thông tin sản phẩm không hợp lệ',
+              errors: [
+                {
+                  field: 'color_ids',
+                  message: `Không tìm thấy màu sắc với ID: ${colorId}`,
+                },
+              ],
+            });
+          }
         }
       }
 
@@ -167,15 +168,27 @@ export class ProductService {
       });
 
       const savedProduct = await this.productRepository.save(newProduct);
-      const newProductDetail = this.productDetailRepository.create({
-        product_id: savedProduct.id,
-        color_id: product.color_id,
-        capacity_id: product.capacity_id,
-        stock_quantity: 0,
-        serial_number: product.model,
-      });
 
-      await this.productDetailRepository.save(newProductDetail);
+      if (product.color_ids && product.color_ids.length > 0) {
+        const productDetails = product.color_ids.map((colorId) =>
+          this.productDetailRepository.create({
+            product_id: savedProduct.id,
+            color_id: colorId,
+            capacity_id: product.capacity_id,
+            stock_quantity: 0,
+            serial_number: product.model,
+          }),
+        );
+        await this.productDetailRepository.save(productDetails);
+      } else {
+        const newProductDetail = this.productDetailRepository.create({
+          product_id: savedProduct.id,
+          capacity_id: product.capacity_id,
+          stock_quantity: 0,
+          serial_number: product.model,
+        });
+        await this.productDetailRepository.save(newProductDetail);
+      }
 
       return savedProduct;
     } catch (error) {
@@ -199,7 +212,7 @@ export class ProductService {
         name,
         model,
         provider_id,
-        color_id,
+        color_ids,
         capacity_id,
         status,
         is_featured,
@@ -260,9 +273,9 @@ export class ProductService {
         });
       }
 
-      if (color_id) {
-        queryBuilder.andWhere('productDetails.color_id = :color_id', {
-          color_id,
+      if (color_ids) {
+        queryBuilder.andWhere('productDetails.color_id IN (:...color_ids)', {
+          color_ids,
         });
       }
 
@@ -443,17 +456,17 @@ export class ProductService {
         }
       }
 
-      if (data.color_id) {
+      if (data.color_ids) {
         const color = await this.productRepository.manager.findOne('Color', {
-          where: { id: data.color_id },
+          where: { id: data.color_ids[0] },
         });
         if (!color) {
           throw new BadRequestException({
             message: 'Thông tin sản phẩm không hợp lệ',
             errors: [
               {
-                field: 'color_id',
-                message: `Không tìm thấy màu sắc với ID: ${data.color_id}`,
+                field: 'color_ids',
+                message: `Không tìm thấy màu sắc với ID: ${data.color_ids[0]}`,
               },
             ],
           });
@@ -526,7 +539,7 @@ export class ProductService {
       await this.productRepository.update(data.id, productUpdateData);
 
       const productDetailUpdateData = {
-        color_id: data.color_id,
+        color_ids: data.color_ids,
         capacity_id: data.capacity_id,
         stock_quantity: data.stock_quantity,
         serial_number: data.serial_number,

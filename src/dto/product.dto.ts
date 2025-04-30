@@ -49,10 +49,15 @@ export class CreateProductDto {
   @IsOptional()
   provider_id?: number;
 
-  @ApiProperty({ type: Number, description: 'ID màu sắc', required: true })
-  @IsNumber()
-  @IsNotEmpty()
-  color_id: number;
+  @ApiProperty({
+    type: [Number],
+    description: 'Danh sách ID màu sắc',
+    required: false,
+    isArray: true,
+  })
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  color_ids?: number[];
 
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: true })
   @IsNumber()
@@ -137,10 +142,15 @@ export class UpdateProductDto {
   @IsOptional()
   provider_id?: number;
 
-  @ApiProperty({ type: Number, description: 'ID màu sắc', required: false })
-  @IsNumber()
+  @ApiProperty({
+    type: [Number],
+    description: 'Danh sách ID màu sắc',
+    required: false,
+    isArray: true,
+  })
+  @IsNumber({}, { each: true })
   @IsOptional()
-  color_id?: number;
+  color_ids?: number[];
 
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
   @IsNumber()
@@ -189,10 +199,15 @@ export class SearchProductDto {
   @IsOptional()
   provider_id?: number;
 
-  @ApiProperty({ type: Number, description: 'ID màu sắc', required: false })
-  @IsNumber()
+  @ApiProperty({
+    type: [Number],
+    description: 'Danh sách ID màu sắc',
+    required: false,
+    isArray: true,
+  })
+  @IsNumber({}, { each: true })
   @IsOptional()
-  color_id?: number;
+  color_ids?: number[];
 
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
   @IsNumber()
