@@ -209,11 +209,9 @@ export class ProductService {
 
       return savedProduct;
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      console.log(error);
       throw new BadRequestException({
-        message: 'Lỗi khi tạo sản phẩm',
+        message: 'Lỗi khi tạo sản phẩm kkk',
         errors: [
           {
             message: error.message,
@@ -325,8 +323,6 @@ export class ProductService {
         queryBuilder.orderBy('product.name', order);
       } else if (sort_by === 'created_at') {
         queryBuilder.orderBy('product.created_at', order);
-      } else if (sort_by === 'price') {
-        queryBuilder.orderBy('product.price', order);
       }
 
       const skip = (page - 1) * size;

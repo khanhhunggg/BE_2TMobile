@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserInformation } from './user-information.entity';
+import { Cart } from './cart.entity';
 
 export enum UserRank {
   Bronze = 'Bronze',
@@ -61,4 +63,7 @@ export class User {
   @ManyToOne(() => UserInformation, { nullable: true })
   @JoinColumn({ name: 'information_id' })
   userInformation: UserInformation;
+
+  @OneToMany(() => Cart, (cart) => cart.user)
+  carts: Cart[];
 }
