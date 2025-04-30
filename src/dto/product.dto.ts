@@ -7,7 +7,10 @@ import {
   IsOptional,
   IsEnum,
   IsNumberString,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreateSpecsDto } from './specs.dto';
 
 export class CreateProductDto {
   @ApiProperty({ type: String, description: 'Tên sản phẩm', required: true })
@@ -77,6 +80,16 @@ export class CreateProductDto {
   @IsString()
   @IsOptional()
   model?: string;
+
+  @ApiProperty({
+    type: CreateSpecsDto,
+    description: 'Thông số kỹ thuật',
+    required: false,
+  })
+  @ValidateNested()
+  @Type(() => CreateSpecsDto)
+  @IsOptional()
+  specs?: CreateSpecsDto;
 }
 
 export class UpdateProductDto {
@@ -170,6 +183,16 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   serial_number?: string;
+
+  @ApiProperty({
+    type: CreateSpecsDto,
+    description: 'Thông số kỹ thuật',
+    required: false,
+  })
+  @ValidateNested()
+  @Type(() => CreateSpecsDto)
+  @IsOptional()
+  specs?: CreateSpecsDto;
 }
 
 export class GetProductByIdDto {

@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Provider } from './provider.entity';
 import { ProductDetail } from './product-detail.entity';
+import { Specs } from './specs.entity';
 
 @Entity('tbl_products')
 export class Product {
@@ -54,4 +55,7 @@ export class Product {
 
   @OneToMany(() => ProductDetail, (productDetail) => productDetail.product)
   productDetails: ProductDetail[];
+
+  @OneToMany(() => Specs, (specs) => specs.product)
+  specs: Specs[];
 }

@@ -9,6 +9,7 @@ import {
 } from 'src/dto/product.dto';
 import { ProductDetail } from 'src/entity/product-detail.entity';
 import { Product } from 'src/entity/product.entity';
+import { Specs } from 'src/entity/specs.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -18,6 +19,8 @@ export class ProductService {
     private productRepository: Repository<Product>,
     @InjectRepository(ProductDetail)
     private productDetailRepository: Repository<ProductDetail>,
+    @InjectRepository(Specs)
+    private specsRepository: Repository<Specs>,
   ) {}
 
   public async doCreateProduct(product: CreateProductDto) {
@@ -190,6 +193,20 @@ export class ProductService {
         await this.productDetailRepository.save(newProductDetail);
       }
 
+      if (product.specs && Object.keys(product.specs).length > 0) {
+        const newSpecs = this.specsRepository.create({
+          product_id: savedProduct.id,
+          screen_size: product.specs.screen_size,
+          resolution: product.specs.resolution,
+          chipset: product.specs.chipset,
+          ram: product.specs.ram,
+          os: product.specs.os,
+          battery_capacity: product.specs.battery_capacity,
+          charging_tech: product.specs.charging_tech,
+        });
+        await this.specsRepository.save(newSpecs);
+      }
+
       return savedProduct;
     } catch (error) {
       if (error instanceof BadRequestException) {
@@ -228,6 +245,7 @@ export class ProductService {
         .leftJoinAndSelect('product.productDetails', 'productDetails')
         .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
+        .leftJoinAndSelect('product.specs', 'specs')
         .select([
           'product.id',
           'product.name',
@@ -255,6 +273,14 @@ export class ProductService {
           'capacity.value',
           'capacity.unit',
           'capacity.display_name',
+          'specs.id',
+          'specs.screen_size',
+          'specs.resolution',
+          'specs.chipset',
+          'specs.ram',
+          'specs.os',
+          'specs.battery_capacity',
+          'specs.charging_tech',
         ]);
 
       if (name) {
@@ -358,6 +384,7 @@ export class ProductService {
         .leftJoinAndSelect('product.productDetails', 'productDetails')
         .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
+        .leftJoinAndSelect('product.specs', 'specs')
         .select([
           'product.id',
           'product.name',
@@ -385,6 +412,14 @@ export class ProductService {
           'capacity.value',
           'capacity.unit',
           'capacity.display_name',
+          'specs.id',
+          'specs.screen_size',
+          'specs.resolution',
+          'specs.chipset',
+          'specs.ram',
+          'specs.os',
+          'specs.battery_capacity',
+          'specs.charging_tech',
         ])
         .where('product.id = :id', { id: data.id })
         .getOne();
@@ -421,7 +456,7 @@ export class ProductService {
     try {
       const existingProduct = await this.productRepository.findOne({
         where: { id: data.id },
-        relations: ['productDetails'],
+        relations: ['productDetails', 'specs'],
       });
 
       if (!existingProduct) {
@@ -568,6 +603,30 @@ export class ProductService {
         }
       }
 
+      if (data.specs) {
+        const specsUpdateData = {
+          screen_size: data.specs.screen_size,
+          resolution: data.specs.resolution,
+          chipset: data.specs.chipset,
+          ram: data.specs.ram,
+          os: data.specs.os,
+          battery_capacity: data.specs.battery_capacity,
+          charging_tech: data.specs.charging_tech,
+        };
+
+        if (existingProduct.specs && existingProduct.specs.length > 0) {
+          await this.specsRepository.update(
+            existingProduct.specs[0].id,
+            specsUpdateData,
+          );
+        } else {
+          await this.specsRepository.save({
+            product_id: data.id,
+            ...specsUpdateData,
+          });
+        }
+      }
+
       return await this.doGetProductById({ id: data.id });
     } catch (error) {
       if (error instanceof BadRequestException) {
@@ -588,7 +647,7 @@ export class ProductService {
     try {
       const existingProduct = await this.productRepository.findOne({
         where: { id: data.id },
-        relations: ['productDetails'],
+        relations: ['productDetails', 'specs'],
       });
 
       if (!existingProduct) {
@@ -610,6 +669,10 @@ export class ProductService {
         await this.productDetailRepository.delete(
           existingProduct.productDetails[0].id,
         );
+      }
+
+      if (existingProduct.specs && existingProduct.specs.length > 0) {
+        await this.specsRepository.delete(existingProduct.specs[0].id);
       }
 
       await this.productRepository.delete(data.id);

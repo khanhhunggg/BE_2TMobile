@@ -7,6 +7,7 @@ import { DataSource } from 'typeorm';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CartModule,
   ],
   controllers: [],
   providers: [],

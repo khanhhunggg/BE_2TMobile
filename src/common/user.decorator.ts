@@ -8,7 +8,7 @@ export const UserReq = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest();
     if (!request.user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('TOKEN_INVALID');
     }
     return request.user;
   },
