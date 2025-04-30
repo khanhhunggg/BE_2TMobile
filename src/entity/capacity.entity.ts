@@ -1,27 +1,31 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
+  PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  OneToMany,
 } from 'typeorm';
-import { ProductDetail } from './product-detail.entity';
+
+export enum CapacityUnit {
+  MB = 'MB',
+  GB = 'GB',
+  TB = 'TB',
+}
 
 @Entity('tbl_capacities')
 export class Capacity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
+  @Column()
   value: number;
 
   @Column({
     type: 'enum',
-    enum: ['MB', 'GB', 'TB'],
-    default: 'GB',
+    enum: CapacityUnit,
+    default: CapacityUnit.GB,
   })
-  unit: 'MB' | 'GB' | 'TB';
+  unit: CapacityUnit;
 
   @Column({ length: 50, nullable: true })
   display_name: string;
@@ -31,7 +35,4 @@ export class Capacity {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @OneToMany(() => ProductDetail, (productDetail) => productDetail.capacity)
-  productDetails: ProductDetail[];
 }

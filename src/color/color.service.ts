@@ -14,13 +14,7 @@ export class ColorService {
   public async getAllColors(data: ColorResponseDto) {
     const query = this.colorRepository
       .createQueryBuilder('color')
-      .select([
-        'color.id',
-        'color.name',
-        'color.color_code',
-        'color.created_at',
-        'color.updated_at',
-      ]);
+      .select(['color.id', 'color.name', 'color.color_code']);
 
     if (data.name) {
       query.andWhere('color.name LIKE :name', { name: `%${data.name}%` });
@@ -41,8 +35,6 @@ export class ColorService {
         id: color.id,
         name: color.name,
         color_code: color.color_code,
-        created_at: color.created_at,
-        updated_at: color.updated_at,
       })),
       total,
       page: data.page,
@@ -54,13 +46,7 @@ export class ColorService {
   public async getColorById(id: ColorResponseDto) {
     const query = this.colorRepository
       .createQueryBuilder('color')
-      .select([
-        'color.id',
-        'color.name',
-        'color.color_code',
-        'color.created_at',
-        'color.updated_at',
-      ])
+      .select(['color.id', 'color.name', 'color.color_code'])
       .where('color.id = :id', { id: id.id });
 
     const color = await query.getOne();
@@ -73,8 +59,6 @@ export class ColorService {
       id: color.id,
       name: color.name,
       color_code: color.color_code,
-      created_at: color.created_at,
-      updated_at: color.updated_at,
     };
   }
 }
