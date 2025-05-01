@@ -10,6 +10,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { CartModule } from './cart/cart.module';
 import { ColorModule } from './color/color.module';
 import { CapacityModule } from './capacity/capacity.module';
+import { VendorModule } from './vendor/vendor.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { CapacityModule } from './capacity/capacity.module';
     ProductModule,
     ColorModule,
     CapacityModule,
+    VendorModule,
     // JwtModule.register({
     //   secret: process.env.JWT_SECRET_KEY,
     //   signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },

@@ -25,22 +25,15 @@ export class ColorService {
       });
     }
 
-    query.skip((data.page - 1) * data.size).take(data.size);
     query.orderBy('color.created_at', 'DESC');
 
-    const [colors, total] = await query.getManyAndCount();
+    const colors = await query.getMany();
 
-    return {
-      data: colors.map((color) => ({
-        id: color.id,
-        name: color.name,
-        color_code: color.color_code,
-      })),
-      total,
-      page: data.page,
-      size: data.size,
-      totalPages: Math.ceil(total / data.size),
-    };
+    return colors.map((color) => ({
+      id: color.id,
+      name: color.name,
+      color_code: color.color_code,
+    }));
   }
 
   public async getColorById(id: ColorResponseDto) {

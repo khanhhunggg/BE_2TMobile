@@ -26,20 +26,4 @@ export class CapacityResponseDto {
     required: false,
   })
   display_name?: string;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Số trang',
-    required: false,
-    default: 1,
-  })
-  page?: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Số bản ghi trên mỗi trang',
-    required: false,
-    default: 10,
-  })
-  size?: number;
 }

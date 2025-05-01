@@ -6,19 +6,11 @@ export class ColorResponseDto {
   @IsNumber()
   id?: number;
 
-  @ApiProperty({ type: String, description: 'Tên sản phẩm', required: false })
+  @ApiProperty({ type: String, description: 'Tên màu sắc', required: false })
   @IsString()
   name?: string;
 
-  @ApiProperty({ type: String, description: 'Tên sản phẩm', required: false })
+  @ApiProperty({ type: String, description: 'Mã màu', required: false })
   @IsString()
   color_code: string;
-
-  @ApiProperty({ type: Number, description: 'Trang', required: false })
-  @IsNumber()
-  page: number;
-
-  @ApiProperty({ type: Number, description: 'Kích thước', required: false })
-  @IsNumber()
-  size: number;
 }

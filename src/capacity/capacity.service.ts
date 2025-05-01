@@ -35,26 +35,16 @@ export class CapacityService {
       });
     }
 
-    const page = data.page || 1;
-    const size = data.size || 10;
-
-    query.skip((page - 1) * size).take(size);
     query.orderBy('capacity.created_at', 'DESC');
 
-    const [capacities, total] = await query.getManyAndCount();
+    const capacities = await query.getMany();
 
-    return {
-      data: capacities.map((capacity) => ({
-        id: capacity.id,
-        value: capacity.value,
-        unit: capacity.unit,
-        display_name: capacity.display_name,
-      })),
-      total,
-      page,
-      size,
-      totalPages: Math.ceil(total / size),
-    };
+    return capacities.map((capacity) => ({
+      id: capacity.id,
+      value: capacity.value,
+      unit: capacity.unit,
+      display_name: capacity.display_name,
+    }));
   }
 
   public async getCapacityById(id: CapacityResponseDto) {
@@ -65,8 +55,6 @@ export class CapacityService {
         'capacity.value',
         'capacity.unit',
         'capacity.display_name',
-        'capacity.created_at',
-        'capacity.updated_at',
       ])
       .where('capacity.id = :id', { id: id.id });
 
