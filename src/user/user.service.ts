@@ -418,7 +418,7 @@ export class UserService {
     paginationDto: PaginationResponseDto,
   ) {
     try {
-      const { search } = dto;
+      const { keyword } = dto;
       const { page = 1, size = 10 } = paginationDto;
       // await this.helperService.validateAdmin(userReq);
 
@@ -447,13 +447,15 @@ export class UserService {
         .skip((page - 1) * size)
         .take(size);
 
-      if (search) {
+      if (keyword) {
         query
-          .where('user.userName LIKE :search', { search: `%${search}%` })
-          .orWhere('user.email LIKE :search', { search: `%${search}%` })
-          .orWhere('user.phoneNumber LIKE :search', { search: `%${search}%` })
-          .orWhere('userInformation.fullName LIKE :search', {
-            search: `%${search}%`,
+          .where('user.userName LIKE :keyword', { keyword: `%${keyword}%` })
+          .orWhere('user.email LIKE :keyword', { keyword: `%${keyword}%` })
+          .orWhere('user.phoneNumber LIKE :keyword', {
+            keyword: `%${keyword}%`,
+          })
+          .orWhere('userInformation.fullName LIKE :keyword', {
+            keyword: `%${keyword}%`,
           });
       }
 

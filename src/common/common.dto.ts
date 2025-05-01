@@ -10,7 +10,7 @@ export class PaginationResponseDto {
   size?: number;
 }
 export class SearchDto {
-  @ApiProperty({ type: String, description: 'Search', required: false })
+  @ApiProperty({ type: String, description: 'Keyword', required: false })
   @IsString()
-  search?: string;
+  keyword?: string;
 }
