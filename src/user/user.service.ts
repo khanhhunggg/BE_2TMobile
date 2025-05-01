@@ -358,6 +358,7 @@ export class UserService {
           'user.isAdmin',
           'user.userRank',
           'user.isActive',
+          'user.createdAt',
           'userInformation.informationId',
           'userInformation.fullName',
           'userInformation.address',
