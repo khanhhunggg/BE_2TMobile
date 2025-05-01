@@ -166,6 +166,7 @@ export class UserService {
         throw new BadRequestException('USER_NOT_FOUND');
       }
 
+      // Update user basic information
       if (dto.PhoneNumber) {
         if (checkPhoneNumber(dto.PhoneNumber)) {
           throw new BadRequestException('PHONE_NUMBER_INVALID');
@@ -177,45 +178,72 @@ export class UserService {
         user.userName = dto.FullName;
       }
 
+      // Handle user information
       let userInformation = user.userInformation;
 
       if (!userInformation) {
+        // Create new user information if not exists
         userInformation = new UserInformation();
-        user.informationId = null;
-      }
-
-      if (dto.Address) {
-        userInformation.address = dto.Address;
-      }
-
-      if (dto.Gender) {
+        userInformation.fullName = dto.FullName || user.userName;
+        userInformation.address = dto.Address || '';
         userInformation.gender = dto.Gender;
-      }
 
-      if (dto.BirthDate) {
-        if (checkBirthDate(dto.BirthDate)) {
-          throw new BadRequestException('BIRTH_DATE_INVALID');
+        if (dto.BirthDate) {
+          if (checkBirthDate(dto.BirthDate)) {
+            throw new BadRequestException('BIRTH_DATE_INVALID');
+          }
+          const formattedDate = moment(
+            dto.BirthDate,
+            ['DD-MM-YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'],
+            true,
+          ).format('YYYY-MM-DD');
+          userInformation.dateOfBirth = new Date(formattedDate);
         }
-        const formattedDate = moment(
-          dto.BirthDate,
-          ['DD-MM-YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'],
-          true,
-        ).format('YYYY-MM-DD');
-        userInformation.dateOfBirth = new Date(formattedDate);
+
+        // Save new user information
+        const savedUserInformation =
+          await this.userInformationRepository.save(userInformation);
+        user.informationId = savedUserInformation.informationId;
+        user.userInformation = savedUserInformation;
+      } else {
+        // Update existing user information
+        if (dto.FullName) {
+          userInformation.fullName = dto.FullName;
+        }
+        if (dto.Address) {
+          userInformation.address = dto.Address;
+        }
+        if (dto.Gender) {
+          userInformation.gender = dto.Gender;
+        }
+        if (dto.BirthDate) {
+          if (checkBirthDate(dto.BirthDate)) {
+            throw new BadRequestException('BIRTH_DATE_INVALID');
+          }
+          const formattedDate = moment(
+            dto.BirthDate,
+            ['DD-MM-YYYY', 'DD/MM/YYYY', 'YYYY/MM/DD'],
+            true,
+          ).format('YYYY-MM-DD');
+          userInformation.dateOfBirth = new Date(formattedDate);
+        }
+
+        // Save updated user information
+        await this.userInformationRepository.save(userInformation);
       }
 
-      const savedUserInformation =
-        await this.userInformationRepository.save(userInformation);
-
-      user.informationId = savedUserInformation.informationId;
-
+      // Save user with updated information
       await this.userRepository.save(user);
 
-      return {
-        ...user,
-        userInformation: savedUserInformation,
-      };
+      // Return updated user with information
+      const updatedUser = await this.userRepository.findOne({
+        where: { id: Number(userReq.id) },
+        relations: ['userInformation'],
+      });
+
+      return updatedUser;
     } catch (error) {
+      console.error('Error in UpdateProfile:', error);
       throw new BadRequestException('ERROR_UPDATING_PROFILE');
     }
   }
