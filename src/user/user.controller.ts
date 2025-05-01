@@ -7,7 +7,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiOperation } from '@nestjs/swagger';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
 import {

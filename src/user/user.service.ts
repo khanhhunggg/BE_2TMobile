@@ -400,7 +400,7 @@ export class UserService {
           'userInformation.fullName',
           'userInformation.address',
           'userInformation.gender',
-          'userInformation.dateOfBirth',
+          'userInformation.birthday',
           'userInformation.avatar',
           'userInformation.createdAt',
           'userInformation.updatedAt',
@@ -418,11 +418,8 @@ export class UserService {
     paginationDto: PaginationResponseDto,
   ) {
     try {
-      if (!dto.search) {
-        throw new BadRequestException('NO_KEYWORD_FOUND');
-      }
       const { search } = dto;
-      const { page, size } = paginationDto;
+      const { page = 1, size = 10 } = paginationDto;
       // await this.helperService.validateAdmin(userReq);
 
       const query = this.userRepository
@@ -442,19 +439,23 @@ export class UserService {
           'userInformation.fullName',
           'userInformation.address',
           'userInformation.gender',
-          'userInformation.dateOfBirth',
+          'userInformation.birthday',
           'userInformation.avatar',
           'userInformation.createdAt',
           'userInformation.updatedAt',
         ])
         .skip((page - 1) * size)
-        .take(size)
-        .where('user.userName LIKE :search', { search: `%${search}%` })
-        .orWhere('user.email LIKE :search', { search: `%${search}%` })
-        .orWhere('user.phoneNumber LIKE :search', { search: `%${search}%` })
-        .orWhere('userInformation.fullName LIKE :search', {
-          search: `%${search}%`,
-        });
+        .take(size);
+
+      if (search) {
+        query
+          .where('user.userName LIKE :search', { search: `%${search}%` })
+          .orWhere('user.email LIKE :search', { search: `%${search}%` })
+          .orWhere('user.phoneNumber LIKE :search', { search: `%${search}%` })
+          .orWhere('userInformation.fullName LIKE :search', {
+            search: `%${search}%`,
+          });
+      }
 
       const [data, total] = await query.getManyAndCount();
       return { data, total, page, size };
