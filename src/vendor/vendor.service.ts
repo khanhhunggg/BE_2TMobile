@@ -50,4 +50,10 @@ export class VendorService {
       name: vendor.name,
     };
   }
+
+  public async deleteVendorsByContactPerson(contactPersonId: number) {
+    return await this.vendorRepository.delete({
+      contactPersonId: contactPersonId,
+    });
+  }
 }

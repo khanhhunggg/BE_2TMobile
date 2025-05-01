@@ -9,6 +9,7 @@ import { UserService } from './user.service';
 // import { JwtStrategy } from './jwt.strategy';
 import { User } from 'src/entity/user.entity';
 import { UserInformation } from 'src/entity/user-information.entity';
+import { VendorModule } from '../vendor/vendor.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserInformation } from 'src/entity/user-information.entity';
     PassportModule,
     CommonModule,
     HelperModule,
+    VendorModule,
   ],
   controllers: [UserController],
   providers: [UserService],

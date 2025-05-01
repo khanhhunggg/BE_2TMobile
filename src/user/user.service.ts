@@ -24,6 +24,7 @@ import { Repository } from 'typeorm';
 import * as bcryptjs from 'bcryptjs';
 import * as moment from 'moment';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
+import { VendorService } from '../vendor/vendor.service';
 
 @Injectable()
 export class UserService {
@@ -32,6 +33,7 @@ export class UserService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(UserInformation)
     private readonly userInformationRepository: Repository<UserInformation>,
+    private readonly vendorService: VendorService,
     private readonly jwtService: JwtService,
     private readonly helperService: HelperService,
   ) {}
@@ -312,17 +314,41 @@ export class UserService {
     }
   }
 
-  public async deleteUserById(dto: DeleteUserDto, userReq: UserJwtDto) {
+  public async deleteUserById(dto: DeleteUserDto) {
     try {
-      await this.helperService.validateAdmin(userReq);
+      if (!dto.Id) {
+        throw new BadRequestException('ID_REQUIRED');
+      }
+
       const user = await this.userRepository.findOne({
         where: { id: dto.Id },
       });
+
+      if (!user) {
+        throw new BadRequestException('USER_NOT_FOUND');
+      }
+
       if (user.isAdmin) {
         throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
       }
-      return await this.userRepository.delete({ id: dto.Id });
+
+      // Delete related vendors first
+      await this.vendorService.deleteVendorsByContactPerson(dto.Id);
+
+      // Delete user information first if exists
+      if (user.informationId) {
+        await this.userInformationRepository.delete(user.informationId);
+      }
+
+      // Then delete the user
+      await this.userRepository.delete(dto.Id);
+
+      return { message: 'USER_DELETED_SUCCESSFULLY' };
     } catch (error) {
+      console.error('Error in deleteUserById:', error);
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
       throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
     }
   }

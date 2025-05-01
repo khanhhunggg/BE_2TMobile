@@ -80,11 +80,8 @@ export class UserController {
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Xóa người dùng bằng id' })
-  public async DeleteUserById(
-    @Query() dto: DeleteUserDto,
-    @UserReq() user: UserJwtDto,
-  ) {
-    return await this.userService.deleteUserById(dto, user);
+  public async DeleteUserById(@Query() dto: DeleteUserDto) {
+    return await this.userService.deleteUserById(dto);
   }
 
   @Delete('delete-user-by-ids')

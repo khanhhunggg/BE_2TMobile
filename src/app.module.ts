@@ -11,6 +11,7 @@ import { CartModule } from './cart/cart.module';
 import { ColorModule } from './color/color.module';
 import { CapacityModule } from './capacity/capacity.module';
 import { VendorModule } from './vendor/vendor.module';
+import { PurchaseModule } from './purchase/purchase.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { VendorModule } from './vendor/vendor.module';
       isGlobal: true,
     }),
     CartModule,
+    PurchaseModule,
   ],
   controllers: [],
   providers: [],
