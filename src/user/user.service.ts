@@ -341,10 +341,12 @@ export class UserService {
 
   //Admin API
 
-  public async getAll(dto: PaginationResponseDto, userReq: UserJwtDto) {
+  public async getAll(dto: PaginationResponseDto) {
     try {
-      await this.helperService.validateAdmin(userReq);
-      const { page, size } = dto;
+      // await this.helperService.validateAdmin(userReq);
+      const page = dto.page || 1;
+      const size = dto.size || 10;
+
       const query = this.userRepository
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.userInformation', 'userInformation')
@@ -356,16 +358,12 @@ export class UserService {
           'user.isAdmin',
           'user.userRank',
           'user.isActive',
-          'user.createdAt',
-          'user.updatedAt',
           'userInformation.informationId',
           'userInformation.fullName',
           'userInformation.address',
           'userInformation.gender',
-          'userInformation.dateOfBirth',
+          'userInformation.birthday',
           'userInformation.avatar',
-          'userInformation.createdAt',
-          'userInformation.updatedAt',
         ])
         .skip((page - 1) * size)
         .take(size);
@@ -373,16 +371,17 @@ export class UserService {
       const [data, total] = await query.getManyAndCount();
       return { data, total, page, size };
     } catch (error) {
+      console.error('Error in getAll:', error);
       throw new BadRequestException('ERROR_FETCHING_USERS');
     }
   }
 
-  public async getUserByID(id: UpdateDtoQuery, userReq: UserJwtDto) {
+  public async getUserByID(id: UpdateDtoQuery) {
     try {
       if (!id) {
         throw new BadRequestException('ID_REQUIRED');
       }
-      await this.helperService.validateAdmin(userReq);
+      // await this.helperService.validateAdmin(userReq);
       const user = await this.userRepository
         .createQueryBuilder('user')
         .leftJoinAndSelect('user.userInformation', 'userInformation')
@@ -416,7 +415,6 @@ export class UserService {
   public async getUserByKeyword(
     dto: SearchDto,
     paginationDto: PaginationResponseDto,
-    userReq: UserJwtDto,
   ) {
     try {
       if (!dto.search) {
@@ -424,7 +422,7 @@ export class UserService {
       }
       const { search } = dto;
       const { page, size } = paginationDto;
-      await this.helperService.validateAdmin(userReq);
+      // await this.helperService.validateAdmin(userReq);
 
       const query = this.userRepository
         .createQueryBuilder('user')

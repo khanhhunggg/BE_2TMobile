@@ -6,10 +6,10 @@ import {
   Post,
   Put,
   Query,
-  UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
+import { UserReq } from 'src/common/user.decorator';
 import {
   ChangePassWordDto,
   DeleteUserDto,
@@ -20,10 +20,8 @@ import {
   UpdateUserDto,
   UserJwtDto,
 } from 'src/dto/user.dto';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { UserReq } from 'src/common/user.decorator';
-import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { User } from 'src/entity/user.entity';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
@@ -42,8 +40,8 @@ export class UserController {
   }
 
   @Post('log-out')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Đăng xuất' })
   public async LogOut(@UserReq() user: UserJwtDto) {
     return await this.userService.LogOut(user);
@@ -56,8 +54,8 @@ export class UserController {
   }
 
   @Put('update-profile')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Cập nhật thông tin tài khoản' })
   public async UpdateProfile(
     @Query() dto: UpdateProfileDto,
@@ -67,8 +65,8 @@ export class UserController {
   }
 
   @Put('update-user-by-id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Cập nhật thông tin người dùng bằng id' })
   public async UpdateUserByID(
     @Query() dto: UpdateDtoQuery,
@@ -79,8 +77,8 @@ export class UserController {
   }
 
   @Delete('delete-user-by-id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Xóa người dùng bằng id' })
   public async DeleteUserById(
     @Query() dto: DeleteUserDto,
@@ -90,8 +88,8 @@ export class UserController {
   }
 
   @Delete('delete-user-by-ids')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Xóa nhiều người dùng bằng id' })
   public async DeleteUserByIds(
     @Body() ids: number[],
@@ -101,36 +99,31 @@ export class UserController {
   }
 
   @Get('get-all-user')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user by email' })
   public async GetUserByEmail(
     @Query() dto: PaginationResponseDto,
-    @UserReq() user: UserJwtDto,
   ): Promise<{ data: User[]; total: number }> {
-    return await this.userService.getAll(dto, user);
+    return await this.userService.getAll(dto);
   }
 
   @Get('get-user-by-id')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user by id' })
-  public async GetUserByID(
-    @Query() id: UpdateDtoQuery,
-    @UserReq() user: UserJwtDto,
-  ) {
-    return await this.userService.getUserByID(id, user);
+  public async GetUserByID(@Query() id: UpdateDtoQuery) {
+    return await this.userService.getUserByID(id);
   }
 
   @Get('search-user')
-  @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get user by keyword' })
   public async GetUserByKeyword(
     @Query() dto: SearchDto,
     @Query() paginationDto: PaginationResponseDto,
-    @UserReq() user: UserJwtDto,
   ) {
-    return await this.userService.getUserByKeyword(dto, paginationDto, user);
+    return await this.userService.getUserByKeyword(dto, paginationDto);
   }
 }

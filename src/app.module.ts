@@ -29,10 +29,10 @@ import { CapacityModule } from './capacity/capacity.module';
     ProductModule,
     ColorModule,
     CapacityModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET_KEY,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
-    }),
+    // JwtModule.register({
+    //   secret: process.env.JWT_SECRET_KEY,
+    //   signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
+    // }),
     ConfigModule.forRoot({
       isGlobal: true,
     }),

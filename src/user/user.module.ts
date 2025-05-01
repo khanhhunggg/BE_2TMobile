@@ -6,7 +6,7 @@ import { CommonModule } from 'src/common/common.module';
 import { HelperModule } from 'src/common/helper/helper.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { JwtStrategy } from './jwt.strategy';
+// import { JwtStrategy } from './jwt.strategy';
 import { User } from 'src/entity/user.entity';
 import { UserInformation } from 'src/entity/user-information.entity';
 
@@ -22,7 +22,7 @@ import { UserInformation } from 'src/entity/user-information.entity';
     HelperModule,
   ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy],
-  exports: [PassportModule, JwtStrategy, UserService],
+  providers: [UserService],
+  exports: [PassportModule, UserService],
 })
 export class UserModule {}
