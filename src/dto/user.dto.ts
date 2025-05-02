@@ -47,9 +47,9 @@ export class SignInDto {
 }
 
 export class ChangePassWordDto {
-  @ApiProperty({ type: String, description: 'Email', required: true })
-  @IsEmail()
-  Email: string;
+  @ApiProperty({ type: String, description: 'PhoneNumber', required: true })
+  @IsPhoneNumber()
+  PhoneNumber: string;
 
   @ApiProperty({ type: String, description: 'OldPassWord', required: true })
   @IsString()

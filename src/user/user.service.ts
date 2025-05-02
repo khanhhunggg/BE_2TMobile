@@ -86,9 +86,9 @@ export class UserService {
       if (!user.Password) {
         throw new BadRequestException('PASSWORD_REQUIRED');
       }
-      if (checkPassword(user.Password)) {
-        throw new BadRequestException('PASSWORD_INVALID');
-      }
+      // if (checkPassword(user.Password)) {
+      //   throw new BadRequestException('PASSWORD_INVALID');
+      // }
       const isMatch = await bcryptjs.compare(
         user.Password,
         existingUser.password,
@@ -104,30 +104,13 @@ export class UserService {
       throw new BadRequestException(error);
     }
   }
-
-  public async LogOut(userReq: UserJwtDto) {
-    try {
-      const user = await this.userRepository.findOne({
-        where: { id: Number(userReq.id) },
-      });
-      if (user) {
-        return { isLogin: false };
-      }
-    } catch (error) {
-      throw new BadRequestException(error);
-    }
-  }
-
   public async ResetPassword(dto: ChangePassWordDto) {
     try {
-      if (!isEmail(dto.Email)) {
-        throw new BadRequestException('EMAIL_INVALID');
-      }
       const user = await this.userRepository.findOne({
-        where: { email: dto.Email },
+        where: { phoneNumber: dto.PhoneNumber },
       });
       if (!user) {
-        throw new BadRequestException('EMAIL_NOT_FOUND');
+        throw new BadRequestException('USER_NOT_FOUND');
       }
       if (!dto.OldPassWord) {
         throw new BadRequestException('OLD_PASSWORD_REQUIRED');
@@ -147,9 +130,23 @@ export class UserService {
       }
       const salt = await bcryptjs.genSalt();
       user.password = await bcryptjs.hash(dto.NewPassWord, salt);
-      return await this.userRepository.update(user.id, {
+      await this.userRepository.update(user.id, {
         password: user.password,
       });
+      return { message: 'PASSWORD_CHANGED_SUCCESSFULLY' };
+    } catch (error) {
+      throw new BadRequestException(error);
+    }
+  }
+
+  public async LogOut(userReq: UserJwtDto) {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: Number(userReq.id) },
+      });
+      if (user) {
+        return { isLogin: false };
+      }
     } catch (error) {
       throw new BadRequestException(error);
     }
