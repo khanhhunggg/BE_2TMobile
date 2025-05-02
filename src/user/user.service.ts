@@ -115,18 +115,12 @@ export class UserService {
       if (!dto.OldPassWord) {
         throw new BadRequestException('OLD_PASSWORD_REQUIRED');
       }
-      if (checkPassword(dto.OldPassWord)) {
-        throw new BadRequestException('OLD_PASSWORD_INVALID');
-      }
       const isMatch = await bcryptjs.compare(dto.OldPassWord, user.password);
       if (!isMatch) {
         throw new BadRequestException('OLD_PASSWORD_INCORRECT');
       }
       if (!dto.NewPassWord) {
         throw new BadRequestException('PASSWORD_REQUIRED');
-      }
-      if (checkPassword(dto.NewPassWord)) {
-        throw new BadRequestException('PASSWORD_INVALID');
       }
       const salt = await bcryptjs.genSalt();
       user.password = await bcryptjs.hash(dto.NewPassWord, salt);
