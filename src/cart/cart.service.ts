@@ -1,11 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Cart } from 'src/entity/cart.entity';
 import { CartDetail } from 'src/entity/cart-detail.entity';
+import { Cart } from 'src/entity/cart.entity';
 import { ProductDetail } from 'src/entity/product-detail.entity';
 import { Repository } from 'typeorm';
-import { AddToCartDto } from './dto/add-to-cart.dto';
-import { CartResponseDto, CartItemDto } from './dto/cart-response.dto';
+import { CreateCartDto } from './dto/create-cart.dto';
 
 @Injectable()
 export class CartService {
@@ -18,94 +17,59 @@ export class CartService {
     private productDetailRepository: Repository<ProductDetail>,
   ) {}
 
-  public async getOrCreateCart(userId: number): Promise<Cart> {
-    let cart = await this.cartRepository.findOne({
-      where: { user_id: userId },
-    });
-    if (!cart) {
-      cart = await this.cartRepository.save({ user_id: userId });
-    }
-    return cart;
-  }
-
-  public async addProductToCart(
-    userId: number,
-    addToCartDto: AddToCartDto,
-  ): Promise<CartDetail> {
-    const cart = await this.getOrCreateCart(userId);
-
-    const productDetail = await this.productDetailRepository.findOne({
-      where: { id: addToCartDto.product_detail_id },
-    });
-    if (!productDetail) {
-      throw new NotFoundException('Product detail not found');
-    }
-
-    let cartDetail = await this.cartDetailRepository.findOne({
-      where: {
-        cart_id: cart.id,
-        product_detail_id: addToCartDto.product_detail_id,
-      },
-    });
-
-    if (cartDetail) {
-      cartDetail.quantity += addToCartDto.quantity;
-    } else {
-      cartDetail = this.cartDetailRepository.create({
-        cart_id: cart.id,
-        product_detail_id: addToCartDto.product_detail_id,
-        quantity: addToCartDto.quantity,
-      });
-    }
-
-    return this.cartDetailRepository.save(cartDetail);
-  }
-
-  public async getCartDetails(userId: number): Promise<CartResponseDto> {
-    const cart = await this.cartRepository.findOne({
-      where: { user_id: userId },
-      relations: [
-        'cartDetails',
-        'cartDetails.productDetail',
-        'cartDetails.productDetail.product',
-      ],
-    });
-
-    if (!cart) {
-      throw new NotFoundException('Cart not found');
-    }
-
-    const cartItems: CartItemDto[] = await Promise.all(
-      cart.cartDetails.map(async (detail) => {
-        const productDetail = await this.productDetailRepository.findOne({
-          where: { id: detail.product_detail_id },
-          relations: ['product'],
+  public async doCreateCart(data: CreateCartDto) {
+    try {
+      if (!data.user_id) {
+        throw new BadRequestException({
+          message: 'Thông tin giỏ hàng không hợp lệ',
+          errors: [
+            {
+              field: 'user_id',
+              message: 'ID người dùng không được để trống',
+            },
+          ],
         });
+      }
 
-        const totalPrice = Number(detail.price) * detail.quantity;
+      const user = await this.cartRepository.manager.findOne('User', {
+        where: { id: data.user_id },
+      });
 
-        return {
-          id: detail.id,
-          product_detail_id: detail.product_detail_id,
-          quantity: detail.quantity,
-          productDetail: productDetail,
-          totalPrice: totalPrice,
-        };
-      }),
-    );
+      if (!user) {
+        throw new BadRequestException({
+          message: 'Thông tin giỏ hàng không hợp lệ',
+          errors: [
+            {
+              field: 'user_id',
+              message: `Không tìm thấy người dùng với ID: ${data.user_id}`,
+            },
+          ],
+        });
+      }
 
-    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cartItems.reduce(
-      (sum, item) => sum + item.totalPrice,
-      0,
-    );
+      const existingCart = await this.cartRepository.findOne({
+        where: { user_id: data.user_id },
+      });
 
-    return {
-      id: cart.id,
-      user_id: cart.user_id,
-      items: cartItems,
-      totalItems,
-      totalPrice,
-    };
+      if (existingCart) {
+        throw new BadRequestException({
+          message: 'Thông tin giỏ hàng không hợp lệ',
+          errors: [
+            {
+              field: 'user_id',
+              message: 'Người dùng đã có giỏ hàng',
+            },
+          ],
+        });
+      }
+
+      const newCart = this.cartRepository.create({
+        user_id: data.user_id,
+      });
+
+      return await this.cartRepository.save(newCart);
+    } catch (error) {
+      throw error;
+    }
   }
 }
