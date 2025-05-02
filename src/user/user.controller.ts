@@ -77,12 +77,12 @@ export class UserController {
     return await this.userService.updateUserById(dto, updateDto, user);
   }
 
-  @Delete('delete-user-by-id/:id')
+  @Delete('delete-user-by-id')
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Xóa người dùng bằng id' })
-  public async DeleteUserById(@Param('id') id: number) {
-    return await this.userService.deleteUserById(id);
+  public async DeleteUserById(@Query() dto: DeleteUserDto) {
+    return await this.userService.deleteUserById(dto.Id);
   }
 
   @Delete('delete-user-by-ids')
