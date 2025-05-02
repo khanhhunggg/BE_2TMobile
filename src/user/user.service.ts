@@ -333,14 +333,14 @@ export class UserService {
     }
   }
 
-  public async deleteUserById(dto: DeleteUserDto) {
+  public async deleteUserById(id: number) {
     try {
-      if (!dto.Id) {
+      if (!id) {
         throw new BadRequestException('ID_REQUIRED');
       }
 
       const user = await this.userRepository.findOne({
-        where: { id: dto.Id },
+        where: { id: id },
       });
 
       if (!user) {
@@ -352,7 +352,7 @@ export class UserService {
       }
 
       // Delete related vendors first
-      await this.vendorService.deleteVendorsByContactPerson(dto.Id);
+      await this.vendorService.deleteVendorsByContactPerson(id);
 
       // Delete user information first if exists
       if (user.informationId) {
@@ -360,21 +360,17 @@ export class UserService {
       }
 
       // Then delete the user
-      await this.userRepository.delete(dto.Id);
+      await this.userRepository.delete(id);
 
       return { message: 'USER_DELETED_SUCCESSFULLY' };
     } catch (error) {
       console.error('Error in deleteUserById:', error);
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
       throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
     }
   }
 
-  public async deleteUserByIds(ids: number[], userReq: UserJwtDto) {
+  public async deleteUserByIds(ids: number[]) {
     try {
-      await this.helperService.validateAdmin(userReq);
       for (let i = 0; i < ids.length; i++) {
         await this.userRepository.delete({ id: ids[i] });
       }

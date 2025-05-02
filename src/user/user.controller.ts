@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -76,23 +77,20 @@ export class UserController {
     return await this.userService.updateUserById(dto, updateDto, user);
   }
 
-  @Delete('delete-user-by-id')
+  @Delete('delete-user-by-id/:id')
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Xóa người dùng bằng id' })
-  public async DeleteUserById(@Query() dto: DeleteUserDto) {
-    return await this.userService.deleteUserById(dto);
+  public async DeleteUserById(@Param('id') id: number) {
+    return await this.userService.deleteUserById(id);
   }
 
   @Delete('delete-user-by-ids')
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Xóa nhiều người dùng bằng id' })
-  public async DeleteUserByIds(
-    @Body() ids: number[],
-    @UserReq() user: UserJwtDto,
-  ) {
-    return await this.userService.deleteUserByIds(ids, user);
+  public async DeleteUserByIds(@Body() ids: number[]) {
+    return await this.userService.deleteUserByIds(ids);
   }
 
   @Get('get-all-user')
