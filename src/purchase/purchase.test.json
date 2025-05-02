@@ -1,0 +1,64 @@
+{
+  "createPurchase": {
+    "LotCode": "LOT20240315001",
+    "ItemType": "SMARTPHONE",
+    "VendorId": 1,
+    "PaymentMethod": "CASH",
+    "OrderDate": "2024-03-15",
+    "OrderTime": "14:30:00",
+    "Status": "PENDING",
+    "Note": "Đơn hàng mới",
+    "Items": [
+      {
+        "ProductId": 1,
+        "Quantity": 5,
+        "UnitPrice": 10000000
+      },
+      {
+        "ProductId": 2,
+        "Quantity": 3,
+        "UnitPrice": 15000000
+      }
+    ]
+  },
+  "getAllPurchase": {
+    "page": 1,
+    "size": 10,
+    "search": "LOT2024",
+    "status": "PENDING",
+    "vendorId": 1,
+    "startDate": "2024-03-01",
+    "endDate": "2024-03-31",
+    "sortBy": "createdAt",
+    "sortDirection": "DESC"
+  },
+  "getPurchaseById": {
+    "Id": 1
+  },
+  "updatePurchase": {
+    "Id": 1,
+    "LotCode": "LOT20240315001",
+    "ItemType": "SMARTPHONE",
+    "VendorId": 1,
+    "PaymentMethod": "BANK_TRANSFER",
+    "OrderDate": "2024-03-15",
+    "OrderTime": "15:30:00",
+    "Status": "COMPLETED",
+    "Note": "Đơn hàng đã cập nhật",
+    "Items": [
+      {
+        "ProductId": 1,
+        "Quantity": 10,
+        "UnitPrice": 10000000
+      },
+      {
+        "ProductId": 2,
+        "Quantity": 5,
+        "UnitPrice": 15000000
+      }
+    ]
+  },
+  "deletePurchase": {
+    "Id": 1
+  }
+}

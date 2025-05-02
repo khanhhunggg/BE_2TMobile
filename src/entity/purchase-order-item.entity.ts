@@ -16,23 +16,35 @@ export class PurchaseOrderItem {
   @Column({ name: 'purchase_order_id' })
   purchaseOrderId: number;
 
-  @ManyToOne(() => Purchase, (purchase) => purchase.items)
-  @JoinColumn({ name: 'purchase_order_id' })
-  purchase: Purchase;
-
   @Column({ name: 'product_id' })
   productId: number;
-
-  @ManyToOne(() => Product)
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
 
   @Column()
   quantity: number;
 
-  @Column({ name: 'unit_price', type: 'decimal', precision: 12, scale: 2 })
+  @Column({
+    name: 'unit_price',
+    type: 'decimal',
+    precision: 12,
+    scale: 2,
+    nullable: true,
+  })
   unitPrice: number;
 
-  @Column({ name: 'total_price', type: 'decimal', precision: 14, scale: 2 })
+  @Column({
+    name: 'total_price',
+    type: 'decimal',
+    precision: 14,
+    scale: 2,
+    nullable: true,
+  })
   totalPrice: number;
+
+  @ManyToOne(() => Purchase, (purchase) => purchase.items)
+  @JoinColumn({ name: 'purchase_order_id' })
+  purchase: Purchase;
+
+  @ManyToOne(() => Product)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 }

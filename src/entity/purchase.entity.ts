@@ -44,19 +44,4 @@ export class Purchase {
 
   @OneToMany(() => PurchaseOrderItem, (item) => item.purchase)
   items: PurchaseOrderItem[];
-
-  @Column({
-    name: 'created_at',
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @Column({
-    name: 'updated_at',
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    onUpdate: 'CURRENT_TIMESTAMP',
-  })
-  updatedAt: Date;
 }
