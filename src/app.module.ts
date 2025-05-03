@@ -12,7 +12,7 @@ import { ColorModule } from './color/color.module';
 import { CapacityModule } from './capacity/capacity.module';
 import { VendorModule } from './vendor/vendor.module';
 import { PurchaseModule } from './purchase/purchase.module';
-
+import { PaymentModule } from './config/payment.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -32,6 +32,7 @@ import { PurchaseModule } from './purchase/purchase.module';
     ColorModule,
     CapacityModule,
     VendorModule,
+    PaymentModule,
     // JwtModule.register({
     //   secret: process.env.JWT_SECRET_KEY,
     //   signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
