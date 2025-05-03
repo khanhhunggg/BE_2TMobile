@@ -113,7 +113,7 @@ export class UpdateUserDto extends CreateUserDto {}
 export class UpdateDtoQuery {
   @ApiProperty({ type: Number, description: 'ID', required: true })
   @IsNumber()
-  Id: number;
+  id: number;
 }
 
 export class UpdateProfileDto {

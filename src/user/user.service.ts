@@ -245,13 +245,13 @@ export class UserService {
     userReq: UserJwtDto,
   ) {
     try {
-      if (!dto.Id) {
+      if (!dto.id) {
         throw new BadRequestException('ID_REQUIRED');
       }
       await this.helperService.validateAdmin(userReq);
 
       const user = await this.userRepository.findOne({
-        where: { id: dto.Id },
+        where: { id: dto.id },
         relations: ['userInformation'],
       });
 
@@ -320,10 +320,10 @@ export class UserService {
         userUpdateData.informationId = savedUserInformation.informationId;
       }
 
-      await this.userRepository.update(dto.Id, userUpdateData);
+      await this.userRepository.update(dto.id, userUpdateData);
 
       const updatedUser = await this.userRepository.findOne({
-        where: { id: dto.Id },
+        where: { id: dto.id },
         relations: ['userInformation'],
       });
 
@@ -446,7 +446,7 @@ export class UserService {
           'userInformation.createdAt',
           'userInformation.updatedAt',
         ])
-        .where('user.id = :id', { id: id.Id })
+        .where('user.id = :id', { id: id.id })
         .getOne();
       return user;
     } catch (error) {
