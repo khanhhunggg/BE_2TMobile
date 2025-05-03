@@ -5,10 +5,12 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { User } from './user.entity';
 import { Cart } from './cart.entity';
+import { Payment } from './payment.entity';
 
 export enum PaymentMethod {
   BANKING = 'BANKING',
@@ -59,4 +61,7 @@ export class Order {
 
   @Column({ type: 'date', nullable: true })
   delivered_date: Date;
+
+  @OneToMany(() => Payment, (payment) => payment.order)
+  payments: Payment[];
 }

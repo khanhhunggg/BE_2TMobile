@@ -24,8 +24,8 @@ export class PaymentController {
   public async doCreatePaymentUrl(
     @Body() createPaymentLinkDto: CreatePaymentLinkDto,
   ): Promise<PaymentLinkResponseDto> {
-    const { orderId } = createPaymentLinkDto;
-    const checkoutUrl = await this.paymentService.doCreatePaymentLink(orderId);
+    const checkoutUrl =
+      await this.paymentService.doCreatePaymentLink(createPaymentLinkDto);
     return { checkoutUrl };
   }
 

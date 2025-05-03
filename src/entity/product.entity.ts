@@ -34,6 +34,9 @@ export class Product {
   @Column({ default: false })
   is_featured: boolean;
 
+  @Column({ length: 50, nullable: true })
+  original_price: string;
+
   @Column({
     type: 'enum',
     enum: ['Active', 'Inactive'],

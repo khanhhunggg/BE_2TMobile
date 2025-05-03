@@ -171,6 +171,7 @@ export class ProductService {
         is_featured: product.is_featured || false,
         status: product.status || 'Active',
         provider_id: product.provider_id,
+        original_price: product.original_price,
       });
 
       const savedProduct = await this.productRepository.save(newProduct);
@@ -279,6 +280,7 @@ export class ProductService {
           'product.release_year',
           'product.is_featured',
           'product.status',
+          'product.original_price',
           'product.created_at',
           'product.updated_at',
           'provider.id',
@@ -421,6 +423,7 @@ export class ProductService {
           'product.release_year',
           'product.is_featured',
           'product.status',
+          'product.original_price',
           'product.created_at',
           'product.updated_at',
           'provider.id',
@@ -595,6 +598,7 @@ export class ProductService {
         is_featured: data.is_featured,
         status: data.status,
         provider_id: data.provider_id,
+        original_price: data.original_price,
       };
 
       Object.keys(productUpdateData).forEach(

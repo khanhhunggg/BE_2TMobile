@@ -5,27 +5,33 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as crypto from 'crypto';
 import { firstValueFrom } from 'rxjs';
 import { Order } from 'src/entity/order.entity';
+import { Payment } from 'src/entity/payment.entity';
 import { Repository } from 'typeorm';
+import { CreatePaymentLinkDto } from 'src/dto/payment.dto';
 
 @Injectable()
 export class PaymentService {
   constructor(
     @InjectRepository(Order)
     private orderRepository: Repository<Order>,
+    @InjectRepository(Payment)
+    private paymentRepository: Repository<Payment>,
     private httpService: HttpService,
     private configService: ConfigService,
   ) {}
 
-  public async doCreatePaymentLink(orderId: number): Promise<string> {
+  public async doCreatePaymentLink(
+    data: CreatePaymentLinkDto,
+  ): Promise<string> {
     const order = await this.orderRepository.findOne({
-      where: { id: orderId },
+      where: { id: data.orderId },
     });
     if (!order) {
       throw new BadRequestException({
         message: 'Không tìm thấy order!!!',
         errors: [
           {
-            message: `Order với ID ${orderId} không tồn tại trong hệ thống`,
+            message: `Order với ID ${data.orderId} không tồn tại trong hệ thống`,
           },
         ],
       });
@@ -55,6 +61,11 @@ export class PaymentService {
       cancelUrl,
       returnUrl,
       signature,
+      buyerName: data.buyerName,
+      buyerEmail: data.buyerEmail,
+      buyerPhone: data.buyerPhone,
+      buyerAddress: data.buyerAddress,
+      expiredAt: data.expiredAt,
     };
 
     const headers = {
@@ -73,17 +84,27 @@ export class PaymentService {
         ),
       );
 
-      if (response.data.code === '231') {
-        throw new Error('Đơn thanh toán đã tồn tại. Vui lòng thử lại sau.');
-      }
+      if (
+        response.data.code !==
+          this.configService.get<string>('PAYOS_SUCCESS_CODE') ||
+        !response.data.data?.checkoutUrl
+      ) {
+        throw new BadRequestException(
+          response.data.desc ||
+            `Invalid response from PayOS API: ${JSON.stringify(response.data)}`,
+        );
+      } else {
+        const payment = new Payment();
+        payment.orderId = data.orderId;
+        payment.buyerName = data.buyerName;
+        payment.buyerEmail = data.buyerEmail;
+        payment.buyerPhone = data.buyerPhone;
+        payment.buyerAddress = data.buyerAddress;
+        payment.expiredAt = data.expiredAt;
+        await this.paymentRepository.save(payment);
 
-      if (response.data.code === '00' && response.data.data?.checkoutUrl) {
-        console.log('Payment URL generated:', response.data.data.checkoutUrl);
         return response.data.data.checkoutUrl;
       }
-      throw new Error(
-        `Invalid response from PayOS API: ${JSON.stringify(response.data)}`,
-      );
     } catch (error) {
       throw new BadRequestException({
         message: 'Lỗi khi tạo đường dẫn thanh toán:',

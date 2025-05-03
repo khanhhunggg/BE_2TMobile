@@ -30,6 +30,15 @@ export class CreateProductDto {
   @IsNotEmpty()
   price: number;
 
+  @ApiProperty({
+    type: String,
+    description: 'Giá gốc sản phẩm',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  original_price?: string;
+
   @ApiProperty({ type: Number, description: 'Năm sản xuất', required: true })
   @IsNumber()
   @IsOptional()
@@ -125,6 +134,15 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   description?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Giá gốc sản phẩm',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  original_price?: string;
 
   @ApiProperty({
     type: Number,
