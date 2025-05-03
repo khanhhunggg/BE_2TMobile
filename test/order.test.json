@@ -1,0 +1,114 @@
+{
+  "createOrder": {
+    "name": "Create Order Test",
+    "request": {
+      "method": "POST",
+      "url": "http://localhost:3000/orders",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "product_id": 1,
+        "user_id": 1,
+        "quantity": 2,
+        "total_price": 2000000,
+        "payment_method": "BANKING"
+      }
+    },
+    "expectedResponse": {
+      "status": 201,
+      "body": {
+        "id": "1",
+        "product_id": 1,
+        "user_id": 1,
+        "quantity": 2,
+        "total_price": 2000000,
+        "payment_method": "BANKING"
+      }
+    }
+  },
+  "createOrderInvalidData": {
+    "name": "Create Order with Invalid Data Test",
+    "request": {
+      "method": "POST",
+      "url": "http://localhost:3000/orders",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "product_id": "invalid",
+        "user_id": 1,
+        "quantity": 2,
+        "total_price": 2000000,
+        "payment_method": "INVALID"
+      }
+    },
+    "expectedResponse": {
+      "status": 400
+    }
+  },
+  "createOrderMissingRequired": {
+    "name": "Create Order with Missing Required Fields Test",
+    "request": {
+      "method": "POST",
+      "url": "http://localhost:3000/orders",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "user_id": 1,
+        "quantity": 2
+      }
+    },
+    "expectedResponse": {
+      "status": 400
+    }
+  },
+  "getAllOrders": {
+    "name": "Get All Orders Test",
+    "request": {
+      "method": "GET",
+      "url": "http://localhost:3000/orders"
+    },
+    "expectedResponse": {
+      "status": 200
+    }
+  },
+  "getOrderById": {
+    "name": "Get Order By Id Test",
+    "request": {
+      "method": "GET",
+      "url": "http://localhost:3000/orders/1"
+    },
+    "expectedResponse": {
+      "status": 200
+    }
+  },
+  "updateOrder": {
+    "name": "Update Order Test",
+    "request": {
+      "method": "PATCH",
+      "url": "http://localhost:3000/orders/1",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "quantity": 3,
+        "total_price": 3000000
+      }
+    },
+    "expectedResponse": {
+      "status": 200
+    }
+  },
+  "deleteOrder": {
+    "name": "Delete Order Test",
+    "request": {
+      "method": "DELETE",
+      "url": "http://localhost:3000/orders/1"
+    },
+    "expectedResponse": {
+      "status": 200
+    }
+  }
+}
