@@ -12,7 +12,8 @@ import { ColorModule } from './color/color.module';
 import { CapacityModule } from './capacity/capacity.module';
 import { VendorModule } from './vendor/vendor.module';
 import { PurchaseModule } from './purchase/purchase.module';
-import { PayosModule } from './vietQrPayOs/payOs.module';
+import { PaymentModule } from './payment/payment.module';
+import { OrderModule } from './order/order.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -32,7 +33,8 @@ import { PayosModule } from './vietQrPayOs/payOs.module';
     ColorModule,
     CapacityModule,
     VendorModule,
-    PayosModule,
+    PaymentModule,
+    OrderModule,
     // JwtModule.register({
     //   secret: process.env.JWT_SECRET_KEY,
     //   signOptions: { expiresIn: process.env.JWT_EXPIRES_IN },
@@ -42,6 +44,8 @@ import { PayosModule } from './vietQrPayOs/payOs.module';
     }),
     CartModule,
     PurchaseModule,
+    PaymentModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],
