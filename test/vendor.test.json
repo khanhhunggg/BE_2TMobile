@@ -1,0 +1,68 @@
+{
+  "createVendor": {
+    "name": "Create Vendor Test",
+    "request": {
+      "method": "POST",
+      "url": "http://localhost:3000/vendors/create",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "vendor_code": "VENDOR001",
+        "name": "Test Vendor",
+        "phone": "+84987654321",
+        "email": "test@vendor.com",
+        "address": "123 Test Street, Test City",
+        "contact_person_id": 16
+      }
+    },
+    "expectedResponse": {
+      "status": 201,
+      "body": {
+        "id": "17",
+        "vendor_code": "VENDOR001",
+        "name": "Test Vendor",
+        "phone": "+84987654321",
+        "email": "test@vendor.com",
+        "address": "123 Test Street, Test City",
+        "contact_person_id": 16
+      }
+    }
+  },
+  "createVendorInvalidData": {
+    "name": "Create Vendor with Invalid Data Test",
+    "request": {
+      "method": "POST",
+      "url": "http://localhost:3000/vendors/create",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "vendor_code": "VENDOR002",
+        "name": "Test Vendor 2",
+        "phone": "invalid-phone",
+        "email": "invalid-email"
+      }
+    },
+    "expectedResponse": {
+      "status": 400
+    }
+  },
+  "createVendorMissingRequired": {
+    "name": "Create Vendor with Missing Required Fields Test",
+    "request": {
+      "method": "POST",
+      "url": "http://localhost:3000/vendors/create",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "phone": "+84987654321",
+        "email": "test@vendor.com"
+      }
+    },
+    "expectedResponse": {
+      "status": 400
+    }
+  }
+}
