@@ -2,6 +2,8 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
+  CreateDateColumn,
+  UpdateDateColumn,
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
@@ -12,28 +14,19 @@ export class Image {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'product_detail_id' })
+  @Column()
   productDetailId: number;
 
-  @Column({ name: 'image_url', length: 255 })
+  @Column()
   imageUrl: string;
 
-  @Column({ name: 'is_thumbnail', default: false })
+  @Column({ default: true })
   isThumbnail: boolean;
 
-  @Column({ name: 'sort_order', default: 0 })
+  @Column({ default: 0 })
   sortOrder: number;
 
-  @Column({
-    name: 'created_at',
-    type: 'timestamp',
-    default: () => 'CURRENT_TIMESTAMP',
-  })
-  createdAt: Date;
-
-  @ManyToOne(() => ProductDetail, (productDetail) => productDetail.images, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(() => ProductDetail, (productDetail) => productDetail.images)
   @JoinColumn({ name: 'product_detail_id' })
   productDetail: ProductDetail;
 }

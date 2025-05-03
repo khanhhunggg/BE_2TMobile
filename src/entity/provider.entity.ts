@@ -34,6 +34,6 @@ export class Provider {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToMany(() => Product, (product) => product.provider)
+  @OneToMany(() => Product, (product) => product.vendor)
   products: Product[];
 }

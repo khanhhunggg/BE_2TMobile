@@ -6,10 +6,12 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToMany,
+  JoinColumn,
 } from 'typeorm';
-import { Provider } from './provider.entity';
+import { Vendor } from './vendor.entity';
 import { ProductDetail } from './product-detail.entity';
 import { Specs } from './specs.entity';
+import { Color } from './color.entity';
 
 @Entity('tbl_products')
 export class Product {
@@ -34,9 +36,6 @@ export class Product {
   @Column({ default: false })
   is_featured: boolean;
 
-  @Column({ length: 50, nullable: true })
-  original_price: string;
-
   @Column({
     type: 'enum',
     enum: ['Active', 'Inactive'],
@@ -44,17 +43,27 @@ export class Product {
   })
   status: 'Active' | 'Inactive';
 
-  @CreateDateColumn()
+  @CreateDateColumn({ default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP',
+  })
   updated_at: Date;
 
   @Column({ nullable: true })
-  provider_id: number;
+  vendor_id: number;
 
-  @ManyToOne(() => Provider, (provider) => provider.products)
-  provider: Provider;
+  @Column({ nullable: true })
+  color_id: number;
+
+  @ManyToOne(() => Vendor, (vendor) => vendor.products)
+  vendor: Vendor;
+
+  @ManyToOne(() => Color, { onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'color_id' })
+  color: Color;
 
   @OneToMany(() => ProductDetail, (productDetail) => productDetail.product)
   productDetails: ProductDetail[];

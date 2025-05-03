@@ -6,8 +6,10 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from './user.entity';
+import { Product } from './product.entity';
 
 @Entity('vendor')
 export class Vendor {
@@ -41,4 +43,7 @@ export class Vendor {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date;
+
+  @OneToMany(() => Product, (product) => product.vendor)
+  products: Product[];
 }

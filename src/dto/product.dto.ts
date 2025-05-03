@@ -30,15 +30,6 @@ export class CreateProductDto {
   @IsNotEmpty()
   price: number;
 
-  @ApiProperty({
-    type: String,
-    description: 'Giá gốc sản phẩm',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  original_price?: string;
-
   @ApiProperty({ type: Number, description: 'Năm sản xuất', required: true })
   @IsNumber()
   @IsOptional()
@@ -60,23 +51,22 @@ export class CreateProductDto {
 
   @ApiProperty({ type: Number, description: 'ID nhà cung cấp', required: true })
   @IsNumber()
-  @IsOptional()
-  provider_id?: number;
+  @IsNotEmpty()
+  vendor_id: number;
 
   @ApiProperty({
-    type: [Number],
-    description: 'Danh sách ID màu sắc',
+    type: Number,
+    description: 'ID màu sắc',
     required: false,
-    isArray: true,
   })
-  @IsNumber({}, { each: true })
-  @IsOptional()
-  color_ids?: number[];
-
-  @ApiProperty({ type: Number, description: 'ID dung lượng', required: true })
   @IsNumber()
-  @IsNotEmpty()
-  capacity_id: number;
+  @IsOptional()
+  color_id?: number;
+
+  @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
+  @IsNumber()
+  @IsOptional()
+  capacity_id?: number;
 
   @ApiProperty({
     type: Boolean,
@@ -111,7 +101,7 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  images?: string[];
+  image_urls?: string[];
 }
 
 export class UpdateProductDto {
@@ -134,15 +124,6 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Giá gốc sản phẩm',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  original_price?: string;
 
   @ApiProperty({
     type: Number,
@@ -184,17 +165,16 @@ export class UpdateProductDto {
   })
   @IsNumber()
   @IsOptional()
-  provider_id?: number;
+  vendor_id?: number;
 
   @ApiProperty({
-    type: [Number],
-    description: 'Danh sách ID màu sắc',
+    type: Number,
+    description: 'ID màu sắc',
     required: false,
-    isArray: true,
   })
-  @IsNumber({}, { each: true })
+  @IsNumber()
   @IsOptional()
-  color_ids?: number[];
+  color_id?: number;
 
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
   @IsNumber()
@@ -234,7 +214,7 @@ export class UpdateProductDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  images?: string[];
+  image_urls?: string[];
 }
 
 export class GetProductByIdDto {
@@ -262,17 +242,16 @@ export class SearchProductDto {
   })
   @IsNumber()
   @IsOptional()
-  provider_id?: number;
+  vendor_id?: number;
 
   @ApiProperty({
-    type: [Number],
-    description: 'Danh sách ID màu sắc',
+    type: Number,
+    description: 'ID màu sắc',
     required: false,
-    isArray: true,
   })
-  @IsNumber({}, { each: true })
+  @IsNumber()
   @IsOptional()
-  color_ids?: number[];
+  color_id?: number;
 
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
   @IsNumber()

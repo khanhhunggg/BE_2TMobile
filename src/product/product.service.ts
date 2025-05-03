@@ -30,7 +30,7 @@ export class ProductService {
     try {
       if (!product.name) {
         throw new BadRequestException({
-          message: 'Thông tin sản phẩm không hợp lệ',
+          message: 'Tên sản phẩm không được để trống',
           errors: [
             {
               field: 'name',
@@ -42,7 +42,7 @@ export class ProductService {
 
       if (product.name && product.name.length > 255) {
         throw new BadRequestException({
-          message: 'Thông tin sản phẩm không hợp lệ',
+          message: 'Tên sản phẩm quá dài',
           errors: [
             {
               field: 'name',
@@ -54,7 +54,7 @@ export class ProductService {
 
       if (product.model && product.model.length > 100) {
         throw new BadRequestException({
-          message: 'Thông tin sản phẩm không hợp lệ',
+          message: 'Model sản phẩm quá dài',
           errors: [
             {
               field: 'model',
@@ -68,7 +68,7 @@ export class ProductService {
         const currentYear = new Date().getFullYear();
         if (product.release_year > currentYear) {
           throw new BadRequestException({
-            message: 'Thông tin sản phẩm không hợp lệ',
+            message: 'Năm sản xuất không hợp lệ',
             errors: [
               {
                 field: 'release_year',
@@ -81,7 +81,7 @@ export class ProductService {
 
       if (product.warranty_period && product.warranty_period < 0) {
         throw new BadRequestException({
-          message: 'Thông tin sản phẩm không hợp lệ',
+          message: 'Thời gian bảo hành không hợp lệ',
           errors: [
             {
               field: 'warranty_period',
@@ -93,7 +93,7 @@ export class ProductService {
 
       if (product.status && !['Active', 'Inactive'].includes(product.status)) {
         throw new BadRequestException({
-          message: 'Thông tin sản phẩm không hợp lệ',
+          message: 'Trạng thái sản phẩm không hợp lệ',
           errors: [
             {
               field: 'status',
@@ -103,42 +103,37 @@ export class ProductService {
         });
       }
 
-      if (product.provider_id) {
-        const provider = await this.productRepository.manager.findOne(
-          'Provider',
-          {
-            where: { id: product.provider_id },
-          },
-        );
-        if (!provider) {
+      if (product.vendor_id) {
+        const vendor = await this.productRepository.manager.findOne('Vendor', {
+          where: { id: product.vendor_id },
+        });
+        if (!vendor) {
           throw new BadRequestException({
-            message: 'Thông tin sản phẩm không hợp lệ',
+            message: 'Nhà cung cấp không tồn tại',
             errors: [
               {
-                field: 'provider_id',
-                message: `Không tìm thấy nhà cung cấp với ID: ${product.provider_id}`,
+                field: 'vendor_id',
+                message: `Không tìm thấy nhà cung cấp với ID: ${product.vendor_id}`,
               },
             ],
           });
         }
       }
 
-      if (product.color_ids && product.color_ids.length > 0) {
-        for (const colorId of product.color_ids) {
-          const color = await this.productRepository.manager.findOne('Color', {
-            where: { id: colorId },
+      if (product.color_id) {
+        const color = await this.productRepository.manager.findOne('Color', {
+          where: { id: product.color_id },
+        });
+        if (!color) {
+          throw new BadRequestException({
+            message: 'Màu sắc không tồn tại',
+            errors: [
+              {
+                field: 'color_id',
+                message: `Không tìm thấy màu sắc với ID: ${product.color_id}`,
+              },
+            ],
           });
-          if (!color) {
-            throw new BadRequestException({
-              message: 'Thông tin sản phẩm không hợp lệ',
-              errors: [
-                {
-                  field: 'color_ids',
-                  message: `Không tìm thấy màu sắc với ID: ${colorId}`,
-                },
-              ],
-            });
-          }
         }
       }
 
@@ -151,7 +146,7 @@ export class ProductService {
         );
         if (!capacity) {
           throw new BadRequestException({
-            message: 'Thông tin sản phẩm không hợp lệ',
+            message: 'Dung lượng không tồn tại',
             errors: [
               {
                 field: 'capacity_id',
@@ -170,51 +165,35 @@ export class ProductService {
         release_year: product.release_year,
         is_featured: product.is_featured || false,
         status: product.status || 'Active',
-        provider_id: product.provider_id,
-        original_price: product.original_price,
+        vendor_id: product.vendor_id,
+        color_id: product.color_id,
       });
 
       const savedProduct = await this.productRepository.save(newProduct);
       let savedProductDetails: ProductDetail[] = [];
 
-      if (product.color_ids && product.color_ids.length > 0) {
-        const productDetails = product.color_ids.map((colorId) =>
-          this.productDetailRepository.create({
-            product_id: savedProduct.id,
-            color_id: colorId,
-            capacity_id: product.capacity_id,
-            stock_quantity: 0,
-            serial_number: product.model,
-          }),
-        );
-        savedProductDetails =
-          await this.productDetailRepository.save(productDetails);
-      } else {
-        const newProductDetail = this.productDetailRepository.create({
-          product_id: savedProduct.id,
-          capacity_id: product.capacity_id,
-          stock_quantity: 0,
-          serial_number: product.model,
-        });
-        savedProductDetails = [
-          await this.productDetailRepository.save(newProductDetail),
-        ];
-      }
+      // Create productDetail with capacity
+      const newProductDetail = this.productDetailRepository.create({
+        product_id: savedProduct.id,
+        capacity_id: product.capacity_id,
+        stock_quantity: 0,
+        serial_number: product.model,
+      });
+      savedProductDetails = [
+        await this.productDetailRepository.save(newProductDetail),
+      ];
 
-      if (product.images && product.images.length > 0) {
-        const imagePromises = savedProductDetails.map(
-          (productDetail, index) => {
-            const images = product.images.map((imageUrl, imgIndex) => {
-              return this.imageRepository.create({
-                productDetailId: productDetail.id,
-                imageUrl: imageUrl,
-                isThumbnail: imgIndex === 0,
-                sortOrder: imgIndex,
-              });
-            });
-            return this.imageRepository.save(images);
-          },
-        );
+      if (product.image_urls && product.image_urls.length > 0) {
+        const imagePromises = product.image_urls.map((imageUrl, index) => {
+          return this.imageRepository.save(
+            this.imageRepository.create({
+              productDetailId: savedProductDetails[0].id,
+              imageUrl: imageUrl,
+              isThumbnail: index === 0,
+              sortOrder: index,
+            }),
+          );
+        });
 
         await Promise.all(imagePromises);
       }
@@ -252,8 +231,8 @@ export class ProductService {
       const {
         name,
         model,
-        provider_id,
-        color_ids,
+        vendor_id,
+        color_id,
         capacity_id,
         status,
         is_featured,
@@ -265,9 +244,9 @@ export class ProductService {
 
       const queryBuilder = this.productRepository
         .createQueryBuilder('product')
-        .leftJoinAndSelect('product.provider', 'provider')
+        .leftJoinAndSelect('product.vendor', 'vendor')
+        .leftJoinAndSelect('product.color', 'color')
         .leftJoinAndSelect('product.productDetails', 'productDetails')
-        .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
         .leftJoinAndSelect('productDetails.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
@@ -280,21 +259,19 @@ export class ProductService {
           'product.release_year',
           'product.is_featured',
           'product.status',
-          'product.original_price',
           'product.created_at',
           'product.updated_at',
-          'provider.id',
-          'provider.name',
-          'provider.email',
-          'provider.phone',
-          'provider.address',
-          'provider.logo',
-          'productDetails.id',
-          'productDetails.stock_quantity',
-          'productDetails.serial_number',
+          'vendor.id',
+          'vendor.name',
+          'vendor.email',
+          'vendor.phone',
+          'vendor.address',
           'color.id',
           'color.name',
           'color.color_code',
+          'productDetails.id',
+          'productDetails.stock_quantity',
+          'productDetails.serial_number',
           'capacity.id',
           'capacity.value',
           'capacity.unit',
@@ -323,15 +300,15 @@ export class ProductService {
         });
       }
 
-      if (provider_id) {
-        queryBuilder.andWhere('product.provider_id = :provider_id', {
-          provider_id,
+      if (vendor_id) {
+        queryBuilder.andWhere('product.vendor_id = :vendor_id', {
+          vendor_id,
         });
       }
 
-      if (color_ids) {
-        queryBuilder.andWhere('productDetails.color_id IN (:...color_ids)', {
-          color_ids,
+      if (color_id) {
+        queryBuilder.andWhere('product.color_id = :color_id', {
+          color_id,
         });
       }
 
@@ -378,9 +355,7 @@ export class ProductService {
         },
       };
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      console.log(error);
       throw new BadRequestException({
         message: 'Lỗi khi lấy danh sách sản phẩm',
         errors: [
@@ -408,9 +383,9 @@ export class ProductService {
 
       const product = await this.productRepository
         .createQueryBuilder('product')
-        .leftJoinAndSelect('product.provider', 'provider')
+        .leftJoinAndSelect('product.vendor', 'vendor')
+        .leftJoinAndSelect('product.color', 'color')
         .leftJoinAndSelect('product.productDetails', 'productDetails')
-        .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
         .leftJoinAndSelect('productDetails.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
@@ -423,21 +398,19 @@ export class ProductService {
           'product.release_year',
           'product.is_featured',
           'product.status',
-          'product.original_price',
           'product.created_at',
           'product.updated_at',
-          'provider.id',
-          'provider.name',
-          'provider.email',
-          'provider.phone',
-          'provider.address',
-          'provider.logo',
-          'productDetails.id',
-          'productDetails.stock_quantity',
-          'productDetails.serial_number',
+          'vendor.id',
+          'vendor.name',
+          'vendor.email',
+          'vendor.phone',
+          'vendor.address',
           'color.id',
           'color.name',
           'color.color_code',
+          'productDetails.id',
+          'productDetails.stock_quantity',
+          'productDetails.serial_number',
           'capacity.id',
           'capacity.value',
           'capacity.unit',
@@ -472,9 +445,7 @@ export class ProductService {
 
       return product;
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      console.log(error);
       throw new BadRequestException({
         message: 'Lỗi khi lấy thông tin sản phẩm',
         errors: [
@@ -505,43 +476,43 @@ export class ProductService {
         });
       }
 
-      if (data.provider_id) {
-        const provider = await this.productRepository.manager.findOne(
-          'Provider',
-          {
-            where: { id: data.provider_id },
-          },
-        );
-        if (!provider) {
+      // Validate vendor
+      if (data.vendor_id) {
+        const vendor = await this.productRepository.manager.findOne('Vendor', {
+          where: { id: data.vendor_id },
+        });
+        if (!vendor) {
           throw new BadRequestException({
             message: 'Thông tin sản phẩm không hợp lệ',
             errors: [
               {
-                field: 'provider_id',
-                message: `Không tìm thấy nhà cung cấp với ID: ${data.provider_id}`,
+                field: 'vendor_id',
+                message: `Không tìm thấy nhà cung cấp với ID: ${data.vendor_id}`,
               },
             ],
           });
         }
       }
 
-      if (data.color_ids) {
+      // Validate color
+      if (data.color_id) {
         const color = await this.productRepository.manager.findOne('Color', {
-          where: { id: data.color_ids[0] },
+          where: { id: data.color_id },
         });
         if (!color) {
           throw new BadRequestException({
             message: 'Thông tin sản phẩm không hợp lệ',
             errors: [
               {
-                field: 'color_ids',
-                message: `Không tìm thấy màu sắc với ID: ${data.color_ids[0]}`,
+                field: 'color_id',
+                message: `Không tìm thấy màu sắc với ID: ${data.color_id}`,
               },
             ],
           });
         }
       }
 
+      // Validate capacity
       if (data.capacity_id) {
         const capacity = await this.productRepository.manager.findOne(
           'Capacity',
@@ -589,6 +560,7 @@ export class ProductService {
         });
       }
 
+      // Update product
       const productUpdateData = {
         name: data.name,
         model: data.model,
@@ -597,8 +569,8 @@ export class ProductService {
         release_year: data.release_year,
         is_featured: data.is_featured,
         status: data.status,
-        provider_id: data.provider_id,
-        original_price: data.original_price,
+        vendor_id: data.vendor_id,
+        color_id: data.color_id,
       };
 
       Object.keys(productUpdateData).forEach(
@@ -608,8 +580,8 @@ export class ProductService {
 
       await this.productRepository.update(data.id, productUpdateData);
 
+      // Update or create product detail
       const productDetailUpdateData = {
-        color_ids: data.color_ids,
         capacity_id: data.capacity_id,
         stock_quantity: data.stock_quantity,
         serial_number: data.serial_number,
@@ -621,49 +593,50 @@ export class ProductService {
           delete productDetailUpdateData[key],
       );
 
-      if (Object.keys(productDetailUpdateData).length > 0) {
-        if (
-          existingProduct.productDetails &&
-          existingProduct.productDetails.length > 0
-        ) {
-          await this.productDetailRepository.update(
-            existingProduct.productDetails[0].id,
-            productDetailUpdateData,
-          );
-        } else {
-          await this.productDetailRepository.save({
-            product_id: data.id,
-            ...productDetailUpdateData,
-          });
-        }
+      let productDetailId: number;
+
+      if (
+        existingProduct.productDetails &&
+        existingProduct.productDetails.length > 0
+      ) {
+        // Update existing product detail
+        productDetailId = existingProduct.productDetails[0].id;
+        await this.productDetailRepository.update(
+          productDetailId,
+          productDetailUpdateData,
+        );
+      } else {
+        // Create new product detail
+        const newProductDetail = await this.productDetailRepository.save({
+          product_id: data.id,
+          ...productDetailUpdateData,
+        });
+        productDetailId = newProductDetail.id;
       }
 
       // Handle image updates
-      if (data.images && data.images.length > 0) {
-        // Delete existing images
-        if (
-          existingProduct.productDetails &&
-          existingProduct.productDetails.length > 0
-        ) {
-          await this.imageRepository.delete({
-            productDetailId: existingProduct.productDetails[0].id,
-          });
-        }
-
-        // Create new images
-        const productDetailId = existingProduct.productDetails[0].id;
-        const images = data.images.map((imageUrl, index) => {
-          return this.imageRepository.create({
-            productDetailId: productDetailId,
-            imageUrl: imageUrl,
-            isThumbnail: index === 0,
-            sortOrder: index,
-          });
+      if (data.image_urls) {
+        // Delete existing images for this product detail
+        await this.imageRepository.delete({
+          productDetailId: productDetailId,
         });
 
-        await this.imageRepository.save(images);
+        // Create new images
+        const imagePromises = data.image_urls.map((imageUrl, index) => {
+          return this.imageRepository.save(
+            this.imageRepository.create({
+              productDetailId: productDetailId,
+              imageUrl: imageUrl,
+              isThumbnail: index === 0,
+              sortOrder: index,
+            }),
+          );
+        });
+
+        await Promise.all(imagePromises);
       }
 
+      // Update specs if provided
       if (data.specs) {
         const specsUpdateData = {
           screen_size: data.specs.screen_size,
@@ -690,9 +663,7 @@ export class ProductService {
 
       return await this.doGetProductById({ id: data.id });
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      console.log(error);
       throw new BadRequestException({
         message: 'Lỗi khi cập nhật sản phẩm',
         errors: [

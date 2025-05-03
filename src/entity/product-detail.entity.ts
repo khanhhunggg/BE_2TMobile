@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { Product } from './product.entity';
 import { Capacity } from './capacity.entity';
-import { Color } from './color.entity';
 import { Image } from './image.entity';
 
 @Entity('tbl_product_details')
@@ -20,9 +19,6 @@ export class ProductDetail {
 
   @Column()
   product_id: number;
-
-  @Column({ nullable: true })
-  color_id: number;
 
   @Column({ nullable: true })
   capacity_id: number;
@@ -42,10 +38,6 @@ export class ProductDetail {
   @ManyToOne(() => Product, (product) => product.productDetails)
   @JoinColumn({ name: 'product_id' })
   product: Product;
-
-  @ManyToOne(() => Color, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'color_id' })
-  color: Color;
 
   @ManyToOne(() => Capacity, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'capacity_id' })
