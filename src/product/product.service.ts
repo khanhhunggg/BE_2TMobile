@@ -248,6 +248,7 @@ export class ProductService {
         .leftJoinAndSelect('product.color', 'color')
         .leftJoinAndSelect('product.productDetails', 'productDetails')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
+        .leftJoinAndSelect('capacity.price', 'capacityPrice')
         .leftJoinAndSelect('productDetails.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
         .select([
@@ -276,6 +277,9 @@ export class ProductService {
           'capacity.value',
           'capacity.unit',
           'capacity.display_name',
+          'capacityPrice.id',
+          'capacityPrice.price',
+          'capacityPrice.discount_price',
           'images.id',
           'images.imageUrl',
           'images.isThumbnail',
@@ -387,6 +391,7 @@ export class ProductService {
         .leftJoinAndSelect('product.color', 'color')
         .leftJoinAndSelect('product.productDetails', 'productDetails')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
+        .leftJoinAndSelect('capacity.price', 'capacityPrice')
         .leftJoinAndSelect('productDetails.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
         .select([
@@ -415,6 +420,9 @@ export class ProductService {
           'capacity.value',
           'capacity.unit',
           'capacity.display_name',
+          'capacityPrice.id',
+          'capacityPrice.price',
+          'capacityPrice.discount_price',
           'images.id',
           'images.imageUrl',
           'images.isThumbnail',

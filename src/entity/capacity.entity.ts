@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToOne,
 } from 'typeorm';
+import { CapacityPrice } from './capacity-price.entity';
 
 export enum CapacityUnit {
   MB = 'MB',
@@ -35,4 +37,7 @@ export class Capacity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @OneToOne(() => CapacityPrice, (price) => price.capacity)
+  price: CapacityPrice;
 }
