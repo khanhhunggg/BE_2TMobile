@@ -6,10 +6,12 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Product } from './product.entity';
 import { Capacity } from './capacity.entity';
 import { Color } from './color.entity';
+import { Image } from './image.entity';
 
 @Entity('tbl_product_details')
 export class ProductDetail {
@@ -48,4 +50,7 @@ export class ProductDetail {
   @ManyToOne(() => Capacity, { onDelete: 'SET NULL' })
   @JoinColumn({ name: 'capacity_id' })
   capacity: Capacity;
+
+  @OneToMany(() => Image, (image) => image.productDetail)
+  images: Image[];
 }

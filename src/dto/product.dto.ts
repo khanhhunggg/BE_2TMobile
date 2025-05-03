@@ -8,6 +8,8 @@ import {
   IsEnum,
   IsNumberString,
   ValidateNested,
+  IsArray,
+  IsIn,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateSpecsDto } from './specs.dto';
@@ -90,6 +92,17 @@ export class CreateProductDto {
   @Type(() => CreateSpecsDto)
   @IsOptional()
   specs?: CreateSpecsDto;
+
+  @ApiProperty({
+    type: [String],
+    description: 'Danh sách URL hình ảnh',
+    required: false,
+    isArray: true,
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  images?: string[];
 }
 
 export class UpdateProductDto {
@@ -193,6 +206,17 @@ export class UpdateProductDto {
   @Type(() => CreateSpecsDto)
   @IsOptional()
   specs?: CreateSpecsDto;
+
+  @ApiProperty({
+    type: [String],
+    description: 'Danh sách URL hình ảnh',
+    required: false,
+    isArray: true,
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  images?: string[];
 }
 
 export class GetProductByIdDto {

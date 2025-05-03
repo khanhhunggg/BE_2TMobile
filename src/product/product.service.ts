@@ -11,6 +11,7 @@ import { ProductDetail } from 'src/entity/product-detail.entity';
 import { Product } from 'src/entity/product.entity';
 import { Specs } from 'src/entity/specs.entity';
 import { Repository } from 'typeorm';
+import { Image } from '../entity/image.entity';
 
 @Injectable()
 export class ProductService {
@@ -21,6 +22,8 @@ export class ProductService {
     private productDetailRepository: Repository<ProductDetail>,
     @InjectRepository(Specs)
     private specsRepository: Repository<Specs>,
+    @InjectRepository(Image)
+    private imageRepository: Repository<Image>,
   ) {}
 
   public async doCreateProduct(product: CreateProductDto) {
@@ -171,6 +174,7 @@ export class ProductService {
       });
 
       const savedProduct = await this.productRepository.save(newProduct);
+      let savedProductDetails: ProductDetail[] = [];
 
       if (product.color_ids && product.color_ids.length > 0) {
         const productDetails = product.color_ids.map((colorId) =>
@@ -182,7 +186,8 @@ export class ProductService {
             serial_number: product.model,
           }),
         );
-        await this.productDetailRepository.save(productDetails);
+        savedProductDetails =
+          await this.productDetailRepository.save(productDetails);
       } else {
         const newProductDetail = this.productDetailRepository.create({
           product_id: savedProduct.id,
@@ -190,7 +195,27 @@ export class ProductService {
           stock_quantity: 0,
           serial_number: product.model,
         });
-        await this.productDetailRepository.save(newProductDetail);
+        savedProductDetails = [
+          await this.productDetailRepository.save(newProductDetail),
+        ];
+      }
+
+      if (product.images && product.images.length > 0) {
+        const imagePromises = savedProductDetails.map(
+          (productDetail, index) => {
+            const images = product.images.map((imageUrl, imgIndex) => {
+              return this.imageRepository.create({
+                productDetailId: productDetail.id,
+                imageUrl: imageUrl,
+                isThumbnail: imgIndex === 0,
+                sortOrder: imgIndex,
+              });
+            });
+            return this.imageRepository.save(images);
+          },
+        );
+
+        await Promise.all(imagePromises);
       }
 
       if (product.specs && Object.keys(product.specs).length > 0) {
@@ -211,7 +236,7 @@ export class ProductService {
     } catch (error) {
       console.log(error);
       throw new BadRequestException({
-        message: 'Lỗi khi tạo sản phẩm kkk',
+        message: 'Lỗi khi tạo sản phẩm',
         errors: [
           {
             message: error.message,
@@ -243,6 +268,7 @@ export class ProductService {
         .leftJoinAndSelect('product.productDetails', 'productDetails')
         .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
+        .leftJoinAndSelect('productDetails.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
         .select([
           'product.id',
@@ -271,6 +297,10 @@ export class ProductService {
           'capacity.value',
           'capacity.unit',
           'capacity.display_name',
+          'images.id',
+          'images.imageUrl',
+          'images.isThumbnail',
+          'images.sortOrder',
           'specs.id',
           'specs.screen_size',
           'specs.resolution',
@@ -380,6 +410,7 @@ export class ProductService {
         .leftJoinAndSelect('product.productDetails', 'productDetails')
         .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
+        .leftJoinAndSelect('productDetails.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
         .select([
           'product.id',
@@ -408,6 +439,10 @@ export class ProductService {
           'capacity.value',
           'capacity.unit',
           'capacity.display_name',
+          'images.id',
+          'images.imageUrl',
+          'images.isThumbnail',
+          'images.sortOrder',
           'specs.id',
           'specs.screen_size',
           'specs.resolution',
@@ -599,6 +634,32 @@ export class ProductService {
         }
       }
 
+      // Handle image updates
+      if (data.images && data.images.length > 0) {
+        // Delete existing images
+        if (
+          existingProduct.productDetails &&
+          existingProduct.productDetails.length > 0
+        ) {
+          await this.imageRepository.delete({
+            productDetailId: existingProduct.productDetails[0].id,
+          });
+        }
+
+        // Create new images
+        const productDetailId = existingProduct.productDetails[0].id;
+        const images = data.images.map((imageUrl, index) => {
+          return this.imageRepository.create({
+            productDetailId: productDetailId,
+            imageUrl: imageUrl,
+            isThumbnail: index === 0,
+            sortOrder: index,
+          });
+        });
+
+        await this.imageRepository.save(images);
+      }
+
       if (data.specs) {
         const specsUpdateData = {
           screen_size: data.specs.screen_size,
@@ -656,6 +717,17 @@ export class ProductService {
             },
           ],
         });
+      }
+
+      if (
+        existingProduct.productDetails &&
+        existingProduct.productDetails.length > 0
+      ) {
+        for (const productDetail of existingProduct.productDetails) {
+          await this.imageRepository.delete({
+            productDetailId: productDetail.id,
+          });
+        }
       }
 
       if (

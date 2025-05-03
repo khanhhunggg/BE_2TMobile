@@ -38,12 +38,6 @@ export class Specs {
   @Column({ length: 100, nullable: true })
   charging_tech: string;
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
-
   @ManyToOne(() => Product, (product) => product.specs)
   @JoinColumn({ name: 'product_id' })
   product: Product;
