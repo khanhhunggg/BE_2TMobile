@@ -246,3 +246,25 @@ export class DeleteDiscountDto {
   @IsNotEmpty()
   id: number;
 }
+
+export class AssignDiscountToUserDto {
+  @ApiProperty({
+    type: Number,
+    description: 'ID khuyến mãi',
+    required: true,
+    example: 1,
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  discount_id: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'ID người dùng',
+    required: true,
+    example: 1,
+  })
+  @IsNotEmpty()
+  @IsNumber()
+  user_id: number;
+}

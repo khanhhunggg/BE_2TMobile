@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import {
+  AssignDiscountToUserDto,
   CreateDiscountDto,
   DeleteDiscountDto,
   GetDiscountByIdDto,
@@ -50,5 +51,13 @@ export class DiscountController {
   @ApiOperation({ summary: 'Xóa khuyến mãi' })
   public async DeleteDiscount(@Query() data: DeleteDiscountDto) {
     return await this.discountService.doDeleteDiscount(data);
+  }
+
+  @Post('assign-to-user')
+  public async assignDiscountToUser(@Body() data: AssignDiscountToUserDto) {
+    return await this.discountService.assignDiscountToUser(
+      data.discount_id,
+      data.user_id,
+    );
   }
 }

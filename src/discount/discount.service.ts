@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Discount } from '../entity/discount.entity';
+import { DiscountUser } from '../entity/discountUser.entity';
 import {
   CreateDiscountDto,
   DeleteDiscountDto,
@@ -15,6 +16,8 @@ export class DiscountService {
   constructor(
     @InjectRepository(Discount)
     private discountRepository: Repository<Discount>,
+    @InjectRepository(DiscountUser)
+    private readonly discountUserRepository: Repository<DiscountUser>,
   ) {}
 
   public async doCreateDiscount(discount: CreateDiscountDto) {
@@ -317,6 +320,62 @@ export class DiscountService {
       }
       throw new BadRequestException({
         message: 'Lỗi khi xóa khuyến mãi',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
+    }
+  }
+
+  public async assignDiscountToUser(discountId: number, userId: number) {
+    try {
+      const discount = await this.discountRepository.findOne({
+        where: { id: discountId },
+      });
+
+      if (!discount) {
+        throw new BadRequestException({
+          message: 'Khuyến mãi không tồn tại',
+          errors: [
+            {
+              field: 'discount_id',
+              message: 'Khuyến mãi không tồn tại',
+            },
+          ],
+        });
+      }
+
+      const existingAssignment = await this.discountUserRepository.findOne({
+        where: {
+          discountId,
+          userId,
+        },
+      });
+
+      if (existingAssignment) {
+        throw new BadRequestException({
+          message: 'Khuyến mãi đã được gán cho người dùng này',
+          errors: [
+            {
+              field: 'user_id',
+              message: 'Khuyến mãi đã được gán cho người dùng này',
+            },
+          ],
+        });
+      }
+
+      const newAssignment = this.discountUserRepository.create({
+        discountId,
+        userId,
+      });
+
+      return await this.discountUserRepository.save(newAssignment);
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi gán khuyến mãi cho người dùng',
         errors: [
           {
             message: error.message,
