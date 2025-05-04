@@ -15,16 +15,16 @@ export class Image {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  productDetailId: number;
+  @Column({ name: 'product_id' })
+  productId: number;
 
-  @Column()
+  @Column({ name: 'image_url' })
   imageUrl: string;
 
-  @Column({ default: true })
+  @Column({ name: 'is_thumbnail', default: true })
   isThumbnail: boolean;
 
-  @Column({ default: 0 })
+  @Column({ name: 'sort_order', default: 0 })
   sortOrder: number;
 
   @ManyToOne(() => Product, (product) => product.images)

@@ -209,11 +209,22 @@ export class ProductService {
 
       // Lưu ảnh theo product
       if (product.image_urls && product.image_urls.length > 0) {
-        const imagePromises = product.image_urls.map((image) => {
+        const imagePromises = product.image_urls.map((imageUrl) => {
+          if (!imageUrl) {
+            throw new BadRequestException({
+              message: 'URL ảnh không được để trống',
+              errors: [
+                {
+                  field: 'image_url',
+                  message: 'URL ảnh không được để trống',
+                },
+              ],
+            });
+          }
           return this.imageRepository.save(
             this.imageRepository.create({
               product: savedProduct,
-              imageUrl: image.image_url,
+              imageUrl: imageUrl,
               isThumbnail: false,
               sortOrder: 0,
             }),
@@ -273,6 +284,12 @@ export class ProductService {
         .leftJoinAndSelect('capacity.price', 'capacityPrice')
         .leftJoinAndSelect('product.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
+        .leftJoinAndMapMany(
+          'product.productColor',
+          'tbl_colors',
+          'productColor',
+          'productColor.id IN (SELECT pd.color_id FROM tbl_product_details pd WHERE pd.product_id = product.id)',
+        )
         .select([
           'product.id',
           'product.name',
@@ -293,6 +310,8 @@ export class ProductService {
           'productDetails.color_id',
           'productDetails.stock_quantity',
           'productDetails.serial_number',
+          'productDetails.import_price',
+          'productDetails.selling_price',
           'color.id',
           'color.name',
           'color.color_code',
@@ -315,6 +334,9 @@ export class ProductService {
           'specs.os',
           'specs.battery_capacity',
           'specs.charging_tech',
+          'productColor.id',
+          'productColor.name',
+          'productColor.color_code',
         ]);
 
       if (name) {
@@ -410,6 +432,12 @@ export class ProductService {
         .leftJoinAndSelect('capacity.price', 'capacityPrice')
         .leftJoinAndSelect('product.images', 'images')
         .leftJoinAndSelect('product.specs', 'specs')
+        .leftJoinAndMapMany(
+          'product.productColor',
+          'tbl_colors',
+          'productColor',
+          'productColor.id IN (SELECT pd.color_id FROM tbl_product_details pd WHERE pd.product_id = product.id)',
+        )
         .select([
           'product.id',
           'product.name',
@@ -430,6 +458,8 @@ export class ProductService {
           'productDetails.color_id',
           'productDetails.stock_quantity',
           'productDetails.serial_number',
+          'productDetails.import_price',
+          'productDetails.selling_price',
           'color.id',
           'color.name',
           'color.color_code',
@@ -452,6 +482,9 @@ export class ProductService {
           'specs.os',
           'specs.battery_capacity',
           'specs.charging_tech',
+          'productColor.id',
+          'productColor.name',
+          'productColor.color_code',
         ])
         .where('product.id = :id', { id: data.id })
         .getOne();
@@ -602,9 +635,7 @@ export class ProductService {
 
       await this.productRepository.update(data.id, productUpdateData);
 
-      // Handle product details update
       if (data.color_ids && data.color_ids.length > 0) {
-        // Delete existing product details
         if (
           existingProduct.productDetails &&
           existingProduct.productDetails.length > 0
@@ -693,11 +724,22 @@ export class ProductService {
           product: { id: data.id },
         });
 
-        const imagePromises = data.image_urls.map((image) => {
+        const imagePromises = data.image_urls.map((imageUrl) => {
+          if (!imageUrl) {
+            throw new BadRequestException({
+              message: 'URL ảnh không được để trống',
+              errors: [
+                {
+                  field: 'image_url',
+                  message: 'URL ảnh không được để trống',
+                },
+              ],
+            });
+          }
           return this.imageRepository.save(
             this.imageRepository.create({
               product: { id: data.id },
-              imageUrl: image.image_url,
+              imageUrl: imageUrl,
               isThumbnail: false,
               sortOrder: 0,
             }),
@@ -772,7 +814,7 @@ export class ProductService {
       ) {
         for (const productDetail of existingProduct.productDetails) {
           await this.imageRepository.delete({
-            productDetailId: productDetail.id,
+            productId: productDetail.id,
           });
         }
       }

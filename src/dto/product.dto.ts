@@ -14,13 +14,6 @@ import {
 import { Type } from 'class-transformer';
 import { CreateSpecsDto } from './specs.dto';
 
-export class ProductImageDto {
-  @ApiProperty({ type: String, description: 'URL hình ảnh', required: true })
-  @IsString()
-  @IsNotEmpty()
-  image_url: string;
-}
-
 export class CreateProductDto {
   @ApiProperty({ type: String, description: 'Tên sản phẩm', required: true })
   @IsString()
@@ -97,16 +90,15 @@ export class CreateProductDto {
   specs?: CreateSpecsDto;
 
   @ApiProperty({
-    type: [ProductImageDto],
-    description: 'Danh sách hình ảnh sản phẩm',
+    type: [String],
+    description: 'Danh sách URL hình ảnh sản phẩm',
     required: false,
     isArray: true,
   })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductImageDto)
+  @IsString({ each: true })
   @IsOptional()
-  image_urls?: ProductImageDto[];
+  image_urls?: string[];
 }
 
 export class UpdateProductDto {
@@ -242,16 +234,15 @@ export class UpdateProductDto {
   specs?: CreateSpecsDto;
 
   @ApiProperty({
-    type: [ProductImageDto],
-    description: 'Danh sách hình ảnh sản phẩm',
+    type: [String],
+    description: 'Danh sách URL hình ảnh sản phẩm',
     required: false,
     isArray: true,
   })
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductImageDto)
+  @IsString({ each: true })
   @IsOptional()
-  image_urls?: ProductImageDto[];
+  image_urls?: string[];
 }
 
 export class GetProductByIdDto {
