@@ -8,6 +8,7 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { ProductDetail } from './product-detail.entity';
+import { Product } from './product.entity';
 
 @Entity('tbl_images')
 export class Image {
@@ -26,7 +27,7 @@ export class Image {
   @Column({ default: 0 })
   sortOrder: number;
 
-  @ManyToOne(() => ProductDetail, (productDetail) => productDetail.images)
-  @JoinColumn({ name: 'product_detail_id' })
-  productDetail: ProductDetail;
+  @ManyToOne(() => Product, (product) => product.images)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 }

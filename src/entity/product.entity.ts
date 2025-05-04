@@ -1,17 +1,16 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   ManyToOne,
   OneToMany,
-  JoinColumn,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Vendor } from './vendor.entity';
+import { Image } from './image.entity';
 import { ProductDetail } from './product-detail.entity';
 import { Specs } from './specs.entity';
-import { Color } from './color.entity';
+import { Vendor } from './vendor.entity';
 
 @Entity('tbl_products')
 export class Product {
@@ -63,4 +62,7 @@ export class Product {
 
   @OneToMany(() => Specs, (specs) => specs.product)
   specs: Specs[];
+
+  @OneToMany(() => Image, (image) => image.product)
+  images: Image[];
 }

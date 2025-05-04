@@ -1,17 +1,15 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
+  Entity,
   JoinColumn,
-  OneToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Product } from './product.entity';
 import { Capacity } from './capacity.entity';
 import { Color } from './color.entity';
-import { Image } from './image.entity';
+import { Product } from './product.entity';
 
 @Entity('tbl_product_details')
 export class ProductDetail {
@@ -21,7 +19,7 @@ export class ProductDetail {
   @Column()
   product_id: number;
 
-  @Column({ nullable: true })
+  @Column()
   capacity_id: number;
 
   @Column({ default: 0 })
@@ -30,27 +28,34 @@ export class ProductDetail {
   @Column({ length: 100, nullable: true })
   serial_number: string;
 
+  @Column({ length: 55, nullable: true })
+  import_price: string;
+
+  @Column({ length: 55, nullable: true })
+  selling_price: string;
+
   @CreateDateColumn()
   created_at: Date;
 
   @UpdateDateColumn()
   updated_at: Date;
 
-  @ManyToOne(() => Product, (product) => product.productDetails)
+  @ManyToOne(() => Product, (product) => product.productDetails, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @ManyToOne(() => Capacity, { onDelete: 'SET NULL' })
+  @ManyToOne(() => Capacity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'capacity_id' })
   capacity: Capacity;
-
-  @OneToMany(() => Image, (image) => image.productDetail)
-  images: Image[];
 
   @Column({ nullable: true })
   color_id: number;
 
-  @ManyToOne(() => Color, (color) => color.productDetails)
+  @ManyToOne(() => Color, (color) => color.productDetails, {
+    onDelete: 'SET NULL',
+  })
   @JoinColumn({ name: 'color_id' })
   color: Color;
 }

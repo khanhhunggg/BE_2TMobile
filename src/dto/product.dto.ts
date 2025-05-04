@@ -15,16 +15,12 @@ import { Type } from 'class-transformer';
 import { CreateSpecsDto } from './specs.dto';
 
 export class ProductImageDto {
-  @ApiProperty({ type: Number, description: 'ID sản phẩm', required: true })
-  @IsNumber()
-  @IsNotEmpty()
-  product_id: number;
-
   @ApiProperty({ type: String, description: 'URL hình ảnh', required: true })
   @IsString()
   @IsNotEmpty()
   image_url: string;
 }
+
 export class CreateProductDto {
   @ApiProperty({ type: String, description: 'Tên sản phẩm', required: true })
   @IsString()
@@ -35,11 +31,6 @@ export class CreateProductDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiProperty({ type: Number, description: 'Giá sản phẩm', required: true })
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
 
   @ApiProperty({ type: Number, description: 'Năm sản xuất', required: true })
   @IsNumber()
@@ -221,6 +212,26 @@ export class UpdateProductDto {
   serial_number?: string;
 
   @ApiProperty({
+    type: String,
+    description: 'Giá nhập',
+    required: false,
+    example: '1000000',
+  })
+  @IsString()
+  @IsOptional()
+  import_price?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Giá bán',
+    required: false,
+    example: '1100000',
+  })
+  @IsString()
+  @IsOptional()
+  selling_price?: string;
+
+  @ApiProperty({
     type: CreateSpecsDto,
     description: 'Thông số kỹ thuật',
     required: false,
@@ -333,27 +344,6 @@ export class SearchProductDto {
   @IsNumberString()
   @IsOptional()
   size?: number;
-
-  @ApiProperty({
-    type: String,
-    description: 'Sắp xếp theo trường',
-    required: false,
-    enum: ['name', 'created_at', 'price'],
-  })
-  @IsString()
-  @IsOptional()
-  sort_by?: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Thứ tự sắp xếp',
-    required: false,
-    enum: ['ASC', 'DESC'],
-    default: 'DESC',
-  })
-  @IsString()
-  @IsOptional()
-  order?: 'ASC' | 'DESC';
 }
 
 export class DeleteProductDto {
