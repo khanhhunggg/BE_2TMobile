@@ -14,6 +14,17 @@ import {
 import { Type } from 'class-transformer';
 import { CreateSpecsDto } from './specs.dto';
 
+export class ProductImageDto {
+  @ApiProperty({ type: Number, description: 'ID sản phẩm', required: true })
+  @IsNumber()
+  @IsNotEmpty()
+  product_id: number;
+
+  @ApiProperty({ type: String, description: 'URL hình ảnh', required: true })
+  @IsString()
+  @IsNotEmpty()
+  image_url: string;
+}
 export class CreateProductDto {
   @ApiProperty({ type: String, description: 'Tên sản phẩm', required: true })
   @IsString()
@@ -55,13 +66,15 @@ export class CreateProductDto {
   vendor_id: number;
 
   @ApiProperty({
-    type: Number,
-    description: 'ID màu sắc',
+    type: [Number],
+    description: 'Danh sách ID màu sắc',
     required: false,
+    isArray: true,
   })
-  @IsNumber()
+  @IsArray()
+  @IsNumber({}, { each: true })
   @IsOptional()
-  color_id?: number;
+  color_ids?: number[];
 
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
   @IsNumber()
@@ -93,15 +106,16 @@ export class CreateProductDto {
   specs?: CreateSpecsDto;
 
   @ApiProperty({
-    type: [String],
-    description: 'Danh sách URL hình ảnh',
+    type: [ProductImageDto],
+    description: 'Danh sách hình ảnh sản phẩm',
     required: false,
     isArray: true,
   })
   @IsArray()
-  @IsString({ each: true })
+  @ValidateNested({ each: true })
+  @Type(() => ProductImageDto)
   @IsOptional()
-  image_urls?: string[];
+  image_urls?: ProductImageDto[];
 }
 
 export class UpdateProductDto {
@@ -176,6 +190,17 @@ export class UpdateProductDto {
   @IsOptional()
   color_id?: number;
 
+  @ApiProperty({
+    type: [Number],
+    description: 'Danh sách ID màu sắc',
+    required: false,
+    isArray: true,
+  })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  color_ids?: number[];
+
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
   @IsNumber()
   @IsOptional()
@@ -206,15 +231,16 @@ export class UpdateProductDto {
   specs?: CreateSpecsDto;
 
   @ApiProperty({
-    type: [String],
-    description: 'Danh sách URL hình ảnh',
+    type: [ProductImageDto],
+    description: 'Danh sách hình ảnh sản phẩm',
     required: false,
     isArray: true,
   })
   @IsArray()
-  @IsString({ each: true })
+  @ValidateNested({ each: true })
+  @Type(() => ProductImageDto)
   @IsOptional()
-  image_urls?: string[];
+  image_urls?: ProductImageDto[];
 }
 
 export class GetProductByIdDto {
@@ -252,6 +278,17 @@ export class SearchProductDto {
   @IsNumber()
   @IsOptional()
   color_id?: number;
+
+  @ApiProperty({
+    type: [Number],
+    description: 'Danh sách ID màu sắc',
+    required: false,
+    isArray: true,
+  })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  color_ids?: number[];
 
   @ApiProperty({ type: Number, description: 'ID dung lượng', required: false })
   @IsNumber()

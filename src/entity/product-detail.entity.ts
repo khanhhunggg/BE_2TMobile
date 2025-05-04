@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { Product } from './product.entity';
 import { Capacity } from './capacity.entity';
+import { Color } from './color.entity';
 import { Image } from './image.entity';
 
 @Entity('tbl_product_details')
@@ -45,4 +46,11 @@ export class ProductDetail {
 
   @OneToMany(() => Image, (image) => image.productDetail)
   images: Image[];
+
+  @Column({ nullable: true })
+  color_id: number;
+
+  @ManyToOne(() => Color, (color) => color.productDetails)
+  @JoinColumn({ name: 'color_id' })
+  color: Color;
 }

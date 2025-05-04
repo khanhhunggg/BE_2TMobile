@@ -4,6 +4,7 @@ import { Product } from '../entity/product.entity';
 import { ProductDetail } from '../entity/product-detail.entity';
 import { Specs } from '../entity/specs.entity';
 import { Image } from '../entity/image.entity';
+import { Color } from '../entity/color.entity';
 import { CapacityPrice } from '../entity/capacity-price.entity';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
@@ -15,6 +16,7 @@ import { ProductController } from './product.controller';
       ProductDetail,
       Specs,
       Image,
+      Color,
       CapacityPrice,
     ]),
   ],

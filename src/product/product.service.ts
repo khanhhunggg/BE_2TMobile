@@ -12,6 +12,7 @@ import { Product } from 'src/entity/product.entity';
 import { Specs } from 'src/entity/specs.entity';
 import { Repository } from 'typeorm';
 import { Image } from '../entity/image.entity';
+import { Color } from '../entity/color.entity';
 
 @Injectable()
 export class ProductService {
@@ -24,6 +25,8 @@ export class ProductService {
     private specsRepository: Repository<Specs>,
     @InjectRepository(Image)
     private imageRepository: Repository<Image>,
+    @InjectRepository(Color)
+    private colorRepository: Repository<Color>,
   ) {}
 
   public async doCreateProduct(product: CreateProductDto) {
@@ -119,21 +122,23 @@ export class ProductService {
           });
         }
       }
-
-      if (product.color_id) {
-        const color = await this.productRepository.manager.findOne('Color', {
-          where: { id: product.color_id },
-        });
-        if (!color) {
-          throw new BadRequestException({
-            message: 'Màu sắc không tồn tại',
-            errors: [
-              {
-                field: 'color_id',
-                message: `Không tìm thấy màu sắc với ID: ${product.color_id}`,
-              },
-            ],
+      //Lưu ý: Màu sắc chỉ được lưu trong bảng product_detail
+      if (product.color_ids && product.color_ids.length > 0) {
+        for (const colorId of product.color_ids) {
+          const color = await this.colorRepository.findOne({
+            where: { id: colorId },
           });
+          if (!color) {
+            throw new BadRequestException({
+              message: 'Màu sắc không tồn tại',
+              errors: [
+                {
+                  field: 'color_ids',
+                  message: `Không tìm thấy màu sắc với ID: ${colorId}`,
+                },
+              ],
+            });
+          }
         }
       }
 
@@ -156,7 +161,7 @@ export class ProductService {
           });
         }
       }
-
+      //Lưu tbl_product
       const newProduct = this.productRepository.create({
         name: product.name,
         model: product.model,
@@ -166,36 +171,73 @@ export class ProductService {
         is_featured: product.is_featured || false,
         status: product.status || 'Active',
         vendor_id: product.vendor_id,
-        color_id: product.color_id,
       });
 
       const savedProduct = await this.productRepository.save(newProduct);
       let savedProductDetails: ProductDetail[] = [];
 
-      // Create productDetail with capacity
-      const newProductDetail = this.productDetailRepository.create({
-        product_id: savedProduct.id,
-        capacity_id: product.capacity_id,
-        stock_quantity: 0,
-        serial_number: product.model,
-      });
-      savedProductDetails = [
-        await this.productDetailRepository.save(newProductDetail),
-      ];
-
-      if (product.image_urls && product.image_urls.length > 0) {
-        const imagePromises = product.image_urls.map((imageUrl, index) => {
-          return this.imageRepository.save(
-            this.imageRepository.create({
-              productDetailId: savedProductDetails[0].id,
-              imageUrl: imageUrl,
-              isThumbnail: index === 0,
-              sortOrder: index,
-            }),
-          );
+      //Lưu tbl_product_detail theo từng màu sắc
+      if (product.color_ids && product.color_ids.length > 0) {
+        const productDetailPromises = product.color_ids.map(async (colorId) => {
+          const newProductDetail = this.productDetailRepository.create({
+            product_id: savedProduct.id,
+            capacity_id: product.capacity_id,
+            color_id: colorId,
+            stock_quantity: 0,
+            serial_number: product.model,
+          });
+          return this.productDetailRepository.save(newProductDetail);
         });
+        savedProductDetails = await Promise.all(productDetailPromises);
 
-        await Promise.all(imagePromises);
+        if (product.image_urls && product.image_urls.length > 0) {
+          const imagePromises = savedProductDetails.flatMap((productDetail) => {
+            const matchingImages = product.image_urls.filter(
+              (image) => image.product_id === productDetail.id,
+            );
+            return matchingImages.map((image) => {
+              return this.imageRepository.save(
+                this.imageRepository.create({
+                  productDetailId: productDetail.id,
+                  imageUrl: image.image_url,
+                  isThumbnail: false,
+                  sortOrder: 0,
+                }),
+              );
+            });
+          });
+
+          await Promise.all(imagePromises);
+        }
+      } else {
+        //Lưu tbl_product_detail
+        const newProductDetail = this.productDetailRepository.create({
+          product_id: savedProduct.id,
+          capacity_id: product.capacity_id,
+          stock_quantity: 0,
+          serial_number: product.model,
+        });
+        savedProductDetails = [
+          await this.productDetailRepository.save(newProductDetail),
+        ];
+
+        if (product.image_urls && product.image_urls.length > 0) {
+          const matchingImages = product.image_urls.filter(
+            (image) => image.product_id === savedProductDetails[0].id,
+          );
+          const imagePromises = matchingImages.map((image) => {
+            return this.imageRepository.save(
+              this.imageRepository.create({
+                productDetailId: savedProductDetails[0].id,
+                imageUrl: image.image_url,
+                isThumbnail: false,
+                sortOrder: 0,
+              }),
+            );
+          });
+
+          await Promise.all(imagePromises);
+        }
       }
 
       if (product.specs && Object.keys(product.specs).length > 0) {
@@ -232,7 +274,7 @@ export class ProductService {
         name,
         model,
         vendor_id,
-        color_id,
+        color_ids,
         capacity_id,
         status,
         is_featured,
@@ -245,8 +287,8 @@ export class ProductService {
       const queryBuilder = this.productRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.vendor', 'vendor')
-        .leftJoinAndSelect('product.color', 'color')
         .leftJoinAndSelect('product.productDetails', 'productDetails')
+        .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
         .leftJoinAndSelect('capacity.price', 'capacityPrice')
         .leftJoinAndSelect('productDetails.images', 'images')
@@ -267,12 +309,13 @@ export class ProductService {
           'vendor.email',
           'vendor.phone',
           'vendor.address',
+          'productDetails.id',
+          'productDetails.color_id',
+          'productDetails.stock_quantity',
+          'productDetails.serial_number',
           'color.id',
           'color.name',
           'color.color_code',
-          'productDetails.id',
-          'productDetails.stock_quantity',
-          'productDetails.serial_number',
           'capacity.id',
           'capacity.value',
           'capacity.unit',
@@ -310,9 +353,9 @@ export class ProductService {
         });
       }
 
-      if (color_id) {
-        queryBuilder.andWhere('product.color_id = :color_id', {
-          color_id,
+      if (color_ids && color_ids.length > 0) {
+        queryBuilder.andWhere('productDetails.color_id IN (:...color_ids)', {
+          color_ids,
         });
       }
 
@@ -388,8 +431,8 @@ export class ProductService {
       const product = await this.productRepository
         .createQueryBuilder('product')
         .leftJoinAndSelect('product.vendor', 'vendor')
-        .leftJoinAndSelect('product.color', 'color')
         .leftJoinAndSelect('product.productDetails', 'productDetails')
+        .leftJoinAndSelect('productDetails.color', 'color')
         .leftJoinAndSelect('productDetails.capacity', 'capacity')
         .leftJoinAndSelect('capacity.price', 'capacityPrice')
         .leftJoinAndSelect('productDetails.images', 'images')
@@ -410,12 +453,13 @@ export class ProductService {
           'vendor.email',
           'vendor.phone',
           'vendor.address',
+          'productDetails.id',
+          'productDetails.color_id',
+          'productDetails.stock_quantity',
+          'productDetails.serial_number',
           'color.id',
           'color.name',
           'color.color_code',
-          'productDetails.id',
-          'productDetails.stock_quantity',
-          'productDetails.serial_number',
           'capacity.id',
           'capacity.value',
           'capacity.unit',
@@ -503,20 +547,22 @@ export class ProductService {
       }
 
       // Validate color
-      if (data.color_id) {
-        const color = await this.productRepository.manager.findOne('Color', {
-          where: { id: data.color_id },
-        });
-        if (!color) {
-          throw new BadRequestException({
-            message: 'Thông tin sản phẩm không hợp lệ',
-            errors: [
-              {
-                field: 'color_id',
-                message: `Không tìm thấy màu sắc với ID: ${data.color_id}`,
-              },
-            ],
+      if (data.color_ids && data.color_ids.length > 0) {
+        for (const colorId of data.color_ids) {
+          const color = await this.colorRepository.findOne({
+            where: { id: colorId },
           });
+          if (!color) {
+            throw new BadRequestException({
+              message: 'Màu sắc không tồn tại',
+              errors: [
+                {
+                  field: 'color_ids',
+                  message: `Không tìm thấy màu sắc với ID: ${colorId}`,
+                },
+              ],
+            });
+          }
         }
       }
 
@@ -578,7 +624,6 @@ export class ProductService {
         is_featured: data.is_featured,
         status: data.status,
         vendor_id: data.vendor_id,
-        color_id: data.color_id,
       };
 
       Object.keys(productUpdateData).forEach(
@@ -588,60 +633,95 @@ export class ProductService {
 
       await this.productRepository.update(data.id, productUpdateData);
 
-      // Update or create product detail
-      const productDetailUpdateData = {
-        capacity_id: data.capacity_id,
-        stock_quantity: data.stock_quantity,
-        serial_number: data.serial_number,
-      };
+      // Handle product details update
+      if (data.color_ids && data.color_ids.length > 0) {
+        // Delete existing product details
+        if (
+          existingProduct.productDetails &&
+          existingProduct.productDetails.length > 0
+        ) {
+          for (const productDetail of existingProduct.productDetails) {
+            // Delete associated images first
+            await this.imageRepository.delete({
+              productDetailId: productDetail.id,
+            });
+          }
+          await this.productDetailRepository.delete({
+            product_id: data.id,
+          });
+        }
 
-      Object.keys(productDetailUpdateData).forEach(
-        (key) =>
-          productDetailUpdateData[key] === undefined &&
-          delete productDetailUpdateData[key],
-      );
+        // Create new product details for each color
+        const productDetailPromises = data.color_ids.map(async (colorId) => {
+          const newProductDetail = this.productDetailRepository.create({
+            product_id: data.id,
+            capacity_id: data.capacity_id,
+            color_id: colorId,
+            stock_quantity: data.stock_quantity || 0,
+            serial_number: data.serial_number || data.model,
+          });
+          return this.productDetailRepository.save(newProductDetail);
+        });
 
-      let productDetailId: number;
+        const savedProductDetails = await Promise.all(productDetailPromises);
 
-      if (
-        existingProduct.productDetails &&
-        existingProduct.productDetails.length > 0
+        // Handle image updates
+        if (data.image_urls && data.image_urls.length > 0) {
+          // Delete existing images for all product details
+          for (const productDetail of savedProductDetails) {
+            await this.imageRepository.delete({
+              productDetailId: productDetail.id,
+            });
+          }
+
+          // Save new images
+          const imagePromises = savedProductDetails.flatMap((productDetail) => {
+            const matchingImages = data.image_urls.filter(
+              (image) => image.product_id === productDetail.id,
+            );
+            return matchingImages.map((image) => {
+              return this.imageRepository.save(
+                this.imageRepository.create({
+                  productDetailId: productDetail.id,
+                  imageUrl: image.image_url,
+                  isThumbnail: false,
+                  sortOrder: 0,
+                }),
+              );
+            });
+          });
+
+          await Promise.all(imagePromises);
+        }
+      } else if (
+        data.capacity_id ||
+        data.stock_quantity ||
+        data.serial_number
       ) {
-        // Update existing product detail
-        productDetailId = existingProduct.productDetails[0].id;
-        await this.productDetailRepository.update(
-          productDetailId,
-          productDetailUpdateData,
-        );
-      } else {
-        // Create new product detail
-        const newProductDetail = await this.productDetailRepository.save({
-          product_id: data.id,
-          ...productDetailUpdateData,
-        });
-        productDetailId = newProductDetail.id;
-      }
+        // Update existing product details if no color changes
+        if (
+          existingProduct.productDetails &&
+          existingProduct.productDetails.length > 0
+        ) {
+          const productDetailUpdateData = {
+            capacity_id: data.capacity_id,
+            stock_quantity: data.stock_quantity,
+            serial_number: data.serial_number,
+          };
 
-      // Handle image updates
-      if (data.image_urls) {
-        // Delete existing images for this product detail
-        await this.imageRepository.delete({
-          productDetailId: productDetailId,
-        });
-
-        // Create new images
-        const imagePromises = data.image_urls.map((imageUrl, index) => {
-          return this.imageRepository.save(
-            this.imageRepository.create({
-              productDetailId: productDetailId,
-              imageUrl: imageUrl,
-              isThumbnail: index === 0,
-              sortOrder: index,
-            }),
+          Object.keys(productDetailUpdateData).forEach(
+            (key) =>
+              productDetailUpdateData[key] === undefined &&
+              delete productDetailUpdateData[key],
           );
-        });
 
-        await Promise.all(imagePromises);
+          for (const productDetail of existingProduct.productDetails) {
+            await this.productDetailRepository.update(
+              productDetail.id,
+              productDetailUpdateData,
+            );
+          }
+        }
       }
 
       // Update specs if provided
@@ -702,6 +782,7 @@ export class ProductService {
         });
       }
 
+      // Delete all images for all product details
       if (
         existingProduct.productDetails &&
         existingProduct.productDetails.length > 0
@@ -713,19 +794,22 @@ export class ProductService {
         }
       }
 
+      // Delete product details
       if (
         existingProduct.productDetails &&
         existingProduct.productDetails.length > 0
       ) {
-        await this.productDetailRepository.delete(
-          existingProduct.productDetails[0].id,
-        );
+        await this.productDetailRepository.delete({
+          product_id: data.id,
+        });
       }
 
+      // Delete specs
       if (existingProduct.specs && existingProduct.specs.length > 0) {
         await this.specsRepository.delete(existingProduct.specs[0].id);
       }
 
+      // Delete product
       await this.productRepository.delete(data.id);
 
       return {

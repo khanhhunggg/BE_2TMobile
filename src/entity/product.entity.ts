@@ -55,15 +55,8 @@ export class Product {
   @Column({ nullable: true })
   vendor_id: number;
 
-  @Column({ nullable: true })
-  color_id: number;
-
   @ManyToOne(() => Vendor, (vendor) => vendor.products)
   vendor: Vendor;
-
-  @ManyToOne(() => Color, { onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'color_id' })
-  color: Color;
 
   @OneToMany(() => ProductDetail, (productDetail) => productDetail.product)
   productDetails: ProductDetail[];
