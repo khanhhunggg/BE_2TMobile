@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  Index,
 } from 'typeorm';
 import { Vendor } from './vendor.entity';
 import { PurchaseOrderItem } from './purchase-order-item.entity';
@@ -21,10 +22,11 @@ export class Purchase {
   itemType: string;
 
   @Column({ name: 'vendor_id' })
+  @Index('fk_po_vendor')
   vendorId: number;
 
   @ManyToOne(() => Vendor)
-  @JoinColumn({ name: 'vendor_id' })
+  @JoinColumn({ name: 'vendor_id', foreignKeyConstraintName: 'fk_po_vendor' })
   vendor: Vendor;
 
   @Column({ name: 'payment_method', length: 50, nullable: true })

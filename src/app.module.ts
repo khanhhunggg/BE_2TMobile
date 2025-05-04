@@ -13,6 +13,8 @@ import { CapacityModule } from './capacity/capacity.module';
 import { VendorModule } from './vendor/vendor.module';
 import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
+import { VendorBillModule } from './vendor-bill/vendor-bill.module';
+import { PurchaseModule } from './payment/purchase.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -44,6 +46,8 @@ import { OrderModule } from './order/order.module';
     CartModule,
     PaymentModule,
     OrderModule,
+    PurchaseModule,
+    VendorBillModule,
   ],
   controllers: [],
   providers: [],

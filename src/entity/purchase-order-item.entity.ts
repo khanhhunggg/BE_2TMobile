@@ -4,22 +4,30 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { Purchase } from './purchase.entity';
+import { ProductDetail } from './product-detail.entity';
 import { Product } from './product.entity';
 
 @Entity('tbl_purchase_order_item')
 export class PurchaseOrderItem {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @Column({ name: 'purchase_order_id' })
+  @Column({ name: 'purchase_order_id', type: 'bigint' })
+  @Index('fk_po_item_order')
   purchaseOrderId: number;
 
-  @Column({ name: 'product_id' })
+  @Column({
+    name: 'product_id',
+    type: 'int',
+    nullable: true,
+  })
+  @Index('fk_po_item_product')
   productId: number;
 
-  @Column()
+  @Column({ type: 'int' })
   quantity: number;
 
   @Column({
@@ -41,10 +49,16 @@ export class PurchaseOrderItem {
   totalPrice: number;
 
   @ManyToOne(() => Purchase, (purchase) => purchase.items)
-  @JoinColumn({ name: 'purchase_order_id' })
+  @JoinColumn({
+    name: 'purchase_order_id',
+    foreignKeyConstraintName: 'fk_po_item_order',
+  })
   purchase: Purchase;
 
-  @ManyToOne(() => Product)
-  @JoinColumn({ name: 'product_id' })
+  @ManyToOne(() => ProductDetail)
+  @JoinColumn({
+    name: 'product_id',
+    foreignKeyConstraintName: 'fk_po_item_product',
+  })
   product: Product;
 }

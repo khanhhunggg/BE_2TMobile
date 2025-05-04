@@ -642,7 +642,6 @@ export class ProductService {
         data.import_price ||
         data.selling_price
       ) {
-        // Update existing product details if no color changes
         if (
           existingProduct.productDetails &&
           existingProduct.productDetails.length > 0
@@ -679,7 +678,6 @@ export class ProductService {
               );
             }
           } else {
-            // Nếu không có color_id, cập nhật tất cả productDetail
             for (const productDetail of existingProduct.productDetails) {
               await this.productDetailRepository.update(
                 productDetail.id,
@@ -690,14 +688,11 @@ export class ProductService {
         }
       }
 
-      // Handle image updates
       if (data.image_urls && data.image_urls.length > 0) {
-        // Delete existing images for the product
         await this.imageRepository.delete({
           product: { id: data.id },
         });
 
-        // Save new images
         const imagePromises = data.image_urls.map((image) => {
           return this.imageRepository.save(
             this.imageRepository.create({

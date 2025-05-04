@@ -3,7 +3,6 @@ import { HttpModule } from '@nestjs/axios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PaymentController } from './payment.controller';
 import { PaymentService } from './payment.service';
-import { Purchase } from 'src/entity/purchase.entity';
 import { Order } from 'src/entity/order.entity';
 import { Payment } from 'src/entity/payment.entity';
 
