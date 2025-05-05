@@ -29,7 +29,7 @@ export class VendorBillService {
 
       const purchase = this.purchaseRepository.create({
         ...purchaseData,
-        status: 'PENDING',
+        status: 'COMPLETED',
       });
       const savedPurchase = await this.purchaseRepository.save(purchase);
 
@@ -86,9 +86,9 @@ export class VendorBillService {
 
       const queryBuilder = this.purchaseRepository
         .createQueryBuilder('purchase')
-        .leftJoinAndSelect('purchase.items', 'items')
-        .leftJoinAndSelect('items.productDetail', 'productDetail')
-        .leftJoinAndSelect('productDetail.product', 'product')
+        .leftJoinAndSelect('purchase.purchaseOrderItems', 'items')
+        .leftJoinAndSelect('items.product', 'product')
+        .leftJoinAndSelect('product.productDetails', 'productDetail')
         .leftJoinAndSelect('productDetail.color', 'color')
         .leftJoinAndSelect('productDetail.capacity', 'capacity');
 
@@ -159,9 +159,9 @@ export class VendorBillService {
 
       const vendorBill = await this.purchaseRepository
         .createQueryBuilder('purchase')
-        .leftJoinAndSelect('purchase.items', 'items')
-        .leftJoinAndSelect('items.productDetail', 'productDetail')
-        .leftJoinAndSelect('productDetail.product', 'product')
+        .leftJoinAndSelect('purchase.purchaseOrderItems', 'items')
+        .leftJoinAndSelect('items.product', 'product')
+        .leftJoinAndSelect('product.productDetails', 'productDetail')
         .leftJoinAndSelect('productDetail.color', 'color')
         .leftJoinAndSelect('productDetail.capacity', 'capacity')
         .where('purchase.id = :id', { id: data.id })
@@ -215,7 +215,10 @@ export class VendorBillService {
       const { items, ...purchaseData } = data;
 
       await this.purchaseRepository.update(data.id, purchaseData);
-      if (existingVendorBill.items && existingVendorBill.items.length > 0) {
+      if (
+        existingVendorBill.purchaseOrderItems &&
+        existingVendorBill.purchaseOrderItems.length > 0
+      ) {
         await this.purchaseOrderItemRepository.delete({
           purchaseOrderId: data.id,
         });
@@ -281,7 +284,10 @@ export class VendorBillService {
         });
       }
 
-      if (existingVendorBill.items && existingVendorBill.items.length > 0) {
+      if (
+        existingVendorBill.purchaseOrderItems &&
+        existingVendorBill.purchaseOrderItems.length > 0
+      ) {
         await this.purchaseOrderItemRepository.delete({
           purchaseOrderId: data.id,
         });

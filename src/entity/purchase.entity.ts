@@ -45,5 +45,5 @@ export class Purchase {
   note: string;
 
   @OneToMany(() => PurchaseOrderItem, (item) => item.purchase)
-  items: PurchaseOrderItem[];
+  purchaseOrderItems: PurchaseOrderItem[];
 }

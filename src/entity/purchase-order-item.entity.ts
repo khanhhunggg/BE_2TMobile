@@ -48,14 +48,14 @@ export class PurchaseOrderItem {
   })
   totalPrice: number;
 
-  @ManyToOne(() => Purchase, (purchase) => purchase.items)
+  @ManyToOne(() => Purchase, (purchase) => purchase.purchaseOrderItems)
   @JoinColumn({
     name: 'purchase_order_id',
     foreignKeyConstraintName: 'fk_po_item_order',
   })
   purchase: Purchase;
 
-  @ManyToOne(() => ProductDetail)
+  @ManyToOne(() => Product)
   @JoinColumn({
     name: 'product_id',
     foreignKeyConstraintName: 'fk_po_item_product',
