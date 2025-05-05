@@ -551,45 +551,6 @@ export class ProductService {
         }
       }
 
-      if (data.color_ids && data.color_ids.length > 0) {
-        for (const colorId of data.color_ids) {
-          const color = await this.colorRepository.findOne({
-            where: { id: colorId },
-          });
-          if (!color) {
-            throw new BadRequestException({
-              message: 'Màu sắc không tồn tại',
-              errors: [
-                {
-                  field: 'color_ids',
-                  message: `Không tìm thấy màu sắc với ID: ${colorId}`,
-                },
-              ],
-            });
-          }
-        }
-      }
-
-      if (data.capacity_id) {
-        const capacity = await this.productRepository.manager.findOne(
-          'Capacity',
-          {
-            where: { id: data.capacity_id },
-          },
-        );
-        if (!capacity) {
-          throw new BadRequestException({
-            message: 'Thông tin sản phẩm không hợp lệ',
-            errors: [
-              {
-                field: 'capacity_id',
-                message: `Không tìm thấy dung lượng với ID: ${data.capacity_id}`,
-              },
-            ],
-          });
-        }
-      }
-
       if (data.release_year) {
         const currentYear = new Date().getFullYear();
         if (data.release_year > currentYear) {
@@ -628,14 +589,11 @@ export class ProductService {
         vendor_id: data.vendor_id,
       };
 
-      Object.keys(productUpdateData).forEach(
-        (key) =>
-          productUpdateData[key] === undefined && delete productUpdateData[key],
-      );
-
       await this.productRepository.update(data.id, productUpdateData);
 
-      if (data.color_ids && data.color_ids.length > 0) {
+      // Xử lý product details
+      if (data.productDetail && data.productDetail.length > 0) {
+        // Xóa tất cả product details cũ
         if (
           existingProduct.productDetails &&
           existingProduct.productDetails.length > 0
@@ -645,78 +603,62 @@ export class ProductService {
           });
         }
 
-        // Create new product details for each color
-        const productDetailPromises = data.color_ids.map(async (colorId) => {
-          let sellingPrice = data.selling_price;
-          if (!sellingPrice && data.import_price) {
-            const importPrice = parseFloat(data.import_price);
+        // Tạo mới product details từ mảng productDetail
+        const productDetailPromises = data.productDetail.map(async (detail) => {
+          // Validate color_id
+          const color = await this.colorRepository.findOne({
+            where: { id: detail.color_id },
+          });
+          if (!color) {
+            throw new BadRequestException({
+              message: 'Màu sắc không tồn tại',
+              errors: [
+                {
+                  field: 'productDetail.color_id',
+                  message: `Không tìm thấy màu sắc với ID: ${detail.color_id}`,
+                },
+              ],
+            });
+          }
+
+          // Validate capacity_id
+          const capacity = await this.productRepository.manager.findOne(
+            'Capacity',
+            {
+              where: { id: detail.capacity_id },
+            },
+          );
+          if (!capacity) {
+            throw new BadRequestException({
+              message: 'Dung lượng không tồn tại',
+              errors: [
+                {
+                  field: 'productDetail.capacity_id',
+                  message: `Không tìm thấy dung lượng với ID: ${detail.capacity_id}`,
+                },
+              ],
+            });
+          }
+
+          let sellingPrice = detail.selling_price;
+          if (!sellingPrice && detail.import_price) {
+            const importPrice = parseFloat(detail.import_price);
             sellingPrice = (importPrice * 1.1).toString();
           }
+
           const newProductDetail = this.productDetailRepository.create({
             product_id: data.id,
-            capacity_id: data.capacity_id,
-            color_id: colorId,
-            stock_quantity: data.stock_quantity || 0,
-            serial_number: data.serial_number || data.model,
-            import_price: data.import_price,
+            capacity_id: detail.capacity_id,
+            color_id: detail.color_id,
+            stock_quantity: detail.stock_quantity || 0,
+            serial_number: detail.serial_number || data.model,
+            import_price: detail.import_price,
             selling_price: sellingPrice,
           });
           return this.productDetailRepository.save(newProductDetail);
         });
 
         await Promise.all(productDetailPromises);
-      } else if (
-        data.color_id ||
-        data.capacity_id ||
-        data.stock_quantity ||
-        data.serial_number ||
-        data.import_price ||
-        data.selling_price
-      ) {
-        if (
-          existingProduct.productDetails &&
-          existingProduct.productDetails.length > 0
-        ) {
-          let sellingPrice = data.selling_price;
-          if (!sellingPrice && data.import_price) {
-            const importPrice = parseFloat(data.import_price);
-            sellingPrice = (importPrice * 1.1).toString();
-          }
-          const productDetailUpdateData = {
-            color_id: data.color_id,
-            capacity_id: data.capacity_id,
-            stock_quantity: data.stock_quantity,
-            serial_number: data.serial_number,
-            import_price: data.import_price,
-            selling_price: sellingPrice,
-          };
-
-          Object.keys(productDetailUpdateData).forEach(
-            (key) =>
-              productDetailUpdateData[key] === undefined &&
-              delete productDetailUpdateData[key],
-          );
-
-          // Nếu có color_id, tìm productDetail có color_id đó để cập nhật
-          if (data.color_id) {
-            const productDetailToUpdate = existingProduct.productDetails.find(
-              (pd) => pd.color_id === data.color_id,
-            );
-            if (productDetailToUpdate) {
-              await this.productDetailRepository.update(
-                productDetailToUpdate.id,
-                productDetailUpdateData,
-              );
-            }
-          } else {
-            for (const productDetail of existingProduct.productDetails) {
-              await this.productDetailRepository.update(
-                productDetail.id,
-                productDetailUpdateData,
-              );
-            }
-          }
-        }
       }
 
       if (data.image_urls && data.image_urls.length > 0) {
