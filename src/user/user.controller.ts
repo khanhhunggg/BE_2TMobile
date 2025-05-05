@@ -8,7 +8,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { UserReq } from 'src/common/user.decorator';
 import {
@@ -24,6 +24,7 @@ import {
 import { User } from 'src/entity/user.entity';
 import { UserService } from './user.service';
 
+@ApiTags('Tài khoản')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}

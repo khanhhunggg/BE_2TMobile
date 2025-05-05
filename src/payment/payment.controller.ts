@@ -13,7 +13,7 @@ import {
   PaymentLinkResponseDto,
 } from 'src/dto/payment.dto';
 
-@ApiTags('Payment')
+@ApiTags('Thanh toán')
 @Controller('payment')
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}

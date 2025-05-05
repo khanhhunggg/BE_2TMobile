@@ -7,7 +7,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   AssignDiscountToUserDto,
   CreateDiscountDto,
@@ -20,6 +20,7 @@ import {
 
 import { DiscountService } from './discount.service';
 
+@ApiTags('Khuyến mãi')
 @Controller('discount')
 export class DiscountController {
   constructor(private readonly discountService: DiscountService) {}

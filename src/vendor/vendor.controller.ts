@@ -7,7 +7,7 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { VendorService } from './vendor.service';
 import { VendorResponseDto } from '../dto/vendor-response.dto';
 import {
@@ -16,6 +16,7 @@ import {
   DeleteVendorDto,
 } from '../dto/vendor-response.dto';
 
+@ApiTags('Nhà cung cấp')
 @Controller('vendors')
 export class VendorController {
   constructor(private readonly vendorService: VendorService) {}

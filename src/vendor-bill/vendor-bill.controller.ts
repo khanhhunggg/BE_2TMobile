@@ -17,7 +17,7 @@ import {
   UpdateVendorBillDto,
 } from './vendor-bill.dto';
 
-@ApiTags('Vendor Bill')
+@ApiTags('Hóa đơn nhà cung cấp')
 @Controller('vendor-bill')
 export class VendorBillController {
   constructor(private readonly vendorBillService: VendorBillService) {}

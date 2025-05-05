@@ -7,7 +7,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CreateProductDto,
   DeleteProductDto,
@@ -17,6 +17,7 @@ import {
 } from 'src/dto/product.dto';
 import { ProductService } from './product.service';
 
+@ApiTags('Sản phẩm')
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}

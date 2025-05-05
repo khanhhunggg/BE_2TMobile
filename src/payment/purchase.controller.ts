@@ -7,7 +7,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CreatePaymentLinkDto,
   DeletePaymentDto,
@@ -17,6 +17,7 @@ import {
 } from 'src/dto/payment.dto';
 import { PurchaseService } from './purchase.service';
 
+@ApiTags('Thanh toán lưu payment')
 @Controller('purchase')
 export class PurchaseController {
   constructor(private readonly purchaseService: PurchaseService) {}

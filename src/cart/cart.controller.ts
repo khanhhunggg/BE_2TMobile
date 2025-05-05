@@ -7,7 +7,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CartItemDto,
   CreateCartItemDto,
@@ -18,6 +18,7 @@ import {
 import { CartService } from './cart.service';
 
 @Controller('cart')
+@ApiTags('Giỏ hàng')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
