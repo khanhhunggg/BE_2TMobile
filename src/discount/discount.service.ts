@@ -7,6 +7,7 @@ import {
   CreateDiscountDto,
   DeleteDiscountDto,
   GetDiscountByIdDto,
+  RemoveDiscountFromUserDto,
   SearchDiscountDto,
   UpdateDiscountDto,
 } from 'src/dto/discount.dto';
@@ -376,6 +377,52 @@ export class DiscountService {
       console.log(error);
       throw new BadRequestException({
         message: 'Lỗi khi gán khuyến mãi cho người dùng',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
+    }
+  }
+
+  public async removeDiscountFromUser(data: RemoveDiscountFromUserDto) {
+    try {
+      const existingAssignment = await this.discountUserRepository.findOne({
+        where: {
+          discountId: data.discount_id,
+          userId: data.user_id,
+        },
+      });
+
+      if (!existingAssignment) {
+        throw new BadRequestException({
+          message: 'Không tìm thấy khuyến mãi được gán cho người dùng này',
+          errors: [
+            {
+              field: 'user_id',
+              message: 'Không tìm thấy khuyến mãi được gán cho người dùng này',
+            },
+          ],
+        });
+      }
+
+      await this.discountUserRepository.delete({
+        discountId: data.discount_id,
+        userId: data.user_id,
+      });
+
+      return {
+        message: 'Gỡ khuyến mãi khỏi người dùng thành công',
+        data: {
+          discountId: data.discount_id,
+          userId: data.user_id,
+        },
+      };
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi gỡ khuyến mãi khỏi người dùng',
         errors: [
           {
             message: error.message,

@@ -23,7 +23,6 @@ export class VendorService {
       phone: data.phone,
       email: data.email,
       address: data.address,
-      contactPersonId: data.contact_person_id,
     });
 
     const savedVendor = await this.vendorRepository.save(vendor);
@@ -35,7 +34,6 @@ export class VendorService {
       phone: savedVendor.phone,
       email: savedVendor.email,
       address: savedVendor.address,
-      contact_person_id: savedVendor.contactPersonId,
     };
   }
 
@@ -54,8 +52,6 @@ export class VendorService {
     if (data.phone) updateData.phone = data.phone;
     if (data.email) updateData.email = data.email;
     if (data.address) updateData.address = data.address;
-    if (data.contact_person_id)
-      updateData.contactPersonId = data.contact_person_id;
 
     await this.vendorRepository.update(data.id, updateData);
 
@@ -70,7 +66,6 @@ export class VendorService {
       phone: updatedVendor.phone,
       email: updatedVendor.email,
       address: updatedVendor.address,
-      contact_person_id: updatedVendor.contactPersonId,
     };
   }
 
@@ -90,7 +85,14 @@ export class VendorService {
   public async getAllVendors(data: VendorResponseDto) {
     const query = this.vendorRepository
       .createQueryBuilder('vendor')
-      .select(['vendor.id', 'vendor.vendorCode', 'vendor.name']);
+      .select([
+        'vendor.id',
+        'vendor.vendorCode',
+        'vendor.name',
+        'vendor.phone',
+        'vendor.email',
+        'vendor.address',
+      ]);
 
     if (data.name) {
       query.andWhere('vendor.name LIKE :name', { name: `%${data.name}%` });
@@ -109,13 +111,23 @@ export class VendorService {
       id: vendor.id,
       vendor_code: vendor.vendorCode,
       name: vendor.name,
+      phone: vendor.phone,
+      email: vendor.email,
+      address: vendor.address,
     }));
   }
 
   public async getVendorById(id: VendorResponseDto) {
     const query = this.vendorRepository
       .createQueryBuilder('vendor')
-      .select(['vendor.id', 'vendor.vendorCode', 'vendor.name'])
+      .select([
+        'vendor.id',
+        'vendor.vendorCode',
+        'vendor.name',
+        'vendor.phone',
+        'vendor.email',
+        'vendor.address',
+      ])
       .where('vendor.id = :id', { id: id.id });
 
     const vendor = await query.getOne();
@@ -124,12 +136,9 @@ export class VendorService {
       id: vendor.id,
       vendor_code: vendor.vendorCode,
       name: vendor.name,
+      phone: vendor.phone,
+      email: vendor.email,
+      address: vendor.address,
     };
-  }
-
-  public async deleteVendorsByContactPerson(contactPersonId: number) {
-    return await this.vendorRepository.delete({
-      contactPersonId: contactPersonId,
-    });
   }
 }

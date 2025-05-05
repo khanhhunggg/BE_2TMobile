@@ -13,6 +13,7 @@ import {
   CreateDiscountDto,
   DeleteDiscountDto,
   GetDiscountByIdDto,
+  RemoveDiscountFromUserDto,
   SearchDiscountDto,
   UpdateDiscountDto,
 } from 'src/dto/discount.dto';
@@ -59,5 +60,10 @@ export class DiscountController {
       data.discount_id,
       data.user_id,
     );
+  }
+
+  @Delete('remove-from-user')
+  public async removeDiscountFromUser(@Body() data: RemoveDiscountFromUserDto) {
+    return await this.discountService.removeDiscountFromUser(data);
   }
 }

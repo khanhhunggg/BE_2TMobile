@@ -72,15 +72,6 @@ export class CreateVendorDto {
   @IsString()
   @IsOptional()
   address?: string;
-
-  @ApiProperty({
-    type: Number,
-    description: 'ID người liên hệ',
-    required: false,
-  })
-  @IsNumber()
-  @IsOptional()
-  contact_person_id?: number;
 }
 
 export class UpdateVendorDto {

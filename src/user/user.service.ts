@@ -351,9 +351,6 @@ export class UserService {
         throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
       }
 
-      // Delete related vendors first
-      await this.vendorService.deleteVendorsByContactPerson(id);
-
       // Delete user information first if exists
       if (user.informationId) {
         await this.userInformationRepository.delete(user.informationId);

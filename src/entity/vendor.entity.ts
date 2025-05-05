@@ -31,13 +31,6 @@ export class Vendor {
   @Column({ type: 'text', nullable: true })
   address: string;
 
-  @Column({ name: 'contact_person', nullable: true })
-  contactPersonId: number;
-
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'contact_person' })
-  contactPerson: User;
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
