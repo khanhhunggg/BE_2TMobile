@@ -265,6 +265,17 @@ export class ProductService {
   public async doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
     data: GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto,
   ) {
+    if (!data.product_id || !data.color_id || !data.capacity_id) {
+      throw new BadRequestException({
+        message: 'Missing required fields',
+        errors: [
+          {
+            field: 'product_id, color_id, capacity_id',
+            message: 'All fields are required',
+          },
+        ],
+      });
+    }
     return await this.productDetailRepository.findOne({
       where: {
         product_id: data.product_id,
