@@ -117,6 +117,10 @@ export class UpdateDtoQuery {
 }
 
 export class UpdateProfileDto {
+  @ApiProperty({ type: Number, description: 'ID', required: true })
+  @IsNumber()
+  id: number;
+
   @ApiProperty({ type: String, description: 'FullName', required: false })
   @IsOptional()
   @IsString()

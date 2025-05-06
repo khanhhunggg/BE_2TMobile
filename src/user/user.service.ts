@@ -146,10 +146,10 @@ export class UserService {
     }
   }
 
-  public async LogOut(userReq: UserJwtDto) {
+  public async LogOut(data: UpdateDtoQuery) {
     try {
       const user = await this.userRepository.findOne({
-        where: { id: Number(userReq.id) },
+        where: { id: data.id },
       });
       if (user) {
         return { isLogin: false };
@@ -159,10 +159,10 @@ export class UserService {
     }
   }
 
-  public async UpdateProfile(dto: UpdateProfileDto, userReq: UserJwtDto) {
+  public async UpdateProfile(dto: UpdateProfileDto) {
     try {
       const user = await this.userRepository.findOne({
-        where: { id: Number(userReq.id) },
+        where: { id: Number(dto.id) },
         relations: ['userInformation'],
       });
 
@@ -241,7 +241,7 @@ export class UserService {
 
       // Return updated user with information
       const updatedUser = await this.userRepository.findOne({
-        where: { id: Number(userReq.id) },
+        where: { id: Number(dto.id) },
         relations: ['userInformation'],
       });
 
@@ -252,16 +252,11 @@ export class UserService {
     }
   }
 
-  public async updateUserById(
-    dto: UpdateDtoQuery,
-    updateDto: UpdateUserDto,
-    userReq: UserJwtDto,
-  ) {
+  public async updateUserById(dto: UpdateDtoQuery, updateDto: UpdateUserDto) {
     try {
       if (!dto.id) {
         throw new BadRequestException('ID_REQUIRED');
       }
-      await this.helperService.validateAdmin(userReq);
 
       const user = await this.userRepository.findOne({
         where: { id: dto.id },

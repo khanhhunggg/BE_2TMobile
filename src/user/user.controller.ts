@@ -45,8 +45,8 @@ export class UserController {
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Đăng xuất' })
-  public async LogOut(@UserReq() user: UserJwtDto) {
-    return await this.userService.LogOut(user);
+  public async LogOut(@Query() dto: UpdateDtoQuery) {
+    return await this.userService.LogOut(dto);
   }
 
   @Post('reset-password')
@@ -59,11 +59,8 @@ export class UserController {
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Cập nhật thông tin tài khoản' })
-  public async UpdateProfile(
-    @Query() dto: UpdateProfileDto,
-    @UserReq() user: UserJwtDto,
-  ) {
-    return await this.userService.UpdateProfile(dto, user);
+  public async UpdateProfile(@Query() dto: UpdateProfileDto) {
+    return await this.userService.UpdateProfile(dto);
   }
 
   @Put('update-user-by-id')
@@ -73,9 +70,8 @@ export class UserController {
   public async UpdateUserByID(
     @Query() dto: UpdateDtoQuery,
     @Body() updateDto: UpdateUserDto,
-    @UserReq() user: UserJwtDto,
   ) {
-    return await this.userService.updateUserById(dto, updateDto, user);
+    return await this.userService.updateUserById(dto, updateDto);
   }
 
   @Delete('delete-user-by-id')
