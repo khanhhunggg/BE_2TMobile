@@ -10,15 +10,6 @@ import {
 import { Vendor } from './vendor.entity';
 import { PurchaseOrderItem } from './purchase-order-item.entity';
 
-export enum PurchaseStatus {
-  PENDING = 'PENDING',
-  DELIVERY = 'DELIVERY',
-  COMPLETED = 'COMPLETED',
-  CANCLED = 'CANCLED',
-  RETURN = 'RETURN',
-  RETURNED = 'RETURNED',
-}
-
 @Entity('tbl_purchase')
 export class Purchase {
   @PrimaryGeneratedColumn()
@@ -48,7 +39,7 @@ export class Purchase {
   orderTime: string;
 
   @Column({ length: 50, default: 'COMPLETED' })
-  status: PurchaseStatus;
+  status: string;
 
   @Column({ type: 'text', nullable: true })
   note: string;
