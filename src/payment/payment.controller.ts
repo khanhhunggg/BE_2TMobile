@@ -25,7 +25,7 @@ export class PaymentController {
     @Body() createPaymentLinkDto: CreatePaymentLinkDto,
   ): Promise<PaymentLinkResponseDto> {
     const checkoutUrl =
-      await this.paymentService.doCreatePaymentLink(createPaymentLinkDto);
+      await this.paymentService.createPaymentLink(createPaymentLinkDto);
     return { checkoutUrl };
   }
 

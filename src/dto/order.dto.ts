@@ -1,15 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsOptional, IsDateString } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsDateString,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { PaymentMethod, OrderStatus } from '../entity/order.entity';
 
-export class CreateOrderDto {
+export class CreateOrderDetailDto {
   @ApiProperty({ type: Number, description: 'Product ID', required: true })
   @IsNumber()
   product_id: number;
-
-  @ApiProperty({ type: Number, description: 'User ID', required: true })
-  @IsNumber()
-  user_id: number;
 
   @ApiProperty({ type: Number, description: 'Cart ID', required: false })
   @IsNumber()
@@ -26,11 +30,17 @@ export class CreateOrderDto {
 
   @ApiProperty({
     type: Number,
-    description: 'Total price of the order',
+    description: 'Total price of the item',
     required: true,
   })
   @IsNumber()
   total_price: number;
+}
+
+export class CreateOrderDto {
+  @ApiProperty({ type: Number, description: 'User ID', required: true })
+  @IsNumber()
+  user_id: number;
 
   @ApiProperty({
     type: String,
@@ -60,4 +70,14 @@ export class CreateOrderDto {
   @IsEnum(OrderStatus)
   @IsOptional()
   status?: OrderStatus;
+
+  @ApiProperty({
+    type: [CreateOrderDetailDto],
+    description: 'Order details',
+    required: true,
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderDetailDto)
+  order_details: CreateOrderDetailDto[];
 }

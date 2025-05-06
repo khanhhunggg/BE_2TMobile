@@ -7,10 +7,8 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { Product } from './product.entity';
 import { User } from './user.entity';
-import { Cart } from './cart.entity';
-import { Payment } from './payment.entity';
+import { OrderDetail } from './order-detail.entity';
 
 export enum PaymentMethod {
   BANKING = 'BANKING',
@@ -29,23 +27,9 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Product)
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
-
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @ManyToOne(() => Cart, { nullable: true })
-  @JoinColumn({ name: 'cart_id' })
-  cart?: Cart;
-
-  @Column({ type: 'int' })
-  quantity: number;
-
-  @Column({ type: 'decimal', precision: 15, scale: 2 })
-  total_price: number;
 
   @Column({ type: 'enum', enum: PaymentMethod })
   payment_method: PaymentMethod;
@@ -62,6 +46,6 @@ export class Order {
   @Column({ type: 'date', nullable: true })
   delivered_date: Date;
 
-  @OneToMany(() => Payment, (payment) => payment.order)
-  payments: Payment[];
+  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order)
+  orderDetails: OrderDetail[];
 }
