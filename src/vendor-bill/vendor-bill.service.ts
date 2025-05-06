@@ -9,7 +9,7 @@ import {
   GetVendorBillByIdDto,
   SearchVendorBillDto,
   UpdateVendorBillDto,
-} from './vendor-bill.dto';
+} from '../dto/vendor-bill.dto';
 import { ProductDetail } from '../entity/product-detail.entity';
 
 @Injectable()

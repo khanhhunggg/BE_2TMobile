@@ -20,6 +20,8 @@ export enum OrderStatus {
   DELIVERY = 'DELIVERY',
   COMPLETED = 'COMPLETED',
   CANCLED = 'CANCLED',
+  RETURN = 'RETURN',
+  RETURNED = 'RETURNED',
 }
 
 @Entity('tbl_order')

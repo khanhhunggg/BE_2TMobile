@@ -15,7 +15,7 @@ import {
   GetVendorBillByIdDto,
   SearchVendorBillDto,
   UpdateVendorBillDto,
-} from './vendor-bill.dto';
+} from '../dto/vendor-bill.dto';
 
 @ApiTags('Hóa đơn nhà cung cấp')
 @Controller('vendor-bill')
