@@ -16,6 +16,7 @@ import { OrderModule } from './order/order.module';
 import { VendorBillModule } from './vendor-bill/vendor-bill.module';
 import { PurchaseModule } from './payment/purchase.module';
 import { DiscountModule } from './discount/discount.module';
+import { ReviewModule } from './review/review.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -50,6 +51,7 @@ import { DiscountModule } from './discount/discount.module';
     PurchaseModule,
     VendorBillModule,
     DiscountModule,
+    ReviewModule,
   ],
   controllers: [],
   providers: [],

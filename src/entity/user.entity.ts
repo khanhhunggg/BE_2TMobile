@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { UserInformation } from './user-information.entity';
 import { Cart } from './cart.entity';
+import { Review } from './review.entity';
 
 export enum UserRank {
   Bronze = 'Bronze',
@@ -66,4 +67,7 @@ export class User {
 
   @OneToMany(() => Cart, (cart) => cart.user)
   carts: Cart[];
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews: Review[];
 }

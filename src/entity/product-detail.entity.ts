@@ -4,12 +4,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { Capacity } from './capacity.entity';
 import { Color } from './color.entity';
 import { Product } from './product.entity';
+import { Review } from './review.entity';
 
 @Entity('tbl_product_details')
 export class ProductDetail {
@@ -58,4 +60,7 @@ export class ProductDetail {
   })
   @JoinColumn({ name: 'color_id' })
   color: Color;
+
+  @OneToMany(() => Review, (review) => review.productDetail)
+  reviews: Review[];
 }
