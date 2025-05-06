@@ -96,9 +96,22 @@ export class UserService {
       if (!isMatch) {
         throw new BadRequestException('PASSWORD_IS_INCORRECT');
       }
+
+      const token = this.generateToken(existingUser);
       return {
-        ...(await this.encode(existingUser)),
-        isAdmin: existingUser.isAdmin,
+        token,
+        user: {
+          id: existingUser.id,
+          informationId: existingUser.informationId,
+          userName: existingUser.userName,
+          phoneNumber: existingUser.phoneNumber,
+          email: existingUser.email,
+          isAdmin: existingUser.isAdmin,
+          userRank: existingUser.userRank,
+          isActive: existingUser.isActive,
+          createdAt: existingUser.createdAt,
+          updatedAt: existingUser.updatedAt,
+        },
       };
     } catch (error) {
       throw new BadRequestException(error);
