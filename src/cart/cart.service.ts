@@ -23,10 +23,9 @@ export class CartService {
     try {
       if (!data.user_id) {
         throw new BadRequestException({
-          message: 'Thông tin giỏ hàng không hợp lệ',
+          message: 'Lỗi khi tạo giỏ hàng',
           errors: [
             {
-              field: 'user_id',
               message: 'ID người dùng không được để trống',
             },
           ],
@@ -39,10 +38,9 @@ export class CartService {
 
       if (!user) {
         throw new BadRequestException({
-          message: 'Thông tin giỏ hàng không hợp lệ',
+          message: 'Lỗi khi tạo giỏ hàng',
           errors: [
             {
-              field: 'user_id',
               message: `Không tìm thấy người dùng với ID: ${data.user_id}`,
             },
           ],
@@ -55,10 +53,9 @@ export class CartService {
 
       if (existingCart) {
         throw new BadRequestException({
-          message: 'Thông tin giỏ hàng không hợp lệ',
+          message: 'Lỗi khi tạo giỏ hàng',
           errors: [
             {
-              field: 'user_id',
               message: 'Người dùng đã có giỏ hàng',
             },
           ],
@@ -71,18 +68,50 @@ export class CartService {
 
       return await this.cartRepository.save(newCart);
     } catch (error) {
-      throw error;
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi tạo giỏ hàng',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
     }
   }
 
   public async addItemToCart(data: CartItemDto) {
     try {
+      if (
+        !data.user_id ||
+        !data.product_detail_id ||
+        !data.quantity ||
+        data.quantity <= 0
+      ) {
+        throw new BadRequestException({
+          message: 'Lỗi khi thêm sản phẩm vào giỏ hàng',
+          errors: [
+            {
+              message:
+                'Vui lòng cung cấp đầy đủ thông tin sản phẩm và số lượng hợp lệ',
+            },
+          ],
+        });
+      }
+
       const cart = await this.cartRepository.findOne({
         where: { user_id: data.user_id },
       });
 
       if (!cart) {
-        return await this.createCart({ user_id: data.user_id });
+        const newCart = await this.createCart({ user_id: data.user_id });
+        const newItem = this.cartDetailRepository.create({
+          cart_id: newCart.id,
+          product_detail_id: data.product_detail_id,
+          quantity: data.quantity,
+          price: data.price,
+        });
+        return await this.cartDetailRepository.save(newItem);
       }
 
       const existingItem = await this.cartDetailRepository.findOne({
@@ -94,6 +123,12 @@ export class CartService {
 
       if (existingItem) {
         existingItem.quantity += data.quantity;
+        if (existingItem.quantity <= 0) {
+          await this.cartDetailRepository.remove(existingItem);
+          return {
+            message: 'Sản phẩm đã được xóa khỏi giỏ hàng do số lượng bằng 0',
+          };
+        }
         return await this.cartDetailRepository.save(existingItem);
       }
 
@@ -106,12 +141,36 @@ export class CartService {
 
       return await this.cartDetailRepository.save(newItem);
     } catch (error) {
-      throw error;
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi thêm sản phẩm vào giỏ hàng',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
     }
   }
 
   public async updateCartItem(data: UpdateCartItemDto) {
     try {
+      if (
+        !data.item_id ||
+        !data.cart_id ||
+        !data.quantity ||
+        data.quantity <= 0
+      ) {
+        throw new BadRequestException({
+          message: 'Lỗi khi cập nhật giỏ hàng',
+          errors: [
+            {
+              message: 'Vui lòng cung cấp đầy đủ thông tin và số lượng hợp lệ',
+            },
+          ],
+        });
+      }
+
       const item = await this.cartDetailRepository.findOne({
         where: {
           id: data.item_id,
@@ -121,56 +180,100 @@ export class CartService {
 
       if (!item) {
         throw new BadRequestException({
-          message: 'Thông tin sản phẩm không hợp lệ',
+          message: 'Lỗi khi cập nhật giỏ hàng',
           errors: [
             {
-              field: 'item_id',
               message: `Không tìm thấy sản phẩm với ID: ${data.item_id}`,
             },
           ],
         });
       }
 
-      if (data.quantity !== undefined) {
-        item.quantity = data.quantity;
+      if (data.quantity <= 0) {
+        await this.cartDetailRepository.remove(item);
+        return {
+          message: 'Sản phẩm đã được xóa khỏi giỏ hàng do số lượng bằng 0',
+        };
       }
-      if (data.price !== undefined) {
+
+      item.quantity = data.quantity;
+      if (data.price !== undefined && Number(data.price) > 0) {
         item.price = data.price;
       }
 
       return await this.cartDetailRepository.save(item);
     } catch (error) {
-      throw error;
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi cập nhật giỏ hàng',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
     }
   }
 
   public async removeItemFromCart(cartId: number, itemId: number) {
     try {
-      const result = await this.cartDetailRepository.delete({
-        id: itemId,
-        cart_id: cartId,
-      });
-
-      if (result.affected === 0) {
+      if (!cartId || !itemId) {
         throw new BadRequestException({
-          message: 'Thông tin sản phẩm không hợp lệ',
+          message: 'Lỗi khi xóa sản phẩm khỏi giỏ hàng',
           errors: [
             {
-              field: 'item_id',
+              message: 'Vui lòng cung cấp đầy đủ thông tin cart_id và item_id',
+            },
+          ],
+        });
+      }
+
+      const item = await this.cartDetailRepository.findOne({
+        where: {
+          id: itemId,
+          cart_id: cartId,
+        },
+      });
+
+      if (!item) {
+        throw new BadRequestException({
+          message: 'Lỗi khi xóa sản phẩm khỏi giỏ hàng',
+          errors: [
+            {
               message: `Không tìm thấy sản phẩm với ID: ${itemId}`,
             },
           ],
         });
       }
 
-      return { success: true };
+      await this.cartDetailRepository.remove(item);
+      return { message: 'Sản phẩm đã được xóa khỏi giỏ hàng thành công' };
     } catch (error) {
-      throw error;
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi xóa sản phẩm khỏi giỏ hàng',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
     }
   }
 
   public async getCartByUserId(data: GetCartByUserDto) {
     try {
+      if (!data.user_id) {
+        throw new BadRequestException({
+          message: 'Lỗi khi lấy thông tin giỏ hàng',
+          errors: [
+            {
+              message: 'ID người dùng không được để trống',
+            },
+          ],
+        });
+      }
+
       const cart = await this.cartRepository.findOne({
         where: { user_id: data.user_id },
         relations: [
@@ -181,20 +284,20 @@ export class CartService {
       });
 
       if (!cart) {
-        throw new BadRequestException({
-          message: 'Thông tin giỏ hàng không hợp lệ',
-          errors: [
-            {
-              field: 'user_id',
-              message: `Không tìm thấy giỏ hàng cho người dùng với ID: ${data.user_id}`,
-            },
-          ],
-        });
+        return { message: 'Giỏ hàng trống', cartDetails: [] };
       }
 
       return cart;
     } catch (error) {
-      throw error;
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi lấy thông tin giỏ hàng',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
     }
   }
 }

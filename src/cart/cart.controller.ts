@@ -22,11 +22,11 @@ import { CartService } from './cart.service';
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @Post('create-cart')
-  @ApiOperation({ summary: 'Tạo giỏ hàng' })
-  public async CreateCart(@Body() data: CreateCartItemDto) {
-    return await this.cartService.createCart(data);
-  }
+  // @Post('create-cart')
+  // @ApiOperation({ summary: 'Tạo giỏ hàng' })
+  // public async CreateCart(@Body() data: CreateCartItemDto) {
+  //   return await this.cartService.createCart(data);
+  // }
 
   @Get('get-cart-by-user')
   @ApiOperation({ summary: 'Lấy giỏ hàng theo user' })
