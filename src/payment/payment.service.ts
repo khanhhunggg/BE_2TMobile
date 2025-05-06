@@ -31,7 +31,6 @@ export class PaymentService {
         throw new Error('Order not found');
       }
 
-      // Calculate total amount from order details
       const amount = Math.round(
         order.orderDetails.reduce((sum, detail) => sum + detail.total_price, 0),
       );
@@ -51,7 +50,7 @@ export class PaymentService {
         description,
         cancelUrl,
         returnUrl,
-        expiredAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // 24 hours
+        expiredAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
         buyerName: createPaymentLinkDto.buyerName,
         buyerEmail: createPaymentLinkDto.buyerEmail,
         buyerPhone: createPaymentLinkDto.buyerPhone,

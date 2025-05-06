@@ -16,50 +16,24 @@ export class OrderService {
 
   public async doCreateOrder(orderData: CreateOrderDto) {
     try {
-      // Check if order exists for this user
-      const existingOrder = await this.orderRepository.findOne({
-        where: {
-          user: { id: orderData.user_id },
-          status: OrderStatus.PENDING,
-        },
-        relations: ['orderDetails', 'orderDetails.productDetail'],
+      // Create new order
+      const newOrder = this.orderRepository.create({
+        user: { id: orderData.user_id },
+        payment_method: orderData.payment_method,
+        expected_delivery_date: orderData.expected_delivery_date,
+        status: orderData.status || OrderStatus.PENDING,
       });
-
-      let order;
-      if (existingOrder) {
-        // If order exists, use the existing order
-        order = existingOrder;
-      } else {
-        // Create new order if it doesn't exist
-        const newOrder = this.orderRepository.create({
-          user: { id: orderData.user_id },
-          payment_method: orderData.payment_method,
-          expected_delivery_date: orderData.expected_delivery_date,
-          status: orderData.status || OrderStatus.PENDING,
-        });
-        order = await this.orderRepository.save(newOrder);
-      }
+      const order = await this.orderRepository.save(newOrder);
 
       // Process order details
       for (const detail of orderData.order_details) {
-        // Check if product detail already exists in order details
-        const existingDetail = order.orderDetails?.find(
-          (od) => od.productDetail.id === detail.product_detail_id,
-        );
-
-        if (existingDetail) {
-          existingDetail.quantity += detail.quantity;
-          existingDetail.total_price += detail.total_price;
-          await this.orderDetailRepository.save(existingDetail);
-        } else {
-          const newOrderDetail = this.orderDetailRepository.create({
-            order: { id: order.id },
-            productDetail: { id: detail.product_detail_id },
-            quantity: detail.quantity,
-            total_price: detail.total_price,
-          });
-          await this.orderDetailRepository.save(newOrderDetail);
-        }
+        const newOrderDetail = this.orderDetailRepository.create({
+          order: { id: order.id },
+          productDetail: { id: detail.product_detail_id },
+          quantity: detail.quantity,
+          total_price: detail.total_price,
+        });
+        await this.orderDetailRepository.save(newOrderDetail);
       }
 
       return await this.orderRepository.findOne({
@@ -139,26 +113,18 @@ export class OrderService {
 
       // If order details are provided, update them
       if (updateData.order_details) {
-        // Process each order detail
-        for (const detail of updateData.order_details) {
-          // Check if product detail already exists in order details
-          const existingDetail = order.orderDetails?.find(
-            (od) => od.productDetail.id === detail.product_detail_id,
-          );
+        // Remove existing order details
+        await this.orderDetailRepository.remove(order.orderDetails);
 
-          if (existingDetail) {
-            existingDetail.quantity += detail.quantity;
-            existingDetail.total_price += detail.total_price;
-            await this.orderDetailRepository.save(existingDetail);
-          } else {
-            const newOrderDetail = this.orderDetailRepository.create({
-              order: { id },
-              productDetail: { id: detail.product_detail_id },
-              quantity: detail.quantity,
-              total_price: detail.total_price,
-            });
-            await this.orderDetailRepository.save(newOrderDetail);
-          }
+        // Create new order details
+        for (const detail of updateData.order_details) {
+          const newOrderDetail = this.orderDetailRepository.create({
+            order: { id },
+            productDetail: { id: detail.product_detail_id },
+            quantity: detail.quantity,
+            total_price: detail.total_price,
+          });
+          await this.orderDetailRepository.save(newOrderDetail);
         }
       }
 
@@ -178,7 +144,6 @@ export class OrderService {
     try {
       const order = await this.orderRepository.findOne({
         where: { id },
-        relations: ['orderDetails'],
       });
 
       if (!order) {
@@ -190,10 +155,7 @@ export class OrderService {
         });
       }
 
-      // Remove order details first (though cascade should handle this)
-      await this.orderDetailRepository.remove(order.orderDetails);
-
-      // Then remove the order
+      // Remove the order (order details will be removed by cascade)
       await this.orderRepository.remove(order);
 
       return { message: 'Xóa đơn hàng thành công' };
