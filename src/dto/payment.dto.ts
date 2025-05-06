@@ -113,6 +113,11 @@ export class UpdatePaymentDto {
   id: number;
 
   @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  orderId: number;
+
+  @ApiProperty()
   @IsString()
   @IsOptional()
   buyerName?: string;
