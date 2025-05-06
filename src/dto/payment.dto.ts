@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class PaymentLinkResponseDto {
   @ApiProperty({ description: 'URL thanh toán' })
@@ -7,24 +13,29 @@ export class PaymentLinkResponseDto {
 }
 
 export class CreatePaymentLinkDto {
-  @ApiProperty({ description: 'ID của đơn hàng' })
+  @ApiProperty()
   @IsNumber()
+  @IsNotEmpty()
   orderId: number;
 
-  @ApiProperty({ description: 'Tên người mua' })
+  @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   buyerName: string;
 
-  @ApiProperty({ description: 'Email người mua' })
+  @ApiProperty()
   @IsEmail()
+  @IsNotEmpty()
   buyerEmail: string;
 
-  @ApiProperty({ description: 'Số điện thoại người mua' })
+  @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   buyerPhone: string;
 
-  @ApiProperty({ description: 'Địa chỉ người mua' })
+  @ApiProperty()
   @IsString()
+  @IsNotEmpty()
   buyerAddress: string;
 
   @ApiProperty({
@@ -38,37 +49,52 @@ export class CreatePaymentLinkDto {
 }
 
 export class GetPaymentByIdDto {
-  @ApiProperty({ description: 'ID của thanh toán' })
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
   id: number;
 }
 
 export class SearchPaymentDto {
-  @ApiProperty({ description: 'ID của đơn hàng', required: false })
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
   orderId?: number;
 
-  @ApiProperty({ description: 'Tên người mua', required: false })
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
   buyerName?: string;
 
-  @ApiProperty({ description: 'Email người mua', required: false })
+  @ApiProperty({ required: false })
+  @IsEmail()
+  @IsOptional()
   buyerEmail?: string;
 
-  @ApiProperty({ description: 'Số điện thoại người mua', required: false })
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
   buyerPhone?: string;
 
-  @ApiProperty({ description: 'Số trang', required: false, default: 1 })
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
   page?: number;
 
-  @ApiProperty({
-    description: 'Số lượng phần tử trên trang',
-    required: false,
-    default: 10,
-  })
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
   size?: number;
 
   @ApiProperty({
     description: 'Trường sắp xếp',
     required: false,
     default: 'created_at',
+  })
+  @ApiProperty({
+    description: 'Thứ tự sắp xếp',
+    required: false,
+    default: 'DESC',
   })
   sort_by?: string;
 
@@ -81,26 +107,35 @@ export class SearchPaymentDto {
 }
 
 export class UpdatePaymentDto {
-  @ApiProperty({ description: 'ID của thanh toán' })
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
   id: number;
 
-  @ApiProperty({ description: 'ID của đơn hàng', required: false })
-  orderId?: number;
-
-  @ApiProperty({ description: 'Tên người mua', required: false })
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   buyerName?: string;
 
-  @ApiProperty({ description: 'Email người mua', required: false })
+  @ApiProperty()
+  @IsEmail()
+  @IsOptional()
   buyerEmail?: string;
 
-  @ApiProperty({ description: 'Số điện thoại người mua', required: false })
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   buyerPhone?: string;
 
-  @ApiProperty({ description: 'Địa chỉ người mua', required: false })
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
   buyerAddress?: string;
 }
 
 export class DeletePaymentDto {
-  @ApiProperty({ description: 'ID của thanh toán' })
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
   id: number;
 }

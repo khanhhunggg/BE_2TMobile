@@ -7,7 +7,13 @@ import { firstValueFrom } from 'rxjs';
 import { Order } from 'src/entity/order.entity';
 import { Payment } from 'src/entity/payment.entity';
 import { Repository } from 'typeorm';
-import { CreatePaymentLinkDto } from 'src/dto/payment.dto';
+import {
+  CreatePaymentLinkDto,
+  DeletePaymentDto,
+  GetPaymentByIdDto,
+  SearchPaymentDto,
+  UpdatePaymentDto,
+} from 'src/dto/payment.dto';
 
 @Injectable()
 export class PaymentService {
@@ -145,6 +151,197 @@ export class PaymentService {
       throw new BadRequestException({
         message: 'Lỗi khi lấy thông tin thanh toán',
         errors: [{ message: error.message }],
+      });
+    }
+  }
+
+  public async doGetAllPayment(searchParams: SearchPaymentDto) {
+    try {
+      const {
+        orderId,
+        buyerName,
+        buyerEmail,
+        page = 1,
+        size = 10,
+      } = searchParams;
+
+      const queryBuilder = this.paymentRepository
+        .createQueryBuilder('payment')
+        .leftJoinAndSelect('payment.order', 'order');
+
+      if (orderId) {
+        queryBuilder.andWhere('payment.orderId = :orderId', { orderId });
+      }
+
+      if (buyerName) {
+        queryBuilder.andWhere('payment.buyerName LIKE :buyerName', {
+          buyerName: `%${buyerName}%`,
+        });
+      }
+
+      if (buyerEmail) {
+        queryBuilder.andWhere('payment.buyerEmail LIKE :buyerEmail', {
+          buyerEmail: `%${buyerEmail}%`,
+        });
+      }
+
+      const skip = (page - 1) * size;
+      queryBuilder.skip(skip).take(size);
+
+      const [payments, total] = await queryBuilder.getManyAndCount();
+
+      if (!payments || payments.length === 0) {
+        throw new BadRequestException({
+          message: 'Không tìm thấy thanh toán nào',
+        });
+      }
+
+      return {
+        data: payments,
+        pagination: {
+          total,
+          page,
+          size,
+          total_pages: Math.ceil(total / size),
+        },
+      };
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi lấy danh sách thanh toán',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
+    }
+  }
+
+  public async doGetPaymentById(data: GetPaymentByIdDto) {
+    try {
+      if (!data.id) {
+        throw new BadRequestException({
+          message: 'ID thanh toán không hợp lệ',
+          errors: [
+            {
+              field: 'id',
+              message: 'ID thanh toán không được để trống',
+            },
+          ],
+        });
+      }
+
+      const payment = await this.paymentRepository
+        .createQueryBuilder('payment')
+        .leftJoinAndSelect('payment.order', 'order')
+        .where('payment.id = :id', { id: data.id })
+        .getOne();
+
+      if (!payment) {
+        throw new BadRequestException({
+          message: 'Không tìm thấy thanh toán',
+          errors: [
+            {
+              field: 'id',
+              message: `Không tìm thấy thanh toán với ID: ${data.id}`,
+            },
+          ],
+        });
+      }
+
+      return payment;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi lấy thông tin thanh toán',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
+    }
+  }
+
+  public async doUpdatePayment(data: UpdatePaymentDto) {
+    try {
+      const existingPayment = await this.paymentRepository.findOne({
+        where: { id: data.id },
+      });
+
+      if (!existingPayment) {
+        throw new BadRequestException({
+          message: 'Không tìm thấy thanh toán',
+          errors: [
+            {
+              field: 'id',
+              message: `Không tìm thấy thanh toán với ID: ${data.id}`,
+            },
+          ],
+        });
+      }
+
+      const paymentUpdateData = {
+        buyerName: data.buyerName,
+        buyerEmail: data.buyerEmail,
+        buyerPhone: data.buyerPhone,
+        buyerAddress: data.buyerAddress,
+      };
+
+      await this.paymentRepository.update(data.id, paymentUpdateData);
+
+      return await this.doGetPaymentById({ id: data.id });
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi cập nhật thanh toán',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
+    }
+  }
+
+  public async doDeletePayment(data: DeletePaymentDto) {
+    try {
+      const existingPayment = await this.paymentRepository.findOne({
+        where: { id: data.id },
+      });
+
+      if (!existingPayment) {
+        throw new BadRequestException({
+          message: 'Không tìm thấy thanh toán',
+          errors: [
+            {
+              field: 'id',
+              message: `Không tìm thấy thanh toán với ID: ${data.id}`,
+            },
+          ],
+        });
+      }
+
+      await this.paymentRepository.delete(data.id);
+
+      return {
+        message: 'Xóa thanh toán thành công',
+        data: {
+          id: data.id,
+        },
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException({
+        message: 'Lỗi khi xóa thanh toán',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
       });
     }
   }
