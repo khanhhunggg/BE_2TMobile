@@ -6,8 +6,9 @@ import {
   JoinColumn,
 } from 'typeorm';
 import { Order } from './order.entity';
-import { Product } from './product.entity';
+import { ProductDetail } from './product-detail.entity';
 import { Cart } from './cart.entity';
+import { CartDetail } from './cart-detail.entity';
 
 @Entity('tbl_order_details')
 export class OrderDetail {
@@ -18,13 +19,13 @@ export class OrderDetail {
   @JoinColumn({ name: 'order_id' })
   order: Order;
 
-  @ManyToOne(() => Product)
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
+  @ManyToOne(() => ProductDetail)
+  @JoinColumn({ name: 'product_detail_id' })
+  productDetail: ProductDetail;
 
-  @ManyToOne(() => Cart, { nullable: true })
-  @JoinColumn({ name: 'cart_id' })
-  cart?: Cart;
+  @ManyToOne(() => CartDetail, { nullable: true })
+  @JoinColumn({ name: 'cart_detail_id' })
+  cartDetail?: CartDetail;
 
   @Column({ type: 'int' })
   quantity: number;

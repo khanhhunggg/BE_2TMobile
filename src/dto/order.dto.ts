@@ -11,14 +11,22 @@ import { Type } from 'class-transformer';
 import { PaymentMethod, OrderStatus } from '../entity/order.entity';
 
 export class CreateOrderDetailDto {
-  @ApiProperty({ type: Number, description: 'Product ID', required: true })
+  @ApiProperty({
+    type: Number,
+    description: 'Product detail ID',
+    required: true,
+  })
   @IsNumber()
-  product_id: number;
+  product_detail_id: number;
 
-  @ApiProperty({ type: Number, description: 'Cart ID', required: false })
+  @ApiProperty({
+    type: Number,
+    description: 'Cart detail ID',
+    required: false,
+  })
   @IsNumber()
   @IsOptional()
-  cart_id?: number;
+  cart_detail_id?: number;
 
   @ApiProperty({
     type: Number,

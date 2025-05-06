@@ -16,39 +16,58 @@ export class OrderService {
 
   public async doCreateOrder(orderData: CreateOrderDto) {
     try {
-      // Create the order first
-      const newOrder = this.orderRepository.create({
-        user: { id: orderData.user_id },
-        payment_method: orderData.payment_method,
-        expected_delivery_date: orderData.expected_delivery_date,
-        status: orderData.status || OrderStatus.PENDING,
+      // Check if order exists for this user
+      const existingOrder = await this.orderRepository.findOne({
+        where: {
+          user: { id: orderData.user_id },
+          status: OrderStatus.PENDING,
+        },
+        relations: ['orderDetails', 'orderDetails.productDetail'],
       });
 
-      const savedOrder = await this.orderRepository.save(newOrder);
+      let order;
+      if (existingOrder) {
+        // If order exists, use the existing order
+        order = existingOrder;
+      } else {
+        // Create new order if it doesn't exist
+        const newOrder = this.orderRepository.create({
+          user: { id: orderData.user_id },
+          payment_method: orderData.payment_method,
+          expected_delivery_date: orderData.expected_delivery_date,
+          status: orderData.status || OrderStatus.PENDING,
+        });
+        order = await this.orderRepository.save(newOrder);
+      }
 
-      // Create order details
-      const orderDetails = orderData.order_details.map((detail) =>
-        this.orderDetailRepository.create({
-          order: { id: savedOrder.id },
-          product: { id: detail.product_id },
-          cart: detail.cart_id ? { id: detail.cart_id } : null,
-          quantity: detail.quantity,
-          total_price: detail.total_price,
-        }),
-      );
+      // Process order details
+      for (const detail of orderData.order_details) {
+        // Check if product detail already exists in order details
+        const existingDetail = order.orderDetails?.find(
+          (od) => od.productDetail.id === detail.product_detail_id,
+        );
 
-      await this.orderDetailRepository.save(orderDetails);
+        if (existingDetail) {
+          existingDetail.quantity += detail.quantity;
+          existingDetail.total_price += detail.total_price;
+          await this.orderDetailRepository.save(existingDetail);
+        } else {
+          const newOrderDetail = this.orderDetailRepository.create({
+            order: { id: order.id },
+            productDetail: { id: detail.product_detail_id },
+            quantity: detail.quantity,
+            total_price: detail.total_price,
+          });
+          await this.orderDetailRepository.save(newOrderDetail);
+        }
+      }
 
       return await this.orderRepository.findOne({
-        where: { id: savedOrder.id },
-        relations: [
-          'user',
-          'orderDetails',
-          'orderDetails.product',
-          'orderDetails.cart',
-        ],
+        where: { id: order.id },
+        relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
       });
     } catch (error) {
+      console.log(error);
       throw new BadRequestException({
         message: 'Lỗi khi tạo đơn hàng',
         errors: [{ message: error.message }],
@@ -59,12 +78,7 @@ export class OrderService {
   public async doGetAllOrders() {
     try {
       return await this.orderRepository.find({
-        relations: [
-          'user',
-          'orderDetails',
-          'orderDetails.product',
-          'orderDetails.cart',
-        ],
+        relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
       });
     } catch (error) {
       throw new BadRequestException({
@@ -78,12 +92,7 @@ export class OrderService {
     try {
       const order = await this.orderRepository.findOne({
         where: { id },
-        relations: [
-          'user',
-          'orderDetails',
-          'orderDetails.product',
-          'orderDetails.cart',
-        ],
+        relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
       });
       if (!order) {
         throw new BadRequestException({
@@ -106,7 +115,7 @@ export class OrderService {
     try {
       const order = await this.orderRepository.findOne({
         where: { id },
-        relations: ['orderDetails'],
+        relations: ['orderDetails', 'orderDetails.productDetail'],
       });
 
       if (!order) {
@@ -130,31 +139,32 @@ export class OrderService {
 
       // If order details are provided, update them
       if (updateData.order_details) {
-        // Remove existing order details
-        await this.orderDetailRepository.remove(order.orderDetails);
+        // Process each order detail
+        for (const detail of updateData.order_details) {
+          // Check if product detail already exists in order details
+          const existingDetail = order.orderDetails?.find(
+            (od) => od.productDetail.id === detail.product_detail_id,
+          );
 
-        // Create new order details
-        const orderDetails = updateData.order_details.map((detail) =>
-          this.orderDetailRepository.create({
-            order: { id },
-            product: { id: detail.product_id },
-            cart: detail.cart_id ? { id: detail.cart_id } : null,
-            quantity: detail.quantity,
-            total_price: detail.total_price,
-          }),
-        );
-
-        await this.orderDetailRepository.save(orderDetails);
+          if (existingDetail) {
+            existingDetail.quantity += detail.quantity;
+            existingDetail.total_price += detail.total_price;
+            await this.orderDetailRepository.save(existingDetail);
+          } else {
+            const newOrderDetail = this.orderDetailRepository.create({
+              order: { id },
+              productDetail: { id: detail.product_detail_id },
+              quantity: detail.quantity,
+              total_price: detail.total_price,
+            });
+            await this.orderDetailRepository.save(newOrderDetail);
+          }
+        }
       }
 
       return await this.orderRepository.findOne({
         where: { id },
-        relations: [
-          'user',
-          'orderDetails',
-          'orderDetails.product',
-          'orderDetails.cart',
-        ],
+        relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
       });
     } catch (error) {
       throw new BadRequestException({

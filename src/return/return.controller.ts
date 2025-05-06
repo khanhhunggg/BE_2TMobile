@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   HttpStatus,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { ReturnService } from './return.service';
 import {
@@ -19,12 +20,14 @@ import {
 import { ReturnStatus } from '../entity/return-detail.entity';
 import { Return } from '../entity/return.entity';
 import { ReturnDetail } from '../entity/return-detail.entity';
+import { ReturnType } from '../entity/return.entity';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiParam,
   ApiBody,
+  ApiQuery,
 } from '@nestjs/swagger';
 
 @ApiTags('Trả hàng')
@@ -54,12 +57,19 @@ export class ReturnController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy danh sách tất cả đơn trả hàng' })
+  @ApiQuery({ name: 'status', enum: ReturnStatus, required: false })
+  @ApiQuery({ name: 'type', enum: ReturnType, required: false })
+  @ApiQuery({ name: 'customerId', type: 'number', required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Danh sách tất cả đơn trả hàng',
     type: [Return],
   })
-  public async findAll(): Promise<Return[]> {
+  public async findAll(
+    @Query('status') status?: ReturnStatus,
+    @Query('type') type?: ReturnType,
+    @Query('customerId') customerId?: number,
+  ): Promise<Return[]> {
     return await this.returnService.findAll();
   }
 
@@ -153,6 +163,7 @@ export class ReturnController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Lấy tất cả chi tiết cho đơn trả hàng' })
   @ApiParam({ name: 'id', type: 'number', description: 'ID đơn trả hàng' })
+  @ApiQuery({ name: 'status', enum: ReturnStatus, required: false })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Danh sách chi tiết trả hàng',
@@ -164,6 +175,7 @@ export class ReturnController {
   })
   public async getReturnDetails(
     @Param('id', ParseIntPipe) id: number,
+    @Query('status') status?: ReturnStatus,
   ): Promise<ReturnDetail[]> {
     return await this.returnService.getReturnDetails(id);
   }
@@ -181,7 +193,11 @@ export class ReturnController {
     schema: {
       type: 'object',
       properties: {
-        status: { type: 'string', enum: Object.values(ReturnStatus) },
+        status: {
+          type: 'string',
+          enum: Object.values(ReturnStatus),
+          example: ReturnStatus.APPROVED,
+        },
       },
     },
   })
