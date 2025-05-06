@@ -4,6 +4,7 @@ import {
   CreateProductDto,
   DeleteProductDto,
   GetProductByIdDto,
+  GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto,
   SearchProductDto,
   UpdateProductDto,
 } from 'src/dto/product.dto';
@@ -259,6 +260,18 @@ export class ProductService {
         ],
       });
     }
+  }
+
+  public async doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
+    data: GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto,
+  ) {
+    return await this.productDetailRepository.findOne({
+      where: {
+        product_id: data.product_id,
+        color_id: data.color_id,
+        capacity_id: data.capacity_id,
+      },
+    });
   }
 
   public async doGetAllProduct(searchParams: SearchProductDto) {

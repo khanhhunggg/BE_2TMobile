@@ -12,6 +12,7 @@ import {
   CreateProductDto,
   DeleteProductDto,
   GetProductByIdDto,
+  GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto,
   SearchProductDto,
   UpdateProductDto,
 } from 'src/dto/product.dto';
@@ -38,6 +39,18 @@ export class ProductController {
   @ApiOperation({ summary: 'Lấy sản phẩm theo ID' })
   public async GetProductById(@Query() data: GetProductByIdDto) {
     return await this.productService.doGetProductById(data);
+  }
+
+  @Get('get-product-detail-id-by-product-id-and-color-id-and-capacity-id')
+  @ApiOperation({
+    summary: 'Lấy ID chi tiết sản phẩm theo ID sản phẩm, màu sắc và dung lượng',
+  })
+  public async GetProductDetailIdByProductIdAndColorIdAndCapacityId(
+    @Query() data: GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto,
+  ) {
+    return await this.productService.doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
+      data,
+    );
   }
 
   @Put('update-product')

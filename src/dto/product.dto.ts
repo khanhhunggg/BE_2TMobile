@@ -415,3 +415,20 @@ export class DeleteProductDto {
   @IsNotEmpty()
   id: number;
 }
+
+export class GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto {
+  @ApiProperty({ type: Number, description: 'ID sản phẩm', required: true })
+  @IsNumber()
+  @IsNotEmpty()
+  product_id: number;
+
+  @ApiProperty({ type: Number, description: 'ID màu sắc', required: true })
+  @IsNumber()
+  @IsNotEmpty()
+  color_id: number;
+
+  @ApiProperty({ type: Number, description: 'ID dung lượng', required: true })
+  @IsNumber()
+  @IsNotEmpty()
+  capacity_id: number;
+}
