@@ -4,6 +4,7 @@ exports.default = handler;
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const swagger_1 = require("./swagger");
+require("reflect-metadata");
 let server;
 let isReady = false;
 async function bootstrap() {
@@ -18,9 +19,15 @@ async function bootstrap() {
     return app;
 }
 async function handler(req, res) {
-    if (!isReady)
-        await bootstrap();
-    return server(req, res);
+    try {
+        if (!isReady)
+            await bootstrap();
+        return server(req, res);
+    }
+    catch (err) {
+        console.error('ERROR in handler:', err);
+        res.status(500).send({ error: err.message });
+    }
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
