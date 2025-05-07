@@ -2,7 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
-declare const module: any;
+import { VercelRequest, VercelResponse } from '@vercel/node';
+
+let server: any;
+let isReady = false;
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -12,5 +15,14 @@ async function bootstrap() {
   setupSwagger(app);
 
   await app.listen(process.env.PORT || 3303);
+  server = app.getHttpServer();
+  isReady = true;
+  return app;
 }
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  if (!isReady) await bootstrap();
+  return server(req, res);
+}
+
 bootstrap();
