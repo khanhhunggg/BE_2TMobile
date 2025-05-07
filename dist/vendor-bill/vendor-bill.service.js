@@ -172,7 +172,7 @@ let VendorBillService = class VendorBillService {
         try {
             const existingVendorBill = await this.purchaseRepository.findOne({
                 where: { id: data.id },
-                relations: ['items'],
+                relations: ['purchaseOrderItems'],
             });
             if (!existingVendorBill) {
                 throw new common_1.BadRequestException({
