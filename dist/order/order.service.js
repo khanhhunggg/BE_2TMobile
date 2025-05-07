@@ -104,13 +104,27 @@ let OrderService = class OrderService {
                     ],
                 });
             }
-            const updatedOrder = this.orderRepository.merge(order, {
-                user: updateData.user_id ? { id: updateData.user_id } : undefined,
-                payment_method: updateData.payment_method,
-                expected_delivery_date: updateData.expected_delivery_date,
-                status: updateData.status,
-            });
-            await this.orderRepository.save(updatedOrder);
+            const orderUpdateData = {};
+            if (updateData.user_id !== undefined &&
+                updateData.user_id !== order.user?.id) {
+                orderUpdateData.user = { id: updateData.user_id };
+            }
+            if (updateData.payment_method !== undefined &&
+                updateData.payment_method !== order.payment_method) {
+                orderUpdateData.payment_method = updateData.payment_method;
+            }
+            if (updateData.expected_delivery_date !== undefined &&
+                updateData.expected_delivery_date !== order.expected_delivery_date) {
+                orderUpdateData.expected_delivery_date =
+                    updateData.expected_delivery_date;
+            }
+            if (updateData.status !== undefined &&
+                updateData.status !== order.status) {
+                orderUpdateData.status = updateData.status;
+            }
+            if (Object.keys(orderUpdateData).length > 0) {
+                await this.orderRepository.update(id, orderUpdateData);
+            }
             if (updateData.order_details) {
                 await this.orderDetailRepository.remove(order.orderDetails);
                 for (const detail of updateData.order_details) {

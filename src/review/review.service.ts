@@ -185,20 +185,31 @@ export class ReviewService {
         throw new NotFoundException('Review not found');
       }
 
-      // Chỉ cho phép cập nhật rating và comment
-      const updateData = {
-        rating: data.rating,
-        comment: data.comment,
-        isVerified: data.isVerified,
-      };
+      const updateData: Partial<Review> = {};
 
-      // Loại bỏ các trường undefined
-      Object.keys(updateData).forEach(
-        (key) => updateData[key] === undefined && delete updateData[key],
-      );
+      // Only update fields that have changed
+      if (data.rating !== undefined && data.rating !== review.rating) {
+        updateData.rating = data.rating;
+      }
+      if (data.comment !== undefined && data.comment !== review.comment) {
+        updateData.comment = data.comment;
+      }
+      if (
+        data.isVerified !== undefined &&
+        data.isVerified !== review.isVerified
+      ) {
+        updateData.isVerified = data.isVerified;
+      }
 
-      Object.assign(review, updateData);
-      return await this.reviewRepository.save(review);
+      // Only perform update if there are actual changes
+      if (Object.keys(updateData).length > 0) {
+        await this.reviewRepository.update(data.id, updateData);
+      }
+
+      return await this.reviewRepository.findOne({
+        where: { id: data.id },
+        relations: ['user', 'productDetail'],
+      });
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw error;

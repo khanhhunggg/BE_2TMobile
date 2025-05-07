@@ -222,13 +222,15 @@ let UserService = class UserService {
                 throw new common_1.BadRequestException('USER_NOT_FOUND');
             }
             const userUpdateData = {};
-            if (updateDto.Username !== undefined) {
+            if (updateDto.Username !== undefined &&
+                updateDto.Username !== user.userName) {
                 userUpdateData.userName = updateDto.Username;
             }
-            if (updateDto.PhoneNumber !== undefined) {
+            if (updateDto.PhoneNumber !== undefined &&
+                updateDto.PhoneNumber !== user.phoneNumber) {
                 userUpdateData.phoneNumber = updateDto.PhoneNumber;
             }
-            if (updateDto.Email !== undefined) {
+            if (updateDto.Email !== undefined && updateDto.Email !== user.email) {
                 userUpdateData.email = updateDto.Email;
             }
             let userInformation = user.userInformation;
@@ -249,26 +251,36 @@ let UserService = class UserService {
                     };
                 }
                 else {
-                    if (updateDto.FullName !== undefined) {
+                    if (updateDto.FullName !== undefined &&
+                        updateDto.FullName !== userInformation.fullName) {
                         userInformationUpdateData.fullName = updateDto.FullName;
                     }
-                    if (updateDto.Address !== undefined) {
+                    if (updateDto.Address !== undefined &&
+                        updateDto.Address !== userInformation.address) {
                         userInformationUpdateData.address = updateDto.Address;
                     }
-                    if (updateDto.Gender !== undefined) {
+                    if (updateDto.Gender !== undefined &&
+                        updateDto.Gender !== userInformation.gender) {
                         userInformationUpdateData.gender = updateDto.Gender;
                     }
                     if (updateDto.BirthDate !== undefined) {
-                        userInformationUpdateData.dateOfBirth = new Date(updateDto.BirthDate);
+                        const newBirthDate = new Date(updateDto.BirthDate);
+                        if (newBirthDate.getTime() !== userInformation.dateOfBirth?.getTime()) {
+                            userInformationUpdateData.dateOfBirth = newBirthDate;
+                        }
                     }
                 }
-                const savedUserInformation = await this.userInformationRepository.save({
-                    ...userInformation,
-                    ...userInformationUpdateData,
-                });
-                userUpdateData.informationId = savedUserInformation.informationId;
+                if (Object.keys(userInformationUpdateData).length > 0) {
+                    const savedUserInformation = await this.userInformationRepository.save({
+                        ...userInformation,
+                        ...userInformationUpdateData,
+                    });
+                    userUpdateData.informationId = savedUserInformation.informationId;
+                }
             }
-            await this.userRepository.update(dto.id, userUpdateData);
+            if (Object.keys(userUpdateData).length > 0) {
+                await this.userRepository.update(dto.id, userUpdateData);
+            }
             const updatedUser = await this.userRepository.findOne({
                 where: { id: dto.id },
                 relations: ['userInformation'],

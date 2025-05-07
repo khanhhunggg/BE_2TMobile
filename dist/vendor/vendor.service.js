@@ -47,17 +47,24 @@ let VendorService = class VendorService {
             throw new Error('Vendor not found');
         }
         const updateData = {};
-        if (data.vendor_code)
+        if (data.vendor_code && data.vendor_code !== vendor.vendorCode) {
             updateData.vendorCode = data.vendor_code;
-        if (data.name)
+        }
+        if (data.name && data.name !== vendor.name) {
             updateData.name = data.name;
-        if (data.phone)
+        }
+        if (data.phone && data.phone !== vendor.phone) {
             updateData.phone = data.phone;
-        if (data.email)
+        }
+        if (data.email && data.email !== vendor.email) {
             updateData.email = data.email;
-        if (data.address)
+        }
+        if (data.address && data.address !== vendor.address) {
             updateData.address = data.address;
-        await this.vendorRepository.update(data.id, updateData);
+        }
+        if (Object.keys(updateData).length > 0) {
+            await this.vendorRepository.update(data.id, updateData);
+        }
         const updatedVendor = await this.vendorRepository.findOne({
             where: { id: data.id },
         });

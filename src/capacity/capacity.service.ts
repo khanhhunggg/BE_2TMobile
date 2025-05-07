@@ -107,11 +107,26 @@ export class CapacityService {
       return newCapacityPrice;
     }
 
-    // Update existing capacity price
-    await this.capacityPriceRepository.update(capacity.price.id, {
-      price: data.price,
-      discount_price: data.discount_price,
-    });
+    const priceUpdateData: Partial<CapacityPrice> = {};
+
+    // Only update fields that have changed
+    if (data.price !== undefined && data.price !== capacity.price.price) {
+      priceUpdateData.price = data.price;
+    }
+    if (
+      data.discount_price !== undefined &&
+      data.discount_price !== capacity.price.discount_price
+    ) {
+      priceUpdateData.discount_price = data.discount_price;
+    }
+
+    // Only perform update if there are actual changes
+    if (Object.keys(priceUpdateData).length > 0) {
+      await this.capacityPriceRepository.update(
+        capacity.price.id,
+        priceUpdateData,
+      );
+    }
 
     return await this.capacityPriceRepository.findOne({
       where: { id: capacity.price.id },

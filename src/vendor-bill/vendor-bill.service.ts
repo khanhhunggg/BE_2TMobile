@@ -214,38 +214,61 @@ export class VendorBillService {
 
       const { items, ...purchaseData } = data;
 
-      await this.purchaseRepository.update(data.id, purchaseData);
-      if (
-        existingVendorBill.purchaseOrderItems &&
-        existingVendorBill.purchaseOrderItems.length > 0
-      ) {
-        await this.purchaseOrderItemRepository.delete({
-          purchaseOrderId: data.id,
-        });
+      const fieldsToUpdate = {};
+      for (const [key, value] of Object.entries(purchaseData)) {
+        if (value !== undefined && value !== existingVendorBill[key]) {
+          fieldsToUpdate[key] = value;
+        }
       }
+
+      if (Object.keys(fieldsToUpdate).length > 0) {
+        await this.purchaseRepository.update(data.id, fieldsToUpdate);
+      }
+
       if (items && items.length > 0) {
-        const purchaseItems = items.map((item) => ({
-          ...item,
-          purchaseOrderId: data.id,
-        }));
-        await this.purchaseOrderItemRepository.save(purchaseItems);
+        const existingItems = existingVendorBill.purchaseOrderItems || [];
+        const hasItemsChanged =
+          items.length !== existingItems.length ||
+          items.some((newItem, index) => {
+            const existingItem = existingItems[index];
+            return (
+              !existingItem ||
+              newItem.productId !== existingItem.productId ||
+              newItem.quantity !== existingItem.quantity ||
+              newItem.unitPrice !== existingItem.unitPrice
+            );
+          });
 
-        for (const item of items) {
-          if (item.productId && item.unitPrice) {
-            const productDetails = await this.productDetailRepository.find({
-              where: { product_id: item.productId },
+        if (hasItemsChanged) {
+          if (existingItems.length > 0) {
+            await this.purchaseOrderItemRepository.delete({
+              purchaseOrderId: data.id,
             });
+          }
 
-            for (const productDetail of productDetails) {
-              const importPrice = item.unitPrice.toString();
-              const sellingPrice = (item.unitPrice * 1.1).toString();
-              await this.productDetailRepository.update(
-                { id: productDetail.id },
-                {
-                  import_price: importPrice,
-                  selling_price: sellingPrice,
-                },
-              );
+          const purchaseItems = items.map((item) => ({
+            ...item,
+            purchaseOrderId: data.id,
+          }));
+          await this.purchaseOrderItemRepository.save(purchaseItems);
+
+          for (const item of items) {
+            if (item.productId && item.unitPrice) {
+              const productDetails = await this.productDetailRepository.find({
+                where: { product_id: item.productId },
+              });
+
+              for (const productDetail of productDetails) {
+                const importPrice = item.unitPrice.toString();
+                const sellingPrice = (item.unitPrice * 1.1).toString();
+                await this.productDetailRepository.update(
+                  { id: productDetail.id },
+                  {
+                    import_price: importPrice,
+                    selling_price: sellingPrice,
+                  },
+                );
+              }
             }
           }
         }

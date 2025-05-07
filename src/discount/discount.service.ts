@@ -216,64 +216,53 @@ export class DiscountService {
         });
       }
 
-      if (data.title && data.title.length > 255) {
-        throw new BadRequestException({
-          message: 'Tiêu đề khuyến mãi quá dài',
-          errors: [
-            {
-              field: 'title',
-              message: 'Tiêu đề khuyến mãi không được vượt quá 255 ký tự',
-            },
-          ],
-        });
+      const discountUpdateData: Partial<Discount> = {};
+
+      // Only update fields that have changed
+      if (data.title !== undefined && data.title !== existingDiscount.title) {
+        discountUpdateData.title = data.title;
       }
-
-      if (data.discount_value && data.discount_value < 0) {
-        throw new BadRequestException({
-          message: 'Giá trị khuyến mãi không hợp lệ',
-          errors: [
-            {
-              field: 'discount_value',
-              message: 'Giá trị khuyến mãi không được nhỏ hơn 0',
-            },
-          ],
-        });
+      if (
+        data.description !== undefined &&
+        data.description !== existingDiscount.description
+      ) {
+        discountUpdateData.description = data.description;
       }
-
-      if (data.start_date && data.end_date) {
-        const startDate = new Date(data.start_date);
-        const endDate = new Date(data.end_date);
-
-        if (startDate >= endDate) {
-          throw new BadRequestException({
-            message: 'Thời gian khuyến mãi không hợp lệ',
-            errors: [
-              {
-                field: 'end_date',
-                message: 'Ngày kết thúc phải lớn hơn ngày bắt đầu',
-              },
-            ],
-          });
+      if (
+        data.discount_type !== undefined &&
+        data.discount_type !== existingDiscount.discount_type
+      ) {
+        discountUpdateData.discount_type = data.discount_type;
+      }
+      if (
+        data.discount_value !== undefined &&
+        data.discount_value !== existingDiscount.discount_value
+      ) {
+        discountUpdateData.discount_value = data.discount_value;
+      }
+      if (data.start_date !== undefined) {
+        const newStartDate = new Date(data.start_date);
+        if (newStartDate.getTime() !== existingDiscount.start_date.getTime()) {
+          discountUpdateData.start_date = newStartDate;
         }
       }
+      if (data.end_date !== undefined) {
+        const newEndDate = new Date(data.end_date);
+        if (newEndDate.getTime() !== existingDiscount.end_date.getTime()) {
+          discountUpdateData.end_date = newEndDate;
+        }
+      }
+      if (
+        data.is_active !== undefined &&
+        data.is_active !== existingDiscount.is_active
+      ) {
+        discountUpdateData.is_active = data.is_active;
+      }
 
-      const discountUpdateData = {
-        title: data.title,
-        description: data.description,
-        discount_type: data.discount_type,
-        discount_value: data.discount_value,
-        start_date: data.start_date ? new Date(data.start_date) : undefined,
-        end_date: data.end_date ? new Date(data.end_date) : undefined,
-        is_active: data.is_active,
-      };
-
-      Object.keys(discountUpdateData).forEach(
-        (key) =>
-          discountUpdateData[key] === undefined &&
-          delete discountUpdateData[key],
-      );
-
-      await this.discountRepository.update(data.id, discountUpdateData);
+      // Only perform update if there are actual changes
+      if (Object.keys(discountUpdateData).length > 0) {
+        await this.discountRepository.update(data.id, discountUpdateData);
+      }
 
       return await this.doGetDiscountById({ id: data.id });
     } catch (error) {

@@ -196,12 +196,29 @@ export class CartService {
         };
       }
 
-      item.quantity = data.quantity;
-      if (data.price !== undefined && Number(data.price) > 0) {
-        item.price = data.price;
+      const updateData: Partial<CartDetail> = {};
+
+      // Only update fields that have changed
+      if (data.quantity !== undefined && data.quantity !== item.quantity) {
+        updateData.quantity = data.quantity;
+      }
+      if (
+        data.price !== undefined &&
+        Number(data.price) > 0 &&
+        data.price !== item.price
+      ) {
+        updateData.price = data.price;
       }
 
-      return await this.cartDetailRepository.save(item);
+      // Only perform update if there are actual changes
+      if (Object.keys(updateData).length > 0) {
+        await this.cartDetailRepository.update(data.item_id, updateData);
+        return await this.cartDetailRepository.findOne({
+          where: { id: data.item_id },
+        });
+      }
+
+      return item;
     } catch (error) {
       console.log(error);
       throw new BadRequestException({

@@ -228,15 +228,30 @@ let PurchaseService = class PurchaseService {
                     ],
                 });
             }
-            const paymentUpdateData = {
-                orderId: data.orderId,
-                buyerName: data.buyerName,
-                buyerEmail: data.buyerEmail,
-                buyerPhone: data.buyerPhone,
-                buyerAddress: data.buyerAddress,
-            };
-            Object.keys(paymentUpdateData).forEach((key) => paymentUpdateData[key] === undefined && delete paymentUpdateData[key]);
-            await this.paymentRepository.update(data.id, paymentUpdateData);
+            const paymentUpdateData = {};
+            if (data.orderId !== undefined &&
+                data.orderId !== existingPayment.orderId) {
+                paymentUpdateData.orderId = data.orderId;
+            }
+            if (data.buyerName !== undefined &&
+                data.buyerName !== existingPayment.buyerName) {
+                paymentUpdateData.buyerName = data.buyerName;
+            }
+            if (data.buyerEmail !== undefined &&
+                data.buyerEmail !== existingPayment.buyerEmail) {
+                paymentUpdateData.buyerEmail = data.buyerEmail;
+            }
+            if (data.buyerPhone !== undefined &&
+                data.buyerPhone !== existingPayment.buyerPhone) {
+                paymentUpdateData.buyerPhone = data.buyerPhone;
+            }
+            if (data.buyerAddress !== undefined &&
+                data.buyerAddress !== existingPayment.buyerAddress) {
+                paymentUpdateData.buyerAddress = data.buyerAddress;
+            }
+            if (Object.keys(paymentUpdateData).length > 0) {
+                await this.paymentRepository.update(data.id, paymentUpdateData);
+            }
             return await this.doGetPaymentById({ id: data.id });
         }
         catch (error) {

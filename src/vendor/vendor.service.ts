@@ -47,13 +47,28 @@ export class VendorService {
     }
 
     const updateData: Partial<Vendor> = {};
-    if (data.vendor_code) updateData.vendorCode = data.vendor_code;
-    if (data.name) updateData.name = data.name;
-    if (data.phone) updateData.phone = data.phone;
-    if (data.email) updateData.email = data.email;
-    if (data.address) updateData.address = data.address;
 
-    await this.vendorRepository.update(data.id, updateData);
+    // Only update fields that have changed
+    if (data.vendor_code && data.vendor_code !== vendor.vendorCode) {
+      updateData.vendorCode = data.vendor_code;
+    }
+    if (data.name && data.name !== vendor.name) {
+      updateData.name = data.name;
+    }
+    if (data.phone && data.phone !== vendor.phone) {
+      updateData.phone = data.phone;
+    }
+    if (data.email && data.email !== vendor.email) {
+      updateData.email = data.email;
+    }
+    if (data.address && data.address !== vendor.address) {
+      updateData.address = data.address;
+    }
+
+    // Only perform update if there are actual changes
+    if (Object.keys(updateData).length > 0) {
+      await this.vendorRepository.update(data.id, updateData);
+    }
 
     const updatedVendor = await this.vendorRepository.findOne({
       where: { id: data.id },

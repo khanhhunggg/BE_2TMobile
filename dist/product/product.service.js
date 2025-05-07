@@ -538,17 +538,39 @@ let ProductService = class ProductService {
                     ],
                 });
             }
-            const productUpdateData = {
-                name: data.name,
-                model: data.model,
-                description: data.description,
-                warranty_period: data.warranty_period,
-                release_year: data.release_year,
-                is_featured: data.is_featured,
-                status: data.status,
-                vendor_id: data.vendor_id,
-            };
-            await this.productRepository.update(data.id, productUpdateData);
+            const productUpdateData = {};
+            if (data.name !== undefined && data.name !== existingProduct.name) {
+                productUpdateData.name = data.name;
+            }
+            if (data.model !== undefined && data.model !== existingProduct.model) {
+                productUpdateData.model = data.model;
+            }
+            if (data.description !== undefined &&
+                data.description !== existingProduct.description) {
+                productUpdateData.description = data.description;
+            }
+            if (data.warranty_period !== undefined &&
+                data.warranty_period !== existingProduct.warranty_period) {
+                productUpdateData.warranty_period = data.warranty_period;
+            }
+            if (data.release_year !== undefined &&
+                data.release_year !== existingProduct.release_year) {
+                productUpdateData.release_year = data.release_year;
+            }
+            if (data.is_featured !== undefined &&
+                data.is_featured !== existingProduct.is_featured) {
+                productUpdateData.is_featured = data.is_featured;
+            }
+            if (data.status !== undefined && data.status !== existingProduct.status) {
+                productUpdateData.status = data.status;
+            }
+            if (data.vendor_id !== undefined &&
+                data.vendor_id !== existingProduct.vendor_id) {
+                productUpdateData.vendor_id = data.vendor_id;
+            }
+            if (Object.keys(productUpdateData).length > 0) {
+                await this.productRepository.update(data.id, productUpdateData);
+            }
             if (data.productDetail && data.productDetail.length > 0) {
                 if (existingProduct.productDetails &&
                     existingProduct.productDetails.length > 0) {
@@ -585,21 +607,46 @@ let ProductService = class ProductService {
                             ],
                         });
                     }
-                    let sellingPrice = detail.selling_price;
-                    if (!sellingPrice && detail.import_price) {
-                        const importPrice = parseFloat(detail.import_price);
-                        sellingPrice = (importPrice * 1.1).toString();
+                    const existingDetail = existingProduct.productDetails?.find((pd) => pd.color_id === detail.color_id &&
+                        pd.capacity_id === detail.capacity_id);
+                    const detailUpdateData = {};
+                    if (detail.stock_quantity !== undefined &&
+                        detail.stock_quantity !== existingDetail?.stock_quantity) {
+                        detailUpdateData.stock_quantity = detail.stock_quantity;
                     }
-                    const newProductDetail = this.productDetailRepository.create({
-                        product_id: data.id,
-                        capacity_id: detail.capacity_id,
-                        color_id: detail.color_id,
-                        stock_quantity: detail.stock_quantity || 0,
-                        serial_number: detail.serial_number || data.model,
-                        import_price: detail.import_price,
-                        selling_price: sellingPrice,
-                    });
-                    return this.productDetailRepository.save(newProductDetail);
+                    if (detail.serial_number !== undefined &&
+                        detail.serial_number !== existingDetail?.serial_number) {
+                        detailUpdateData.serial_number = detail.serial_number;
+                    }
+                    if (detail.import_price !== undefined &&
+                        detail.import_price !== existingDetail?.import_price) {
+                        detailUpdateData.import_price = detail.import_price;
+                    }
+                    if (detail.selling_price !== undefined &&
+                        detail.selling_price !== existingDetail?.selling_price) {
+                        detailUpdateData.selling_price = detail.selling_price;
+                    }
+                    else if (detail.import_price !== undefined &&
+                        !detail.selling_price) {
+                        const importPrice = parseFloat(detail.import_price);
+                        detailUpdateData.selling_price = (importPrice * 1.1).toString();
+                    }
+                    if (Object.keys(detailUpdateData).length > 0 || !existingDetail) {
+                        const newProductDetail = this.productDetailRepository.create({
+                            product_id: data.id,
+                            capacity_id: detail.capacity_id,
+                            color_id: detail.color_id,
+                            ...detailUpdateData,
+                            stock_quantity: detailUpdateData.stock_quantity ??
+                                existingDetail?.stock_quantity ??
+                                0,
+                            serial_number: detailUpdateData.serial_number ??
+                                existingDetail?.serial_number ??
+                                data.model,
+                        });
+                        return this.productDetailRepository.save(newProductDetail);
+                    }
+                    return existingDetail;
                 });
                 await Promise.all(productDetailPromises);
             }
@@ -629,23 +676,46 @@ let ProductService = class ProductService {
                 await Promise.all(imagePromises);
             }
             if (data.specs) {
-                const specsUpdateData = {
-                    screen_size: data.specs.screen_size,
-                    resolution: data.specs.resolution,
-                    chipset: data.specs.chipset,
-                    ram: data.specs.ram,
-                    os: data.specs.os,
-                    battery_capacity: data.specs.battery_capacity,
-                    charging_tech: data.specs.charging_tech,
-                };
-                if (existingProduct.specs && existingProduct.specs.length > 0) {
-                    await this.specsRepository.update(existingProduct.specs[0].id, specsUpdateData);
+                const specsUpdateData = {};
+                if (data.specs.screen_size !== undefined &&
+                    data.specs.screen_size !== existingProduct.specs?.[0]?.screen_size) {
+                    specsUpdateData.screen_size = data.specs.screen_size;
                 }
-                else {
-                    await this.specsRepository.save({
-                        product_id: data.id,
-                        ...specsUpdateData,
-                    });
+                if (data.specs.resolution !== undefined &&
+                    data.specs.resolution !== existingProduct.specs?.[0]?.resolution) {
+                    specsUpdateData.resolution = data.specs.resolution;
+                }
+                if (data.specs.chipset !== undefined &&
+                    data.specs.chipset !== existingProduct.specs?.[0]?.chipset) {
+                    specsUpdateData.chipset = data.specs.chipset;
+                }
+                if (data.specs.ram !== undefined &&
+                    data.specs.ram !== existingProduct.specs?.[0]?.ram) {
+                    specsUpdateData.ram = data.specs.ram;
+                }
+                if (data.specs.os !== undefined &&
+                    data.specs.os !== existingProduct.specs?.[0]?.os) {
+                    specsUpdateData.os = data.specs.os;
+                }
+                if (data.specs.battery_capacity !== undefined &&
+                    data.specs.battery_capacity !==
+                        existingProduct.specs?.[0]?.battery_capacity) {
+                    specsUpdateData.battery_capacity = data.specs.battery_capacity;
+                }
+                if (data.specs.charging_tech !== undefined &&
+                    data.specs.charging_tech !== existingProduct.specs?.[0]?.charging_tech) {
+                    specsUpdateData.charging_tech = data.specs.charging_tech;
+                }
+                if (Object.keys(specsUpdateData).length > 0) {
+                    if (existingProduct.specs && existingProduct.specs.length > 0) {
+                        await this.specsRepository.update(existingProduct.specs[0].id, specsUpdateData);
+                    }
+                    else {
+                        await this.specsRepository.save({
+                            product_id: data.id,
+                            ...specsUpdateData,
+                        });
+                    }
                 }
             }
             return await this.doGetProductById({ id: data.id });

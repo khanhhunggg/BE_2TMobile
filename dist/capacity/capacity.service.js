@@ -98,10 +98,17 @@ let CapacityService = class CapacityService {
             await this.capacityPriceRepository.save(newCapacityPrice);
             return newCapacityPrice;
         }
-        await this.capacityPriceRepository.update(capacity.price.id, {
-            price: data.price,
-            discount_price: data.discount_price,
-        });
+        const priceUpdateData = {};
+        if (data.price !== undefined && data.price !== capacity.price.price) {
+            priceUpdateData.price = data.price;
+        }
+        if (data.discount_price !== undefined &&
+            data.discount_price !== capacity.price.discount_price) {
+            priceUpdateData.discount_price = data.discount_price;
+        }
+        if (Object.keys(priceUpdateData).length > 0) {
+            await this.capacityPriceRepository.update(capacity.price.id, priceUpdateData);
+        }
         return await this.capacityPriceRepository.findOne({
             where: { id: capacity.price.id },
         });

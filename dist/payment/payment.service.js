@@ -237,13 +237,26 @@ let PaymentService = class PaymentService {
                     ],
                 });
             }
-            const paymentUpdateData = {
-                buyerName: data.buyerName,
-                buyerEmail: data.buyerEmail,
-                buyerPhone: data.buyerPhone,
-                buyerAddress: data.buyerAddress,
-            };
-            await this.paymentRepository.update(data.id, paymentUpdateData);
+            const paymentUpdateData = {};
+            if (data.buyerName !== undefined &&
+                data.buyerName !== existingPayment.buyerName) {
+                paymentUpdateData.buyerName = data.buyerName;
+            }
+            if (data.buyerEmail !== undefined &&
+                data.buyerEmail !== existingPayment.buyerEmail) {
+                paymentUpdateData.buyerEmail = data.buyerEmail;
+            }
+            if (data.buyerPhone !== undefined &&
+                data.buyerPhone !== existingPayment.buyerPhone) {
+                paymentUpdateData.buyerPhone = data.buyerPhone;
+            }
+            if (data.buyerAddress !== undefined &&
+                data.buyerAddress !== existingPayment.buyerAddress) {
+                paymentUpdateData.buyerAddress = data.buyerAddress;
+            }
+            if (Object.keys(paymentUpdateData).length > 0) {
+                await this.paymentRepository.update(data.id, paymentUpdateData);
+            }
             return await this.doGetPaymentById({ id: data.id });
         }
         catch (error) {
