@@ -3,6 +3,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import 'reflect-metadata';
 
 let server: any;
 let isReady = false;
@@ -20,9 +21,14 @@ async function bootstrap() {
   return app;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (!isReady) await bootstrap();
-  return server(req, res);
+export default async function handler(req, res) {
+  try {
+    if (!isReady) await bootstrap();
+    return server(req, res);
+  } catch (err) {
+    console.error('ERROR in handler:', err);
+    res.status(500).send({ error: err.message });
+  }
 }
 
 bootstrap();
