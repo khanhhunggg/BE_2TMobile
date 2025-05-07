@@ -269,7 +269,7 @@ export class VendorBillService {
     try {
       const existingVendorBill = await this.purchaseRepository.findOne({
         where: { id: data.id },
-        relations: ['items'],
+        relations: ['purchaseOrderItems'],
       });
 
       if (!existingVendorBill) {
@@ -302,9 +302,7 @@ export class VendorBillService {
         },
       };
     } catch (error) {
-      if (error instanceof BadRequestException) {
-        throw error;
-      }
+      console.log(error);
       throw new BadRequestException({
         message: 'Lỗi khi xóa hóa đơn',
         errors: [
