@@ -43,6 +43,7 @@ export class PaymentService {
 
       const clientId = this.configService.get<string>('PAYOS_CLIENT_ID');
       const apiKey = this.configService.get<string>('PAYOS_API_KEY');
+      const checkSumKey = this.configService.get<string>('PAYOS_CHECKSUM_KEY');
       const partnerCode = this.configService.get<string>('PAYOS_PARTNER_CODE');
       const returnUrl = this.configService.get<string>('PAYOS_RETURN_URL');
       const cancelUrl = this.configService.get<string>('PAYOS_CANCEL_URL');
@@ -62,16 +63,8 @@ export class PaymentService {
         buyerPhone: createPaymentLinkDto.buyerPhone,
         buyerAddress: createPaymentLinkDto.buyerAddress,
       };
-
-      console.log(data);
-      console.log(clientId);
-      console.log(apiKey);
-      console.log(partnerCode);
-      console.log(returnUrl);
-      console.log(cancelUrl);
-
       const signature = crypto
-        .createHmac('sha256', apiKey)
+        .createHmac('sha256', checkSumKey)
         .update(JSON.stringify(data))
         .digest('hex');
 
@@ -92,8 +85,6 @@ export class PaymentService {
           { headers },
         ),
       );
-
-      // Save payment information
       const payment = this.paymentRepository.create({
         orderId: order.id,
         buyerName: createPaymentLinkDto.buyerName,
