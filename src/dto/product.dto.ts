@@ -321,6 +321,11 @@ export class GetProductByIdDto {
 }
 
 export class SearchProductDto {
+  @ApiProperty({ type: Number, description: 'ID sản phẩm', required: false })
+  @IsNumber()
+  @IsOptional()
+  id?: number;
+
   @ApiProperty({ type: String, description: 'Tên sản phẩm', required: false })
   @IsString()
   @IsOptional()

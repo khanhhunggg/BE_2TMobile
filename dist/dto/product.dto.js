@@ -367,6 +367,12 @@ class SearchProductDto {
 }
 exports.SearchProductDto = SearchProductDto;
 __decorate([
+    (0, swagger_1.ApiProperty)({ type: Number, description: 'ID sản phẩm', required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], SearchProductDto.prototype, "id", void 0);
+__decorate([
     (0, swagger_1.ApiProperty)({ type: String, description: 'Tên sản phẩm', required: false }),
     (0, class_validator_1.IsString)(),
     (0, class_validator_1.IsOptional)(),

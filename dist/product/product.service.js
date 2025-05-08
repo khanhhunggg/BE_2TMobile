@@ -262,7 +262,7 @@ let ProductService = class ProductService {
     }
     async doGetAllProduct(searchParams) {
         try {
-            const { name, model, vendor_id, color_ids, capacity_id, status, is_featured, page = 1, size = 10, sort_by = 'created_at', sort_order = 'DESC', } = searchParams;
+            const { id, name, model, vendor_id, color_ids, capacity_id, status, is_featured, page = 1, size = 10, sort_by = 'created_at', sort_order = 'DESC', } = searchParams;
             const queryBuilder = this.productRepository
                 .createQueryBuilder('product')
                 .leftJoinAndSelect('product.vendor', 'vendor')
@@ -321,6 +321,9 @@ let ProductService = class ProductService {
                 'productColor.name',
                 'productColor.color_code',
             ]);
+            if (id) {
+                queryBuilder.andWhere('product.id = :id', { id });
+            }
             if (name) {
                 queryBuilder.andWhere('product.name LIKE :name', { name: `%${name}%` });
             }

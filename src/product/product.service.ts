@@ -288,6 +288,7 @@ export class ProductService {
   public async doGetAllProduct(searchParams: SearchProductDto) {
     try {
       const {
+        id,
         name,
         model,
         vendor_id,
@@ -364,6 +365,10 @@ export class ProductService {
           'productColor.name',
           'productColor.color_code',
         ]);
+
+      if (id) {
+        queryBuilder.andWhere('product.id = :id', { id });
+      }
 
       if (name) {
         queryBuilder.andWhere('product.name LIKE :name', { name: `%${name}%` });

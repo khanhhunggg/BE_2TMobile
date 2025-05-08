@@ -47,6 +47,7 @@ export declare class GetProductByIdDto {
     id: number;
 }
 export declare class SearchProductDto {
+    id?: number;
     name?: string;
     model?: string;
     vendor_id?: number;
