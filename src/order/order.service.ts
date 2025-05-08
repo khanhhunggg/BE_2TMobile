@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Order, OrderStatus } from '../entity/order.entity';
 import { OrderDetail } from '../entity/order-detail.entity';
-import { CreateOrderDto } from '../dto/order.dto';
+import { CreateOrderDto, UpdateOrderDto } from '../dto/order.dto';
 import { User } from '../entity/user.entity';
 
 @Injectable()
@@ -89,10 +89,10 @@ export class OrderService {
     }
   }
 
-  public async doUpdateOrder(id: number, updateData: Partial<CreateOrderDto>) {
+  public async doUpdateOrder(updateData: UpdateOrderDto) {
     try {
       const order = await this.orderRepository.findOne({
-        where: { id },
+        where: { id: updateData.id },
         relations: ['orderDetails', 'orderDetails.productDetail'],
       });
 
@@ -100,7 +100,10 @@ export class OrderService {
         throw new BadRequestException({
           message: 'Không tìm thấy đơn hàng',
           errors: [
-            { field: 'id', message: `Không tìm thấy đơn hàng với ID: ${id}` },
+            {
+              field: 'id',
+              message: `Không tìm thấy đơn hàng với ID: ${updateData.id}`,
+            },
           ],
         });
       }
@@ -150,7 +153,7 @@ export class OrderService {
           } else {
             // Create new detail if it doesn't exist
             const newOrderDetail = this.orderDetailRepository.create({
-              order: { id },
+              order: { id: updateData.id },
               productDetail: { id: detail.product_detail_id },
               quantity: detail.quantity,
               price: detail.price,
@@ -170,7 +173,7 @@ export class OrderService {
 
         for (const detail of newDetails) {
           const newOrderDetail = this.orderDetailRepository.create({
-            order: { id },
+            order: { id: updateData.id },
             productDetail: { id: detail.product_detail_id },
             quantity: detail.quantity,
             price: detail.price,
@@ -187,11 +190,11 @@ export class OrderService {
 
       // Only perform update if there are actual changes
       if (Object.keys(orderUpdateData).length > 0) {
-        await this.orderRepository.update(id, orderUpdateData);
+        await this.orderRepository.update(updateData.id, orderUpdateData);
       }
 
       return await this.orderRepository.findOne({
-        where: { id },
+        where: { id: updateData.id },
         relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
       });
     } catch (error) {

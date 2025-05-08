@@ -41,7 +41,7 @@ __decorate([
     __metadata("design:type", Number)
 ], OrderDetail.prototype, "quantity", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'number', default: 0 }),
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 12, scale: 2, default: 0 }),
     __metadata("design:type", Number)
 ], OrderDetail.prototype, "price", void 0);
 exports.OrderDetail = OrderDetail = __decorate([

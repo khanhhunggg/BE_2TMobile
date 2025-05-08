@@ -29,6 +29,6 @@ export class OrderDetail {
   @Column({ type: 'int' })
   quantity: number;
 
-  @Column({ type: 'number', default: 0 })
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   price: number;
 }

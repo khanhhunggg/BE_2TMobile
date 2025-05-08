@@ -89,3 +89,9 @@ export class CreateOrderDto {
   @Type(() => CreateOrderDetailDto)
   order_details: CreateOrderDetailDto[];
 }
+
+export class UpdateOrderDto extends CreateOrderDto {
+  @ApiProperty({ type: Number, description: 'Order ID', required: true })
+  @IsNumber()
+  id: number;
+}

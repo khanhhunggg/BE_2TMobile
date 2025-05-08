@@ -8,7 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from '../dto/order.dto';
+import { CreateOrderDto, UpdateOrderDto } from '../dto/order.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Đơn hàng')
@@ -46,11 +46,8 @@ export class OrderController {
     description: 'Đơn hàng được cập nhật thành công',
   })
   @ApiResponse({ status: 400, description: 'Thông tin cập nhật không hợp lệ' })
-  async updateOrder(
-    @Param('id') id: string,
-    @Body() updateOrderDto: Partial<CreateOrderDto>,
-  ) {
-    return await this.orderService.doUpdateOrder(Number(id), updateOrderDto);
+  async updateOrder(@Body() updateOrderDto: UpdateOrderDto) {
+    return await this.orderService.doUpdateOrder(updateOrderDto);
   }
 
   @Delete(':id')

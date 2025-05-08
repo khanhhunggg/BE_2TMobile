@@ -48,7 +48,7 @@ export class Order {
   @Column({ type: 'date', nullable: true })
   delivered_date: Date;
 
-  @Column({ type: 'number', default: 0 })
+  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
   total_price: number;
 
   @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order)

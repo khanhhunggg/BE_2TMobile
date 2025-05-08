@@ -60,7 +60,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Order.prototype, "delivered_date", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'number', default: 0 }),
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 12, scale: 2, default: 0 }),
     __metadata("design:type", Number)
 ], Order.prototype, "total_price", void 0);
 __decorate([

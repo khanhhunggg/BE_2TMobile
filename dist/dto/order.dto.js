@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CreateOrderDto = exports.CreateOrderDetailDto = void 0;
+exports.UpdateOrderDto = exports.CreateOrderDto = exports.CreateOrderDetailDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
@@ -105,4 +105,12 @@ __decorate([
     (0, class_transformer_1.Type)(() => CreateOrderDetailDto),
     __metadata("design:type", Array)
 ], CreateOrderDto.prototype, "order_details", void 0);
+class UpdateOrderDto extends CreateOrderDto {
+}
+exports.UpdateOrderDto = UpdateOrderDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({ type: Number, description: 'Order ID', required: true }),
+    (0, class_validator_1.IsNumber)(),
+    __metadata("design:type", Number)
+], UpdateOrderDto.prototype, "id", void 0);
 //# sourceMappingURL=order.dto.js.map

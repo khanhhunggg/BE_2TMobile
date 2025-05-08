@@ -94,17 +94,20 @@ let OrderService = class OrderService {
             });
         }
     }
-    async doUpdateOrder(id, updateData) {
+    async doUpdateOrder(updateData) {
         try {
             const order = await this.orderRepository.findOne({
-                where: { id },
+                where: { id: updateData.id },
                 relations: ['orderDetails', 'orderDetails.productDetail'],
             });
             if (!order) {
                 throw new common_1.BadRequestException({
                     message: 'Không tìm thấy đơn hàng',
                     errors: [
-                        { field: 'id', message: `Không tìm thấy đơn hàng với ID: ${id}` },
+                        {
+                            field: 'id',
+                            message: `Không tìm thấy đơn hàng với ID: ${updateData.id}`,
+                        },
                     ],
                 });
             }
@@ -136,7 +139,7 @@ let OrderService = class OrderService {
                     }
                     else {
                         const newOrderDetail = this.orderDetailRepository.create({
-                            order: { id },
+                            order: { id: updateData.id },
                             productDetail: { id: detail.product_detail_id },
                             quantity: detail.quantity,
                             price: detail.price,
@@ -148,7 +151,7 @@ let OrderService = class OrderService {
                 const newDetails = updateData.order_details.filter((detail) => !existingProductDetailIds.includes(detail.product_detail_id));
                 for (const detail of newDetails) {
                     const newOrderDetail = this.orderDetailRepository.create({
-                        order: { id },
+                        order: { id: updateData.id },
                         productDetail: { id: detail.product_detail_id },
                         quantity: detail.quantity,
                         price: detail.price,
@@ -161,10 +164,10 @@ let OrderService = class OrderService {
                 orderUpdateData.total_price = total_price;
             }
             if (Object.keys(orderUpdateData).length > 0) {
-                await this.orderRepository.update(id, orderUpdateData);
+                await this.orderRepository.update(updateData.id, orderUpdateData);
             }
             return await this.orderRepository.findOne({
-                where: { id },
+                where: { id: updateData.id },
                 relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
             });
         }

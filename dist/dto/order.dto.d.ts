@@ -12,3 +12,6 @@ export declare class CreateOrderDto {
     status?: OrderStatus;
     order_details: CreateOrderDetailDto[];
 }
+export declare class UpdateOrderDto extends CreateOrderDto {
+    id: number;
+}

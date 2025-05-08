@@ -30,8 +30,8 @@ let OrderController = class OrderController {
     async getOrderById(id) {
         return await this.orderService.doGetOrderById(Number(id));
     }
-    async updateOrder(id, updateOrderDto) {
-        return await this.orderService.doUpdateOrder(Number(id), updateOrderDto);
+    async updateOrder(updateOrderDto) {
+        return await this.orderService.doUpdateOrder(updateOrderDto);
     }
     async deleteOrder(id) {
         return await this.orderService.doDeleteOrder(Number(id));
@@ -74,10 +74,9 @@ __decorate([
         description: 'Đơn hàng được cập nhật thành công',
     }),
     (0, swagger_1.ApiResponse)({ status: 400, description: 'Thông tin cập nhật không hợp lệ' }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [order_dto_1.UpdateOrderDto]),
     __metadata("design:returntype", Promise)
 ], OrderController.prototype, "updateOrder", null);
 __decorate([
