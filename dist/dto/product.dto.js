@@ -459,6 +459,37 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], SearchProductDto.prototype, "size", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        description: 'Trường sắp xếp',
+        required: false,
+        default: 'created_at',
+        enum: [
+            'name',
+            'model',
+            'created_at',
+            'updated_at',
+            'release_year',
+            'warranty_period',
+        ],
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SearchProductDto.prototype, "sort_by", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        description: 'Thứ tự sắp xếp',
+        required: false,
+        default: 'DESC',
+        enum: ['ASC', 'DESC'],
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SearchProductDto.prototype, "sort_order", void 0);
 class DeleteProductDto {
 }
 exports.DeleteProductDto = DeleteProductDto;

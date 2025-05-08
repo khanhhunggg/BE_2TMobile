@@ -403,6 +403,35 @@ export class SearchProductDto {
   @IsNumberString()
   @IsOptional()
   size?: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Trường sắp xếp',
+    required: false,
+    default: 'created_at',
+    enum: [
+      'name',
+      'model',
+      'created_at',
+      'updated_at',
+      'release_year',
+      'warranty_period',
+    ],
+  })
+  @IsString()
+  @IsOptional()
+  sort_by?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Thứ tự sắp xếp',
+    required: false,
+    default: 'DESC',
+    enum: ['ASC', 'DESC'],
+  })
+  @IsString()
+  @IsOptional()
+  sort_order?: 'ASC' | 'DESC';
 }
 
 export class DeleteProductDto {

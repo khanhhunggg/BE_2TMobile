@@ -262,7 +262,7 @@ let ProductService = class ProductService {
     }
     async doGetAllProduct(searchParams) {
         try {
-            const { name, model, vendor_id, color_ids, capacity_id, status, is_featured, page = 1, size = 10, } = searchParams;
+            const { name, model, vendor_id, color_ids, capacity_id, status, is_featured, page = 1, size = 10, sort_by = 'created_at', sort_order = 'DESC', } = searchParams;
             const queryBuilder = this.productRepository
                 .createQueryBuilder('product')
                 .leftJoinAndSelect('product.vendor', 'vendor')
@@ -352,6 +352,7 @@ let ProductService = class ProductService {
                     is_featured,
                 });
             }
+            queryBuilder.orderBy(`product.${sort_by}`, sort_order);
             const skip = (page - 1) * size;
             queryBuilder.skip(skip).take(size);
             const [products, total] = await queryBuilder.getManyAndCount();

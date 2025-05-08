@@ -57,6 +57,8 @@ export declare class SearchProductDto {
     is_featured?: boolean;
     page?: number;
     size?: number;
+    sort_by?: string;
+    sort_order?: 'ASC' | 'DESC';
 }
 export declare class DeleteProductDto {
     id: number;

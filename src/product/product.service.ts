@@ -297,6 +297,8 @@ export class ProductService {
         is_featured,
         page = 1,
         size = 10,
+        sort_by = 'created_at',
+        sort_order = 'DESC',
       } = searchParams;
 
       const queryBuilder = this.productRepository
@@ -400,6 +402,10 @@ export class ProductService {
           is_featured,
         });
       }
+
+      // Add sorting
+      queryBuilder.orderBy(`product.${sort_by}`, sort_order);
+
       const skip = (page - 1) * size;
       queryBuilder.skip(skip).take(size);
 
