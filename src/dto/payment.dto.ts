@@ -151,16 +151,6 @@ export class SimpleCreatePaymentDto extends CreatePaymentLinkDto {
   @IsNotEmpty()
   description: string;
 
-  @ApiProperty({ description: 'URL to redirect when payment is successful' })
-  @IsString()
-  @IsNotEmpty()
-  returnUrl: string;
-
-  @ApiProperty({ description: 'URL to redirect when payment is cancelled' })
-  @IsString()
-  @IsNotEmpty()
-  cancelUrl: string;
-
   @ApiProperty({ description: 'Amount to be paid' })
   @IsNumber()
   @IsNotEmpty()

@@ -28,7 +28,6 @@ export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly payOS: PayOSService,
-    private readonly paymentRepository: PaymentService,
   ) {}
 
   @Post('create')
@@ -40,8 +39,6 @@ export class PaymentController {
         orderCode: Number(String(new Date().getTime()).slice(-6)),
         amount: body.amount,
         description: body.description,
-        cancelUrl: body.cancelUrl,
-        returnUrl: body.returnUrl,
       };
 
       const paymentLinkRes = await this.payOS.createPaymentLink(paymentBody);
@@ -56,6 +53,7 @@ export class PaymentController {
         };
         payment = await this.paymentService.doCreatePayment(paymentBody);
       }
+
       return {
         error: 0,
         message: 'Success',

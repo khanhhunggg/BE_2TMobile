@@ -18,16 +18,14 @@ export class PayOSService {
     orderCode: number;
     amount: number;
     description: string;
-    cancelUrl: string;
-    returnUrl: string;
   }) {
     try {
       const paymentData = {
         orderCode: data.orderCode,
         amount: data.amount,
         description: data.description,
-        cancelUrl: data.cancelUrl,
-        returnUrl: data.returnUrl,
+        cancelUrl: this.configService.get<string>('PAYOS_CANCEL_URL'),
+        returnUrl: this.configService.get<string>('PAYOS_RETURN_URL'),
         expiredAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
       };
 
