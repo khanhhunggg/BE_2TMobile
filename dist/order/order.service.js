@@ -25,11 +25,15 @@ let OrderService = class OrderService {
     }
     async doCreateOrder(orderData) {
         try {
+            const total_price = orderData.order_details.reduce((total, detail) => {
+                return total + detail.quantity * detail.price;
+            }, 0);
             const newOrder = this.orderRepository.create({
                 user: { id: orderData.user_id },
                 payment_method: orderData.payment_method,
                 expected_delivery_date: orderData.expected_delivery_date,
                 status: orderData.status || order_entity_1.OrderStatus.PENDING,
+                total_price: total_price,
             });
             const order = await this.orderRepository.save(newOrder);
             for (const detail of orderData.order_details) {
@@ -37,7 +41,7 @@ let OrderService = class OrderService {
                     order: { id: order.id },
                     productDetail: { id: detail.product_detail_id },
                     quantity: detail.quantity,
-                    total_price: detail.total_price,
+                    price: detail.price,
                 });
                 await this.orderDetailRepository.save(newOrderDetail);
             }
@@ -122,20 +126,42 @@ let OrderService = class OrderService {
                 updateData.status !== order.status) {
                 orderUpdateData.status = updateData.status;
             }
-            if (Object.keys(orderUpdateData).length > 0) {
-                await this.orderRepository.update(id, orderUpdateData);
-            }
             if (updateData.order_details) {
-                await this.orderDetailRepository.remove(order.orderDetails);
                 for (const detail of updateData.order_details) {
+                    const existingDetail = order.orderDetails.find((od) => od.productDetail.id === detail.product_detail_id);
+                    if (existingDetail) {
+                        existingDetail.quantity = detail.quantity;
+                        existingDetail.price = detail.price;
+                        await this.orderDetailRepository.save(existingDetail);
+                    }
+                    else {
+                        const newOrderDetail = this.orderDetailRepository.create({
+                            order: { id },
+                            productDetail: { id: detail.product_detail_id },
+                            quantity: detail.quantity,
+                            price: detail.price,
+                        });
+                        await this.orderDetailRepository.save(newOrderDetail);
+                    }
+                }
+                const existingProductDetailIds = order.orderDetails.map((detail) => detail.productDetail.id);
+                const newDetails = updateData.order_details.filter((detail) => !existingProductDetailIds.includes(detail.product_detail_id));
+                for (const detail of newDetails) {
                     const newOrderDetail = this.orderDetailRepository.create({
                         order: { id },
                         productDetail: { id: detail.product_detail_id },
                         quantity: detail.quantity,
-                        total_price: detail.total_price,
+                        price: detail.price,
                     });
                     await this.orderDetailRepository.save(newOrderDetail);
                 }
+                const total_price = updateData.order_details.reduce((total, detail) => {
+                    return total + detail.quantity * detail.price;
+                }, 0);
+                orderUpdateData.total_price = total_price;
+            }
+            if (Object.keys(orderUpdateData).length > 0) {
+                await this.orderRepository.update(id, orderUpdateData);
             }
             return await this.orderRepository.findOne({
                 where: { id },

@@ -3,7 +3,7 @@ export declare class CreateOrderDetailDto {
     product_detail_id: number;
     cart_detail_id?: number;
     quantity: number;
-    total_price: number;
+    price: number;
 }
 export declare class CreateOrderDto {
     user_id: number;

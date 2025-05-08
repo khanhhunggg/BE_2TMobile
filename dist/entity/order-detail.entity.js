@@ -11,9 +11,9 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrderDetail = void 0;
 const typeorm_1 = require("typeorm");
+const cart_detail_entity_1 = require("./cart-detail.entity");
 const order_entity_1 = require("./order.entity");
 const product_detail_entity_1 = require("./product-detail.entity");
-const cart_detail_entity_1 = require("./cart-detail.entity");
 let OrderDetail = class OrderDetail {
 };
 exports.OrderDetail = OrderDetail;
@@ -41,9 +41,9 @@ __decorate([
     __metadata("design:type", Number)
 ], OrderDetail.prototype, "quantity", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'decimal', precision: 15, scale: 2 }),
+    (0, typeorm_1.Column)({ type: 'number', default: 0 }),
     __metadata("design:type", Number)
-], OrderDetail.prototype, "total_price", void 0);
+], OrderDetail.prototype, "price", void 0);
 exports.OrderDetail = OrderDetail = __decorate([
     (0, typeorm_1.Entity)('tbl_order_details')
 ], OrderDetail);

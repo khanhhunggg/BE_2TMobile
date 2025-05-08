@@ -60,6 +60,10 @@ __decorate([
     __metadata("design:type", Date)
 ], Order.prototype, "delivered_date", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'number', default: 0 }),
+    __metadata("design:type", Number)
+], Order.prototype, "total_price", void 0);
+__decorate([
     (0, typeorm_1.OneToMany)(() => order_detail_entity_1.OrderDetail, (orderDetail) => orderDetail.order),
     __metadata("design:type", Array)
 ], Order.prototype, "orderDetails", void 0);

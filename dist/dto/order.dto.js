@@ -48,12 +48,12 @@ __decorate([
 __decorate([
     (0, swagger_1.ApiProperty)({
         type: Number,
-        description: 'Total price of the item',
+        description: 'Price of the item',
         required: true,
     }),
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
-], CreateOrderDetailDto.prototype, "total_price", void 0);
+], CreateOrderDetailDto.prototype, "price", void 0);
 class CreateOrderDto {
 }
 exports.CreateOrderDto = CreateOrderDto;

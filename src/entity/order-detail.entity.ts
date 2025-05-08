@@ -1,14 +1,13 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
+  Entity,
   JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { CartDetail } from './cart-detail.entity';
 import { Order } from './order.entity';
 import { ProductDetail } from './product-detail.entity';
-import { Cart } from './cart.entity';
-import { CartDetail } from './cart-detail.entity';
 
 @Entity('tbl_order_details')
 export class OrderDetail {
@@ -30,6 +29,6 @@ export class OrderDetail {
   @Column({ type: 'int' })
   quantity: number;
 
-  @Column({ type: 'decimal', precision: 15, scale: 2 })
-  total_price: number;
+  @Column({ type: 'number', default: 0 })
+  price: number;
 }

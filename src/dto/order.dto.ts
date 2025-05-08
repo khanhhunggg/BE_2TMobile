@@ -38,11 +38,11 @@ export class CreateOrderDetailDto {
 
   @ApiProperty({
     type: Number,
-    description: 'Total price of the item',
+    description: 'Price of the item',
     required: true,
   })
   @IsNumber()
-  total_price: number;
+  price: number;
 }
 
 export class CreateOrderDto {

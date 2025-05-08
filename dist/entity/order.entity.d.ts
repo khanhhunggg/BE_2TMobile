@@ -20,5 +20,6 @@ export declare class Order {
     expected_delivery_date: Date;
     status: OrderStatus;
     delivered_date: Date;
+    total_price: number;
     orderDetails: OrderDetail[];
 }
