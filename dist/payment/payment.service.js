@@ -58,6 +58,12 @@ let PaymentService = class PaymentService {
                 buyerPhone: createPaymentLinkDto.buyerPhone,
                 buyerAddress: createPaymentLinkDto.buyerAddress,
             };
+            console.log(data);
+            console.log(clientId);
+            console.log(apiKey);
+            console.log(partnerCode);
+            console.log(returnUrl);
+            console.log(cancelUrl);
             const signature = crypto
                 .createHmac('sha256', apiKey)
                 .update(JSON.stringify(data))

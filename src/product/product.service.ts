@@ -614,6 +614,7 @@ export class ProductService {
       }
 
       const productUpdateData: Partial<Product> = {};
+      const detailUpdateData: Partial<ProductDetail> = {};
 
       // Only update fields that have changed
       if (data.name !== undefined && data.name !== existingProduct.name) {
@@ -725,8 +726,6 @@ export class ProductService {
             });
           }
 
-          const detailUpdateData: Partial<ProductDetail> = {};
-
           if (
             detail.stock_quantity !== undefined &&
             parseFloat(detail.stock_quantity.toString()) !==
@@ -752,31 +751,25 @@ export class ProductService {
             parseFloat(detail.selling_price) !==
               parseFloat(existingDetail?.selling_price || '0')
           ) {
-            console.log('detail.selling_price', detail.selling_price);
             detailUpdateData.selling_price = detail.selling_price;
           } else if (
             detail.import_price !== undefined &&
             !detail.selling_price
           ) {
-            console.log('detail.import_price', detail.import_price);
-            console.log(
-              'existingDetail?.import_price',
-              existingDetail?.import_price,
-            );
             const importPrice = parseFloat(detail.import_price);
             detailUpdateData.selling_price = (importPrice * 1.1).toString();
           }
-          console.log('detailUpdateData', detailUpdateData);
-          console.log('existingDetail', existingDetail);
           if (Object.keys(detailUpdateData).length > 0 || !existingDetail) {
+            console.log('existingDetail', existingDetail);
             if (existingDetail) {
-              await this.productDetailRepository.update(
-                existingDetail.id,
-                detailUpdateData,
-              );
+              const updateProductDetail =
+                await this.productDetailRepository.update(
+                  existingDetail.id,
+                  detailUpdateData,
+                );
+              console.log('updateProductDetail', updateProductDetail);
               return {
-                ...existingDetail,
-                ...detailUpdateData,
+                ...updateProductDetail,
               };
             } else {
               const newProductDetail = this.productDetailRepository.create({
@@ -796,6 +789,71 @@ export class ProductService {
         });
 
         await Promise.all(productDetailPromises);
+      } else if (
+        data.color_id !== undefined ||
+        data.capacity_id !== undefined ||
+        data.stock_quantity !== undefined ||
+        data.serial_number !== undefined ||
+        data.import_price !== undefined ||
+        data.selling_price !== undefined
+      ) {
+        // Xử lý khi người dùng gửi thông tin product detail đơn lẻ
+        const existingDetail = existingProduct.productDetails?.find(
+          (pd) =>
+            pd.product_id === data.id &&
+            (data.color_id ? pd.color_id === data.color_id : true) &&
+            (data.capacity_id ? pd.capacity_id === data.capacity_id : true),
+        );
+
+        if (!existingDetail && (!data.color_id || !data.capacity_id)) {
+          throw new BadRequestException({
+            message: 'Thông tin không hợp lệ',
+            errors: [
+              {
+                field: 'productDetail',
+                message:
+                  'color_id và capacity_id là bắt buộc khi tạo mới product detail',
+              },
+            ],
+          });
+        }
+
+        const detailUpdateData: Partial<ProductDetail> = {};
+
+        if (data.stock_quantity !== undefined) {
+          detailUpdateData.stock_quantity = data.stock_quantity;
+        }
+        if (data.serial_number !== undefined) {
+          detailUpdateData.serial_number = data.serial_number;
+        }
+        if (data.import_price !== undefined) {
+          detailUpdateData.import_price = data.import_price;
+        }
+        if (data.selling_price !== undefined) {
+          detailUpdateData.selling_price = data.selling_price;
+        } else if (data.import_price !== undefined) {
+          const importPrice = parseFloat(data.import_price);
+          detailUpdateData.selling_price = (importPrice * 1.1).toString();
+        }
+
+        if (Object.keys(detailUpdateData).length > 0 || !existingDetail) {
+          if (existingDetail) {
+            await this.productDetailRepository.update(
+              existingDetail.id,
+              detailUpdateData,
+            );
+          } else {
+            const newProductDetail = this.productDetailRepository.create({
+              ...detailUpdateData,
+              product_id: data.id,
+              capacity_id: data.capacity_id,
+              color_id: data.color_id,
+              stock_quantity: detailUpdateData.stock_quantity ?? 0,
+              serial_number: detailUpdateData.serial_number ?? data.model,
+            });
+            await this.productDetailRepository.save(newProductDetail);
+          }
+        }
       }
 
       if (data.image_urls && data.image_urls.length > 0) {
