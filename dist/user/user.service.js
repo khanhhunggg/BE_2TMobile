@@ -40,10 +40,10 @@ let UserService = class UserService {
             }
             console.log(user);
             const existingUser = await this.userRepository.findOne({
-                where: { email: user.Email },
+                where: { email: user.Email, phoneNumber: user.PhoneNumber },
             });
             if (existingUser) {
-                throw new common_1.BadRequestException('EMAIL_ALREADY_EXISTS');
+                throw new common_1.BadRequestException('EMAIL_OR_PHONE_NUMBER_ALREADY_EXISTS');
             }
             if (!user.Password) {
                 throw new common_1.BadRequestException('PASSWORD_REQUIRED');
