@@ -576,46 +576,59 @@ let ProductService = class ProductService {
                 await this.productRepository.update(data.id, productUpdateData);
             }
             if (data.productDetail && data.productDetail.length > 0) {
-                if (existingProduct.productDetails &&
-                    existingProduct.productDetails.length > 0) {
-                    await this.productDetailRepository.delete({
-                        product_id: data.id,
-                    });
-                }
                 const productDetailPromises = data.productDetail.map(async (detail) => {
-                    const color = await this.colorRepository.findOne({
-                        where: { id: detail.color_id },
-                    });
-                    if (!color) {
+                    if (detail.color_id) {
+                        const color = await this.colorRepository.findOne({
+                            where: { id: detail.color_id },
+                        });
+                        if (!color) {
+                            throw new common_1.BadRequestException({
+                                message: 'Màu sắc không tồn tại',
+                                errors: [
+                                    {
+                                        field: 'productDetail.color_id',
+                                        message: `Không tìm thấy màu sắc với ID: ${detail.color_id}`,
+                                    },
+                                ],
+                            });
+                        }
+                    }
+                    if (detail.capacity_id) {
+                        const capacity = await this.productRepository.manager.findOne('Capacity', {
+                            where: { id: detail.capacity_id },
+                        });
+                        if (!capacity) {
+                            throw new common_1.BadRequestException({
+                                message: 'Dung lượng không tồn tại',
+                                errors: [
+                                    {
+                                        field: 'productDetail.capacity_id',
+                                        message: `Không tìm thấy dung lượng với ID: ${detail.capacity_id}`,
+                                    },
+                                ],
+                            });
+                        }
+                    }
+                    const existingDetail = existingProduct.productDetails?.find((pd) => pd.product_id === data.id &&
+                        (detail.color_id ? pd.color_id === detail.color_id : true) &&
+                        (detail.capacity_id
+                            ? pd.capacity_id === detail.capacity_id
+                            : true));
+                    if (!existingDetail && (!detail.color_id || !detail.capacity_id)) {
                         throw new common_1.BadRequestException({
-                            message: 'Màu sắc không tồn tại',
+                            message: 'Thông tin không hợp lệ',
                             errors: [
                                 {
-                                    field: 'productDetail.color_id',
-                                    message: `Không tìm thấy màu sắc với ID: ${detail.color_id}`,
+                                    field: 'productDetail',
+                                    message: 'color_id và capacity_id là bắt buộc khi tạo mới product detail',
                                 },
                             ],
                         });
                     }
-                    const capacity = await this.productRepository.manager.findOne('Capacity', {
-                        where: { id: detail.capacity_id },
-                    });
-                    if (!capacity) {
-                        throw new common_1.BadRequestException({
-                            message: 'Dung lượng không tồn tại',
-                            errors: [
-                                {
-                                    field: 'productDetail.capacity_id',
-                                    message: `Không tìm thấy dung lượng với ID: ${detail.capacity_id}`,
-                                },
-                            ],
-                        });
-                    }
-                    const existingDetail = existingProduct.productDetails?.find((pd) => pd.color_id === detail.color_id &&
-                        pd.capacity_id === detail.capacity_id);
                     const detailUpdateData = {};
                     if (detail.stock_quantity !== undefined &&
-                        detail.stock_quantity !== existingDetail?.stock_quantity) {
+                        parseFloat(detail.stock_quantity.toString()) !==
+                            parseFloat((existingDetail?.stock_quantity || 0).toString())) {
                         detailUpdateData.stock_quantity = detail.stock_quantity;
                     }
                     if (detail.serial_number !== undefined &&
@@ -623,32 +636,45 @@ let ProductService = class ProductService {
                         detailUpdateData.serial_number = detail.serial_number;
                     }
                     if (detail.import_price !== undefined &&
-                        detail.import_price !== existingDetail?.import_price) {
+                        parseFloat(detail.import_price) !==
+                            parseFloat(existingDetail?.import_price || '0')) {
                         detailUpdateData.import_price = detail.import_price;
                     }
                     if (detail.selling_price !== undefined &&
-                        detail.selling_price !== existingDetail?.selling_price) {
+                        parseFloat(detail.selling_price) !==
+                            parseFloat(existingDetail?.selling_price || '0')) {
+                        console.log('detail.selling_price', detail.selling_price);
                         detailUpdateData.selling_price = detail.selling_price;
                     }
                     else if (detail.import_price !== undefined &&
                         !detail.selling_price) {
+                        console.log('detail.import_price', detail.import_price);
+                        console.log('existingDetail?.import_price', existingDetail?.import_price);
                         const importPrice = parseFloat(detail.import_price);
                         detailUpdateData.selling_price = (importPrice * 1.1).toString();
                     }
+                    console.log('detailUpdateData', detailUpdateData);
+                    console.log('existingDetail', existingDetail);
                     if (Object.keys(detailUpdateData).length > 0 || !existingDetail) {
-                        const newProductDetail = this.productDetailRepository.create({
-                            product_id: data.id,
-                            capacity_id: detail.capacity_id,
-                            color_id: detail.color_id,
-                            ...detailUpdateData,
-                            stock_quantity: detailUpdateData.stock_quantity ??
-                                existingDetail?.stock_quantity ??
-                                0,
-                            serial_number: detailUpdateData.serial_number ??
-                                existingDetail?.serial_number ??
-                                data.model,
-                        });
-                        return this.productDetailRepository.save(newProductDetail);
+                        if (existingDetail) {
+                            await this.productDetailRepository.update(existingDetail.id, detailUpdateData);
+                            return {
+                                ...existingDetail,
+                                ...detailUpdateData,
+                            };
+                        }
+                        else {
+                            const newProductDetail = this.productDetailRepository.create({
+                                ...detailUpdateData,
+                                product_id: data.id,
+                                capacity_id: detail.capacity_id,
+                                color_id: detail.color_id,
+                                stock_quantity: detailUpdateData.stock_quantity ?? 0,
+                                serial_number: detailUpdateData.serial_number ?? data.model,
+                            });
+                            console.log('newProductDetail', newProductDetail);
+                            return this.productDetailRepository.save(newProductDetail);
+                        }
                     }
                     return existingDetail;
                 });
