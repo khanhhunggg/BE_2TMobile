@@ -4,9 +4,6 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as crypto from 'crypto';
 import { firstValueFrom } from 'rxjs';
-import { Order } from 'src/entity/order.entity';
-import { Payment } from 'src/entity/payment.entity';
-import { Repository } from 'typeorm';
 import {
   CreatePaymentLinkDto,
   DeletePaymentDto,
@@ -14,6 +11,9 @@ import {
   SearchPaymentDto,
   UpdatePaymentDto,
 } from 'src/dto/payment.dto';
+import { Order } from 'src/entity/order.entity';
+import { Payment } from 'src/entity/payment.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PaymentService {
@@ -25,90 +25,6 @@ export class PaymentService {
     private httpService: HttpService,
     private configService: ConfigService,
   ) {}
-
-  // public async createPaymentLink(createPaymentLinkDto: CreatePaymentLinkDto) {
-  //   try {
-  //     const order = await this.orderRepository.findOne({
-  //       where: { id: createPaymentLinkDto.orderId },
-  //       relations: ['orderDetails'],
-  //     });
-
-  //     if (!order) {
-  //       throw new Error('Order not found');
-  //     }
-
-  //     const amount = Math.round(
-  //       order.orderDetails.reduce((sum, detail) => sum + detail.price, 0),
-  //     );
-
-  //     const clientId = this.configService.get<string>('PAYOS_CLIENT_ID');
-  //     const apiKey = this.configService.get<string>('PAYOS_API_KEY');
-  //     const checkSumKey = this.configService.get<string>('PAYOS_CHECKSUM_KEY');
-  //     const partnerCode = this.configService.get<string>('PAYOS_PARTNER_CODE');
-  //     const returnUrl = this.configService.get<string>('PAYOS_RETURN_URL');
-  //     const cancelUrl = this.configService.get<string>('PAYOS_CANCEL_URL');
-
-  //     const orderCode = `ORDER_${order.id}_${Date.now()}`;
-  //     const description = `Thanh toan don hang ${order.id}`;
-
-  //     const data = {
-  //       orderCode,
-  //       amount,
-  //       description,
-  //       cancelUrl,
-  //       returnUrl,
-  //       expiredAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
-  //       buyerName: createPaymentLinkDto.buyerName,
-  //       buyerEmail: createPaymentLinkDto.buyerEmail,
-  //       buyerPhone: createPaymentLinkDto.buyerPhone,
-  //       buyerAddress: createPaymentLinkDto.buyerAddress,
-  //     };
-  //     const signature = crypto
-  //       .createHmac('sha256', checkSumKey)
-  //       .update(JSON.stringify(data))
-  //       .digest('hex');
-
-  //     const headers = {
-  //       'x-client-id': clientId,
-  //       'x-api-key': apiKey,
-  //       'x-partner-code': partnerCode,
-  //       'Content-Type': 'application/json',
-  //     };
-
-  //     const response = await firstValueFrom(
-  //       this.httpService.post(
-  //         'https://api-merchant.payos.vn/v2/payment-requests',
-  //         {
-  //           ...data,
-  //           signature,
-  //         },
-  //         { headers },
-  //       ),
-  //     );
-  //     const payment = this.paymentRepository.create({
-  //       orderId: order.id,
-  //       buyerName: createPaymentLinkDto.buyerName,
-  //       buyerEmail: createPaymentLinkDto.buyerEmail,
-  //       buyerPhone: createPaymentLinkDto.buyerPhone,
-  //       buyerAddress: createPaymentLinkDto.buyerAddress,
-  //       expiredAt: data.expiredAt,
-  //     });
-
-  //     await this.paymentRepository.save(payment);
-
-  //     return response.data;
-  //   } catch (error) {
-  //     console.error('Error creating payment link:', {
-  //       error: error.response?.data || error.message,
-  //       status: error.response?.status,
-  //       statusText: error.response?.statusText,
-  //     });
-  //     throw new BadRequestException({
-  //       message: 'Lỗi khi tạo link thanh toán',
-  //       errors: [{ message: error.message }],
-  //     });
-  //   }
-  // }
 
   public async getPaymentRequestInfo(orderId: number): Promise<any> {
     const order = await this.orderRepository.findOne({
@@ -149,6 +65,113 @@ export class PaymentService {
       throw new BadRequestException({
         message: 'Lỗi khi lấy thông tin thanh toán',
         errors: [{ message: error.message }],
+      });
+    }
+  }
+
+  public async doCreatePayment(data: CreatePaymentLinkDto): Promise<Payment> {
+    try {
+      // Validate required fields
+      if (!data.orderId) {
+        throw new BadRequestException({
+          message: 'Thông tin thanh toán không hợp lệ',
+          errors: [
+            {
+              field: 'orderId',
+              message: 'Mã đơn hàng không được để trống',
+            },
+          ],
+        });
+      }
+
+      if (!data.buyerName) {
+        throw new BadRequestException({
+          message: 'Thông tin thanh toán không hợp lệ',
+          errors: [
+            {
+              field: 'buyerName',
+              message: 'Tên người mua không được để trống',
+            },
+          ],
+        });
+      }
+
+      if (!data.buyerEmail) {
+        throw new BadRequestException({
+          message: 'Thông tin thanh toán không hợp lệ',
+          errors: [
+            {
+              field: 'buyerEmail',
+              message: 'Email người mua không được để trống',
+            },
+          ],
+        });
+      }
+
+      if (!data.buyerPhone) {
+        throw new BadRequestException({
+          message: 'Thông tin thanh toán không hợp lệ',
+          errors: [
+            {
+              field: 'buyerPhone',
+              message: 'Số điện thoại người mua không được để trống',
+            },
+          ],
+        });
+      }
+
+      if (!data.buyerAddress) {
+        throw new BadRequestException({
+          message: 'Thông tin thanh toán không hợp lệ',
+          errors: [
+            {
+              field: 'buyerAddress',
+              message: 'Địa chỉ người mua không được để trống',
+            },
+          ],
+        });
+      }
+
+      // Check if order exists
+      const order = await this.orderRepository.findOne({
+        where: { id: data.orderId },
+      });
+
+      if (!order) {
+        throw new BadRequestException({
+          message: 'Không tìm thấy đơn hàng',
+          errors: [
+            {
+              field: 'orderId',
+              message: `Không tìm thấy đơn hàng với ID: ${data.orderId}`,
+            },
+          ],
+        });
+      }
+
+      // Create payment record
+      const payment = this.paymentRepository.create({
+        orderId: data.orderId,
+        buyerName: data.buyerName,
+        buyerEmail: data.buyerEmail,
+        buyerPhone: data.buyerPhone,
+        buyerAddress: data.buyerAddress,
+        expiredAt:
+          data.expiredAt || Math.floor(Date.now() / 1000) + 24 * 60 * 60, // Default 24 hours
+      });
+
+      const savedPayment = await this.paymentRepository.save(payment);
+
+      return savedPayment;
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi tạo thanh toán',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
       });
     }
   }

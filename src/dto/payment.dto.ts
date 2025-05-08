@@ -145,7 +145,7 @@ export class DeletePaymentDto {
   id: number;
 }
 
-export class SimpleCreatePaymentDto {
+export class SimpleCreatePaymentDto extends CreatePaymentLinkDto {
   @ApiProperty({ description: 'Description of the payment' })
   @IsString()
   @IsNotEmpty()

@@ -28,6 +28,7 @@ export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
     private readonly payOS: PayOSService,
+    private readonly paymentRepository: PaymentService,
   ) {}
 
   @Post('create')
@@ -44,7 +45,17 @@ export class PaymentController {
       };
 
       const paymentLinkRes = await this.payOS.createPaymentLink(paymentBody);
-
+      let payment = null;
+      if (paymentLinkRes.checkoutUrl) {
+        const paymentBody = {
+          orderId: body.orderId,
+          buyerName: body.buyerName,
+          buyerEmail: body.buyerEmail,
+          buyerPhone: body.buyerPhone,
+          buyerAddress: body.buyerAddress,
+        };
+        payment = await this.paymentService.doCreatePayment(paymentBody);
+      }
       return {
         error: 0,
         message: 'Success',
@@ -58,6 +69,7 @@ export class PaymentController {
           orderCode: paymentLinkRes.orderCode,
           qrCode: paymentLinkRes.qrCode,
         },
+        payment: payment,
       };
     } catch (error) {
       console.log(error);
