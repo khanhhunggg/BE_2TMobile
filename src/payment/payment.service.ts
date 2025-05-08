@@ -38,7 +38,7 @@ export class PaymentService {
       }
 
       const amount = Math.round(
-        order.orderDetails.reduce((sum, detail) => sum + detail.total_price, 0),
+        order.orderDetails.reduce((sum, detail) => sum + detail.price, 0),
       );
 
       const clientId = this.configService.get<string>('PAYOS_CLIENT_ID');

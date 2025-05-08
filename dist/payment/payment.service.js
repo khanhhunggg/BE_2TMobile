@@ -38,7 +38,7 @@ let PaymentService = class PaymentService {
             if (!order) {
                 throw new Error('Order not found');
             }
-            const amount = Math.round(order.orderDetails.reduce((sum, detail) => sum + detail.total_price, 0));
+            const amount = Math.round(order.orderDetails.reduce((sum, detail) => sum + detail.price, 0));
             const clientId = this.configService.get('PAYOS_CLIENT_ID');
             const apiKey = this.configService.get('PAYOS_API_KEY');
             const partnerCode = this.configService.get('PAYOS_PARTNER_CODE');
