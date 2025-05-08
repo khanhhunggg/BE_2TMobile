@@ -15,3 +15,11 @@ export declare class CreateOrderDto {
 export declare class UpdateOrderDto extends CreateOrderDto {
     id: number;
 }
+export declare class SearchOrderDto {
+    page?: number;
+    size?: number;
+    status?: OrderStatus;
+    payment_method?: PaymentMethod;
+    sort_by?: string;
+    sort_order?: 'ASC' | 'DESC';
+}

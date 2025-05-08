@@ -6,6 +6,7 @@ import {
   IsDateString,
   IsArray,
   ValidateNested,
+  IsString,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaymentMethod, OrderStatus } from '../entity/order.entity';
@@ -94,4 +95,68 @@ export class UpdateOrderDto extends CreateOrderDto {
   @ApiProperty({ type: Number, description: 'Order ID', required: true })
   @IsNumber()
   id: number;
+}
+
+export class SearchOrderDto {
+  @ApiProperty({
+    type: Number,
+    description: 'Số trang',
+    required: false,
+    default: 1,
+  })
+  @IsNumber()
+  @IsOptional()
+  page?: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Số lượng đơn hàng trên mỗi trang',
+    required: false,
+    default: 10,
+  })
+  @IsNumber()
+  @IsOptional()
+  size?: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Trạng thái đơn hàng',
+    required: false,
+    enum: OrderStatus,
+  })
+  @IsEnum(OrderStatus)
+  @IsOptional()
+  status?: OrderStatus;
+
+  @ApiProperty({
+    type: String,
+    description: 'Phương thức thanh toán',
+    required: false,
+    enum: PaymentMethod,
+  })
+  @IsEnum(PaymentMethod)
+  @IsOptional()
+  payment_method?: PaymentMethod;
+
+  @ApiProperty({
+    type: String,
+    description: 'Trường sắp xếp',
+    required: false,
+    default: 'created_at',
+    enum: ['created_at', 'updated_at', 'total_amount', 'status'],
+  })
+  @IsString()
+  @IsOptional()
+  sort_by?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Thứ tự sắp xếp',
+    required: false,
+    default: 'DESC',
+    enum: ['ASC', 'DESC'],
+  })
+  @IsString()
+  @IsOptional()
+  sort_order?: 'ASC' | 'DESC';
 }

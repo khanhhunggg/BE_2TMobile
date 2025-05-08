@@ -58,11 +58,40 @@ let OrderService = class OrderService {
             });
         }
     }
-    async doGetAllOrders() {
+    async doGetAllOrders(searchParams) {
         try {
-            return await this.orderRepository.find({
-                relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
-            });
+            const { page = 1, size = 10, status, payment_method, sort_by = 'created_at', sort_order = 'DESC', } = searchParams;
+            const queryBuilder = this.orderRepository
+                .createQueryBuilder('order')
+                .leftJoinAndSelect('order.user', 'user')
+                .leftJoinAndSelect('order.orderDetails', 'orderDetails')
+                .leftJoinAndSelect('orderDetails.productDetail', 'productDetail');
+            if (status) {
+                queryBuilder.andWhere('order.status = :status', { status });
+            }
+            if (payment_method) {
+                queryBuilder.andWhere('order.payment_method = :payment_method', {
+                    payment_method,
+                });
+            }
+            queryBuilder.orderBy(`order.${sort_by}`, sort_order);
+            const skip = (page - 1) * size;
+            queryBuilder.skip(skip).take(size);
+            const [orders, total] = await queryBuilder.getManyAndCount();
+            if (!orders || orders.length === 0) {
+                throw new common_1.BadRequestException({
+                    message: 'Không tìm thấy đơn hàng nào',
+                });
+            }
+            return {
+                data: orders,
+                pagination: {
+                    total,
+                    page,
+                    size,
+                    total_pages: Math.ceil(total / size),
+                },
+            };
         }
         catch (error) {
             throw new common_1.BadRequestException({

@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateOrderDto = exports.CreateOrderDto = exports.CreateOrderDetailDto = void 0;
+exports.SearchOrderDto = exports.UpdateOrderDto = exports.CreateOrderDto = exports.CreateOrderDetailDto = void 0;
 const swagger_1 = require("@nestjs/swagger");
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
@@ -113,4 +113,75 @@ __decorate([
     (0, class_validator_1.IsNumber)(),
     __metadata("design:type", Number)
 ], UpdateOrderDto.prototype, "id", void 0);
+class SearchOrderDto {
+}
+exports.SearchOrderDto = SearchOrderDto;
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: Number,
+        description: 'Số trang',
+        required: false,
+        default: 1,
+    }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], SearchOrderDto.prototype, "page", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: Number,
+        description: 'Số lượng đơn hàng trên mỗi trang',
+        required: false,
+        default: 10,
+    }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], SearchOrderDto.prototype, "size", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        description: 'Trạng thái đơn hàng',
+        required: false,
+        enum: order_entity_1.OrderStatus,
+    }),
+    (0, class_validator_1.IsEnum)(order_entity_1.OrderStatus),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SearchOrderDto.prototype, "status", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        description: 'Phương thức thanh toán',
+        required: false,
+        enum: order_entity_1.PaymentMethod,
+    }),
+    (0, class_validator_1.IsEnum)(order_entity_1.PaymentMethod),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SearchOrderDto.prototype, "payment_method", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        description: 'Trường sắp xếp',
+        required: false,
+        default: 'created_at',
+        enum: ['created_at', 'updated_at', 'total_amount', 'status'],
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SearchOrderDto.prototype, "sort_by", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({
+        type: String,
+        description: 'Thứ tự sắp xếp',
+        required: false,
+        default: 'DESC',
+        enum: ['ASC', 'DESC'],
+    }),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], SearchOrderDto.prototype, "sort_order", void 0);
 //# sourceMappingURL=order.dto.js.map
