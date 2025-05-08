@@ -144,3 +144,25 @@ export class DeletePaymentDto {
   @IsNotEmpty()
   id: number;
 }
+
+export class SimpleCreatePaymentDto {
+  @ApiProperty({ description: 'Description of the payment' })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty({ description: 'URL to redirect when payment is successful' })
+  @IsString()
+  @IsNotEmpty()
+  returnUrl: string;
+
+  @ApiProperty({ description: 'URL to redirect when payment is cancelled' })
+  @IsString()
+  @IsNotEmpty()
+  cancelUrl: string;
+
+  @ApiProperty({ description: 'Amount to be paid' })
+  @IsNumber()
+  @IsNotEmpty()
+  amount: number;
+}

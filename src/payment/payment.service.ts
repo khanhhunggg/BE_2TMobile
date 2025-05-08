@@ -26,89 +26,89 @@ export class PaymentService {
     private configService: ConfigService,
   ) {}
 
-  public async createPaymentLink(createPaymentLinkDto: CreatePaymentLinkDto) {
-    try {
-      const order = await this.orderRepository.findOne({
-        where: { id: createPaymentLinkDto.orderId },
-        relations: ['orderDetails'],
-      });
+  // public async createPaymentLink(createPaymentLinkDto: CreatePaymentLinkDto) {
+  //   try {
+  //     const order = await this.orderRepository.findOne({
+  //       where: { id: createPaymentLinkDto.orderId },
+  //       relations: ['orderDetails'],
+  //     });
 
-      if (!order) {
-        throw new Error('Order not found');
-      }
+  //     if (!order) {
+  //       throw new Error('Order not found');
+  //     }
 
-      const amount = Math.round(
-        order.orderDetails.reduce((sum, detail) => sum + detail.price, 0),
-      );
+  //     const amount = Math.round(
+  //       order.orderDetails.reduce((sum, detail) => sum + detail.price, 0),
+  //     );
 
-      const clientId = this.configService.get<string>('PAYOS_CLIENT_ID');
-      const apiKey = this.configService.get<string>('PAYOS_API_KEY');
-      const checkSumKey = this.configService.get<string>('PAYOS_CHECKSUM_KEY');
-      const partnerCode = this.configService.get<string>('PAYOS_PARTNER_CODE');
-      const returnUrl = this.configService.get<string>('PAYOS_RETURN_URL');
-      const cancelUrl = this.configService.get<string>('PAYOS_CANCEL_URL');
+  //     const clientId = this.configService.get<string>('PAYOS_CLIENT_ID');
+  //     const apiKey = this.configService.get<string>('PAYOS_API_KEY');
+  //     const checkSumKey = this.configService.get<string>('PAYOS_CHECKSUM_KEY');
+  //     const partnerCode = this.configService.get<string>('PAYOS_PARTNER_CODE');
+  //     const returnUrl = this.configService.get<string>('PAYOS_RETURN_URL');
+  //     const cancelUrl = this.configService.get<string>('PAYOS_CANCEL_URL');
 
-      const orderCode = `ORDER_${order.id}_${Date.now()}`;
-      const description = `Thanh toan don hang ${order.id}`;
+  //     const orderCode = `ORDER_${order.id}_${Date.now()}`;
+  //     const description = `Thanh toan don hang ${order.id}`;
 
-      const data = {
-        orderCode,
-        amount,
-        description,
-        cancelUrl,
-        returnUrl,
-        expiredAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
-        buyerName: createPaymentLinkDto.buyerName,
-        buyerEmail: createPaymentLinkDto.buyerEmail,
-        buyerPhone: createPaymentLinkDto.buyerPhone,
-        buyerAddress: createPaymentLinkDto.buyerAddress,
-      };
-      const signature = crypto
-        .createHmac('sha256', checkSumKey)
-        .update(JSON.stringify(data))
-        .digest('hex');
+  //     const data = {
+  //       orderCode,
+  //       amount,
+  //       description,
+  //       cancelUrl,
+  //       returnUrl,
+  //       expiredAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+  //       buyerName: createPaymentLinkDto.buyerName,
+  //       buyerEmail: createPaymentLinkDto.buyerEmail,
+  //       buyerPhone: createPaymentLinkDto.buyerPhone,
+  //       buyerAddress: createPaymentLinkDto.buyerAddress,
+  //     };
+  //     const signature = crypto
+  //       .createHmac('sha256', checkSumKey)
+  //       .update(JSON.stringify(data))
+  //       .digest('hex');
 
-      const headers = {
-        'x-client-id': clientId,
-        'x-api-key': apiKey,
-        'x-partner-code': partnerCode,
-        'Content-Type': 'application/json',
-      };
+  //     const headers = {
+  //       'x-client-id': clientId,
+  //       'x-api-key': apiKey,
+  //       'x-partner-code': partnerCode,
+  //       'Content-Type': 'application/json',
+  //     };
 
-      const response = await firstValueFrom(
-        this.httpService.post(
-          'https://api-merchant.payos.vn/v2/payment-requests',
-          {
-            ...data,
-            signature,
-          },
-          { headers },
-        ),
-      );
-      const payment = this.paymentRepository.create({
-        orderId: order.id,
-        buyerName: createPaymentLinkDto.buyerName,
-        buyerEmail: createPaymentLinkDto.buyerEmail,
-        buyerPhone: createPaymentLinkDto.buyerPhone,
-        buyerAddress: createPaymentLinkDto.buyerAddress,
-        expiredAt: data.expiredAt,
-      });
+  //     const response = await firstValueFrom(
+  //       this.httpService.post(
+  //         'https://api-merchant.payos.vn/v2/payment-requests',
+  //         {
+  //           ...data,
+  //           signature,
+  //         },
+  //         { headers },
+  //       ),
+  //     );
+  //     const payment = this.paymentRepository.create({
+  //       orderId: order.id,
+  //       buyerName: createPaymentLinkDto.buyerName,
+  //       buyerEmail: createPaymentLinkDto.buyerEmail,
+  //       buyerPhone: createPaymentLinkDto.buyerPhone,
+  //       buyerAddress: createPaymentLinkDto.buyerAddress,
+  //       expiredAt: data.expiredAt,
+  //     });
 
-      await this.paymentRepository.save(payment);
+  //     await this.paymentRepository.save(payment);
 
-      return response.data;
-    } catch (error) {
-      console.error('Error creating payment link:', {
-        error: error.response?.data || error.message,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-      });
-      throw new BadRequestException({
-        message: 'Lỗi khi tạo link thanh toán',
-        errors: [{ message: error.message }],
-      });
-    }
-  }
+  //     return response.data;
+  //   } catch (error) {
+  //     console.error('Error creating payment link:', {
+  //       error: error.response?.data || error.message,
+  //       status: error.response?.status,
+  //       statusText: error.response?.statusText,
+  //     });
+  //     throw new BadRequestException({
+  //       message: 'Lỗi khi tạo link thanh toán',
+  //       errors: [{ message: error.message }],
+  //     });
+  //   }
+  // }
 
   public async getPaymentRequestInfo(orderId: number): Promise<any> {
     const order = await this.orderRepository.findOne({
@@ -364,6 +364,65 @@ export class PaymentService {
             message: error.message,
           },
         ],
+      });
+    }
+  }
+
+  public async createSimplePayment(data: {
+    orderCode: number;
+    amount: number;
+    description: string;
+    cancelUrl: string;
+    returnUrl: string;
+  }) {
+    try {
+      const clientId = this.configService.get<string>('PAYOS_CLIENT_ID');
+      const apiKey = this.configService.get<string>('PAYOS_API_KEY');
+      const checkSumKey = this.configService.get<string>('PAYOS_CHECKSUM_KEY');
+      const partnerCode = this.configService.get<string>('PAYOS_PARTNER_CODE');
+
+      const paymentData = {
+        orderCode: data.orderCode,
+        amount: data.amount,
+        description: data.description,
+        cancelUrl: data.cancelUrl,
+        returnUrl: data.returnUrl,
+        expiredAt: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+      };
+
+      const signature = crypto
+        .createHmac('sha256', checkSumKey)
+        .update(JSON.stringify(paymentData))
+        .digest('hex');
+
+      const headers = {
+        'x-client-id': clientId,
+        'x-api-key': apiKey,
+        'x-partner-code': partnerCode,
+        'Content-Type': 'application/json',
+      };
+
+      const response = await firstValueFrom(
+        this.httpService.post(
+          'https://api-merchant.payos.vn/v2/payment-requests',
+          {
+            ...paymentData,
+            signature,
+          },
+          { headers },
+        ),
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Error creating payment link:', {
+        error: error.response?.data || error.message,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+      });
+      throw new BadRequestException({
+        message: 'Lỗi khi tạo link thanh toán',
+        errors: [{ message: error.message }],
       });
     }
   }

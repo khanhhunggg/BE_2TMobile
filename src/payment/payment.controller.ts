@@ -10,6 +10,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
+import { PayOSService } from './payos.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
   CreatePaymentLinkDto,
@@ -18,23 +19,66 @@ import {
   GetPaymentByIdDto,
   SearchPaymentDto,
   UpdatePaymentDto,
+  SimpleCreatePaymentDto,
 } from 'src/dto/payment.dto';
 
 @ApiTags('Thanh toán')
 @Controller('payment')
 export class PaymentController {
-  constructor(private readonly paymentService: PaymentService) {}
+  constructor(
+    private readonly paymentService: PaymentService,
+    private readonly payOS: PayOSService,
+  ) {}
 
-  @Post('create-url')
-  @ApiOperation({ summary: 'Tạo phiên thanh toán' })
-  @ApiResponse({ status: 200, description: 'Return payment URL' })
-  public async doCreatePaymentUrl(
-    @Body() createPaymentLinkDto: CreatePaymentLinkDto,
-  ): Promise<PaymentLinkResponseDto> {
-    const checkoutUrl =
-      await this.paymentService.createPaymentLink(createPaymentLinkDto);
-    return { checkoutUrl };
+  @Post('create')
+  @ApiOperation({ summary: 'Tạo thanh toán mới' })
+  @ApiResponse({ status: 200, description: 'Return payment information' })
+  public async createPayment(@Body() body: SimpleCreatePaymentDto) {
+    try {
+      const paymentBody = {
+        orderCode: Number(String(new Date().getTime()).slice(-6)),
+        amount: body.amount,
+        description: body.description,
+        cancelUrl: body.cancelUrl,
+        returnUrl: body.returnUrl,
+      };
+
+      const paymentLinkRes = await this.payOS.createPaymentLink(paymentBody);
+
+      return {
+        error: 0,
+        message: 'Success',
+        data: {
+          bin: paymentLinkRes.bin,
+          checkoutUrl: paymentLinkRes.checkoutUrl,
+          accountNumber: paymentLinkRes.accountNumber,
+          accountName: paymentLinkRes.accountName,
+          amount: paymentLinkRes.amount,
+          description: paymentLinkRes.description,
+          orderCode: paymentLinkRes.orderCode,
+          qrCode: paymentLinkRes.qrCode,
+        },
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        error: -1,
+        message: 'fail',
+        data: null,
+      };
+    }
   }
+
+  // @Post('create-url')
+  // @ApiOperation({ summary: 'Tạo phiên thanh toán' })
+  // @ApiResponse({ status: 200, description: 'Return payment URL' })
+  // public async doCreatePaymentUrl(
+  //   @Body() createPaymentLinkDto: CreatePaymentLinkDto,
+  // ): Promise<PaymentLinkResponseDto> {
+  //   const checkoutUrl =
+  //     await this.paymentService.createPaymentLink(createPaymentLinkDto);
+  //   return { checkoutUrl };
+  // }
 
   @Get('payment-info/:orderId')
   @ApiOperation({ summary: 'Get payment request information' })
@@ -46,11 +90,11 @@ export class PaymentController {
     return this.paymentService.getPaymentRequestInfo(orderId);
   }
 
-  @Post('create-payment-link')
-  @ApiOperation({ summary: 'Tạo link thanh toán' })
-  public async CreatePaymentLink(@Body() data: CreatePaymentLinkDto) {
-    return await this.paymentService.createPaymentLink(data);
-  }
+  // @Post('create-payment-link')
+  // @ApiOperation({ summary: 'Tạo link thanh toán' })
+  // public async CreatePaymentLink(@Body() data: CreatePaymentLinkDto) {
+  //   return await this.paymentService.createPaymentLink(data);
+  // }
 
   @Get('get-all-payment')
   @ApiOperation({ summary: 'Lấy tất cả thanh toán' })
