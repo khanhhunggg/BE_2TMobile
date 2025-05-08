@@ -24,8 +24,8 @@ let OrderController = class OrderController {
     async createOrder(createOrderDto) {
         return await this.orderService.doCreateOrder(createOrderDto);
     }
-    async getAllOrders() {
-        return await this.orderService.doGetAllOrders();
+    async getAllOrders(searchParams) {
+        return await this.orderService.doGetAllOrders(searchParams);
     }
     async getOrderById(id) {
         return await this.orderService.doGetOrderById(Number(id));
@@ -52,8 +52,9 @@ __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: 'Lấy danh sách tất cả đơn hàng' }),
     (0, swagger_1.ApiResponse)({ status: 200, description: 'Danh sách đơn hàng' }),
+    __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [order_dto_1.SearchOrderDto]),
     __metadata("design:returntype", Promise)
 ], OrderController.prototype, "getAllOrders", null);
 __decorate([

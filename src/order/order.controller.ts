@@ -6,9 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto, UpdateOrderDto } from '../dto/order.dto';
+import {
+  CreateOrderDto,
+  SearchOrderDto,
+  UpdateOrderDto,
+} from '../dto/order.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Đơn hàng')
@@ -27,8 +32,8 @@ export class OrderController {
   @Get()
   @ApiOperation({ summary: 'Lấy danh sách tất cả đơn hàng' })
   @ApiResponse({ status: 200, description: 'Danh sách đơn hàng' })
-  async getAllOrders() {
-    return await this.orderService.doGetAllOrders();
+  async getAllOrders(@Query() searchParams: SearchOrderDto) {
+    return await this.orderService.doGetAllOrders(searchParams);
   }
 
   @Get(':id')

@@ -1,10 +1,10 @@
 import { OrderService } from './order.service';
-import { CreateOrderDto, UpdateOrderDto } from '../dto/order.dto';
+import { CreateOrderDto, SearchOrderDto, UpdateOrderDto } from '../dto/order.dto';
 export declare class OrderController {
     private readonly orderService;
     constructor(orderService: OrderService);
     createOrder(createOrderDto: CreateOrderDto): Promise<import("../entity/order.entity").Order>;
-    getAllOrders(): Promise<{
+    getAllOrders(searchParams: SearchOrderDto): Promise<{
         data: import("../entity/order.entity").Order[];
         pagination: {
             total: number;
