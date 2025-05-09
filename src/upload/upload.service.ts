@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v2 as cloudinary } from 'cloudinary';
 import { Readable } from 'stream';
@@ -53,11 +53,24 @@ export class UploadService {
     files: (Express.Multer.File | string)[],
   ): Promise<string[]> {
     try {
+      if (!files || !Array.isArray(files) || files.length === 0) {
+        throw new Error('No files provided for upload');
+      }
+
       const uploadPromises = files.map((file) => this.uploadFile(file));
-      console.log(uploadPromises);
-      return await Promise.all(uploadPromises);
+      const results = await Promise.all(uploadPromises);
+
+      const validResults = results.filter((url): url is string => !!url);
+
+      if (validResults.length !== files.length) {
+        throw new Error('Some files failed to upload successfully');
+      }
+      return validResults;
     } catch (error) {
-      throw new Error(`Failed to upload files to Cloudinary: ${error.message}`);
+      console.log(error);
+      throw new BadRequestException(
+        `Failed to upload files to Cloudinary: ${error.message}`,
+      );
     }
   }
 }
