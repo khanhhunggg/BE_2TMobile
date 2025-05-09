@@ -16,6 +16,7 @@ import {
   UpdatePaymentDto,
 } from 'src/dto/payment.dto';
 import { PurchaseService } from './purchase.service';
+import { CreatePurchaseDto } from 'src/dto/purchase.dto';
 
 @ApiTags('Thanh toán lưu payment')
 @Controller('purchase')
@@ -26,6 +27,12 @@ export class PurchaseController {
   @ApiOperation({ summary: 'Tạo thanh toán' })
   public async CreatePayment(@Body() data: CreatePaymentLinkDto) {
     return await this.purchaseService.doCreatePayment(data);
+  }
+
+  @Post('create-purchase')
+  @ApiOperation({ summary: 'Tạo phiên thanh toán' })
+  public async createPurchase(@Body() data: CreatePurchaseDto) {
+    return await this.purchaseService.doCreatePurchase(data);
   }
 
   @Get('get-all-payment')

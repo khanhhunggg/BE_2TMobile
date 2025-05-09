@@ -7,7 +7,9 @@ import {
   UpdatePaymentDto,
   DeletePaymentDto,
 } from 'src/dto/payment.dto';
+import { CreatePurchaseDto } from 'src/dto/purchase.dto';
 import { Payment } from 'src/entity/payment.entity';
+import { Purchase } from 'src/entity/purchase.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -15,6 +17,8 @@ export class PurchaseService {
   constructor(
     @InjectRepository(Payment)
     private paymentRepository: Repository<Payment>,
+    @InjectRepository(Purchase)
+    private purchaseRepository: Repository<Purchase>,
   ) {}
 
   public async doCreatePayment(data: CreatePaymentLinkDto): Promise<Payment> {
@@ -94,6 +98,79 @@ export class PurchaseService {
       }
       throw new BadRequestException({
         message: 'Lỗi khi tạo thanh toán',
+        errors: [
+          {
+            message: error.message,
+          },
+        ],
+      });
+    }
+  }
+
+  public async doCreatePurchase(data: CreatePurchaseDto): Promise<Purchase> {
+    try {
+      if (!data.VendorId) {
+        throw new BadRequestException({
+          message: 'Thông tin mua hàng không hợp lệ',
+          errors: [
+            {
+              field: 'VendorId',
+              message: 'ID nhà cung cấp không được để trống',
+            },
+          ],
+        });
+      }
+
+      if (!data.Items || data.Items.length === 0) {
+        throw new BadRequestException({
+          message: 'Thông tin mua hàng không hợp lệ',
+          errors: [
+            {
+              field: 'Items',
+              message: 'Danh sách sản phẩm không được để trống',
+            },
+          ],
+        });
+      }
+
+      const purchase = this.purchaseRepository.create({
+        lotCode: data.LotCode,
+        itemType: data.ItemType,
+        vendorId: data.VendorId,
+        paymentMethod: data.PaymentMethod,
+        orderDate: data.OrderDate ? new Date(data.OrderDate) : new Date(),
+        orderTime: data.OrderTime,
+        status: data.Status || 'COMPLETED',
+        note: data.Note,
+      });
+
+      const savedPurchase = await this.purchaseRepository.save(purchase);
+
+      // Create purchase order items
+      if (data.Items && data.Items.length > 0) {
+        const purchaseOrderItems = data.Items.map((item) => ({
+          purchaseId: savedPurchase.id,
+          productId: item.ProductId,
+          quantity: item.Quantity,
+          unitPrice: item.UnitPrice,
+        }));
+
+        await this.purchaseRepository
+          .createQueryBuilder()
+          .insert()
+          .into('tbl_purchase_order_item')
+          .values(purchaseOrderItems)
+          .execute();
+      }
+
+      return await this.purchaseRepository.findOne({
+        where: { id: savedPurchase.id },
+        relations: ['purchaseOrderItems'],
+      });
+    } catch (error) {
+      console.log(error);
+      throw new BadRequestException({
+        message: 'Lỗi khi tạo đơn mua hàng',
         errors: [
           {
             message: error.message,
@@ -256,7 +333,6 @@ export class PurchaseService {
 
       const paymentUpdateData: Partial<Payment> = {};
 
-      // Only update fields that have changed
       if (
         data.orderId !== undefined &&
         data.orderId !== existingPayment.orderId
