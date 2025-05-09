@@ -10,6 +10,7 @@ import {
 import { OrderDetail } from '../entity/order-detail.entity';
 import { Order, OrderStatus } from '../entity/order.entity';
 import { User } from '../entity/user.entity';
+import { GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto } from 'src/dto/product.dto';
 
 @Injectable()
 export class OrderService {
@@ -41,6 +42,21 @@ export class OrderService {
       const order = await this.orderRepository.save(newOrder);
 
       for (const detail of orderData.order_details) {
+        let productDetailId = null;
+        if (detail.product_detail_id == null) {
+          const data: GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto =
+            {
+              product_id: detail.product_id,
+              color_id: detail.color_id,
+              capacity_id: detail.capacity_id,
+            };
+          productDetailId =
+            await this.productService.doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
+              data,
+            );
+        } else {
+          productDetailId = detail.product_detail_id;
+        }
         const newOrderDetail = this.orderDetailRepository.create({
           order: { id: order.id },
           productDetail: { id: detail.product_detail_id },
@@ -181,7 +197,7 @@ export class OrderService {
   public async doUpdateOrder(updateData: UpdateOrderDto) {
     try {
       const order = await this.orderRepository.findOne({
-        where: { id: updateData.id },
+        where: { id: updateData.order_id },
         relations: ['orderDetails', 'orderDetails.productDetail'],
       });
 
@@ -191,7 +207,7 @@ export class OrderService {
           errors: [
             {
               field: 'id',
-              message: `Không tìm thấy đơn hàng với ID: ${updateData.id}`,
+              message: `Không tìm thấy đơn hàng với ID: ${updateData.order_id}`,
             },
           ],
         });
@@ -269,7 +285,7 @@ export class OrderService {
           } else {
             // Create new detail if it doesn't exist
             const newOrderDetail = this.orderDetailRepository.create({
-              order: { id: updateData.id },
+              order: { id: updateData.order_id },
               productDetail: { id: detail.product_detail_id },
               quantity: detail.quantity,
               price: detail.price,
@@ -289,7 +305,7 @@ export class OrderService {
 
         for (const detail of newDetails) {
           const newOrderDetail = this.orderDetailRepository.create({
-            order: { id: updateData.id },
+            order: { id: updateData.order_id },
             productDetail: { id: detail.product_detail_id },
             quantity: detail.quantity,
             price: detail.price,
@@ -306,11 +322,11 @@ export class OrderService {
 
       // Only perform update if there are actual changes
       if (Object.keys(orderUpdateData).length > 0) {
-        await this.orderRepository.update(updateData.id, orderUpdateData);
+        await this.orderRepository.update(updateData.order_id, orderUpdateData);
       }
 
       return await this.orderRepository.findOne({
-        where: { id: updateData.id },
+        where: { id: updateData.order_id },
         relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
       });
     } catch (error) {

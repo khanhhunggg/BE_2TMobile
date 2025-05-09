@@ -17,11 +17,35 @@ import { PaymentMethod, OrderStatus } from '../entity/order.entity';
 export class CreateOrderDetailDto {
   @ApiProperty({
     type: Number,
+    description: 'Product_id',
+    required: true,
+  })
+  @IsNumber()
+  product_id?: number;
+
+  @ApiProperty({
+    type: Number,
     description: 'Product detail ID',
     required: true,
   })
   @IsNumber()
-  product_detail_id: number;
+  product_detail_id?: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Color_id',
+    required: true,
+  })
+  @IsNumber()
+  color_id?: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Capacity_id',
+    required: true,
+  })
+  @IsNumber()
+  capacity_id?: number;
 
   @ApiProperty({
     type: Number,
@@ -128,7 +152,7 @@ export class CreateOrderDto {
 export class UpdateOrderDto extends CreateOrderDto {
   @ApiProperty({ type: Number, description: 'Order ID', required: true })
   @IsNumber()
-  id: number;
+  order_id: number;
 
   @ApiProperty({
     type: String,
