@@ -8,6 +8,7 @@ import { Color } from '../entity/color.entity';
 import { CapacityPrice } from '../entity/capacity-price.entity';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
+import { UploadModule } from '../upload/upload.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProductController } from './product.controller';
       Color,
       CapacityPrice,
     ]),
+    UploadModule,
   ],
   controllers: [ProductController],
   providers: [ProductService],

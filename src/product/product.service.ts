@@ -14,6 +14,7 @@ import { Specs } from 'src/entity/specs.entity';
 import { Repository } from 'typeorm';
 import { Image } from '../entity/image.entity';
 import { Color } from '../entity/color.entity';
+import { UploadService } from '../upload/upload.service';
 
 @Injectable()
 export class ProductService {
@@ -28,6 +29,7 @@ export class ProductService {
     private imageRepository: Repository<Image>,
     @InjectRepository(Color)
     private colorRepository: Repository<Color>,
+    private uploadService: UploadService,
   ) {}
 
   public async doCreateProduct(product: CreateProductDto) {
@@ -210,18 +212,10 @@ export class ProductService {
 
       // Lưu ảnh theo product
       if (product.image_urls && product.image_urls.length > 0) {
-        const imagePromises = product.image_urls.map((imageUrl) => {
-          if (!imageUrl) {
-            throw new BadRequestException({
-              message: 'URL ảnh không được để trống',
-              errors: [
-                {
-                  field: 'image_url',
-                  message: 'URL ảnh không được để trống',
-                },
-              ],
-            });
-          }
+        const imageUrls = await this.uploadService.uploadMultipleFiles(
+          product.image_urls,
+        );
+        const imagePromises = imageUrls.map((imageUrl) => {
           return this.imageRepository.save(
             this.imageRepository.create({
               product: savedProduct,

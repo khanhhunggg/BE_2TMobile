@@ -4,6 +4,9 @@ import { AppModule } from './app.module';
 import { setupSwagger } from './swagger';
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import 'reflect-metadata';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { join } from 'path';
 
 let server: any;
 let isReady = false;
@@ -14,6 +17,24 @@ async function bootstrap() {
   });
   app.set('trust proxy', true);
   setupSwagger(app);
+
+  // Enable validation
+  app.useGlobalPipes(new ValidationPipe());
+
+  // Serve static files
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  });
+
+  // Swagger configuration
+  const config = new DocumentBuilder()
+    .setTitle('2T Mobile API')
+    .setDescription('The 2T Mobile API description')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT || 3303);
   server = app.getHttpServer();

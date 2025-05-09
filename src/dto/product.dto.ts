@@ -131,8 +131,7 @@ export class CreateProductDto {
 
   @ApiProperty({ type: String, description: 'Model sản phẩm', required: false })
   @IsString()
-  @IsOptional()
-  model?: string;
+  model: string;
 
   @ApiProperty({
     type: CreateSpecsDto,
@@ -153,7 +152,7 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  image_urls?: string[];
+  image_urls?: Express.Multer.File[];
 
   @ApiProperty({
     type: [ProductDetailDto],

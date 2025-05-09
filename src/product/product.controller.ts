@@ -6,6 +6,8 @@ import {
   Post,
   Put,
   Query,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
@@ -17,16 +19,17 @@ import {
   UpdateProductDto,
 } from 'src/dto/product.dto';
 import { ProductService } from './product.service';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('Sản phẩm')
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Post('create-product')
-  @ApiOperation({ summary: 'Tạo sản phẩm' })
-  public async CreateProduct(@Body() product: CreateProductDto) {
-    return await this.productService.doCreateProduct(product);
+  @Post()
+  @UseInterceptors(FilesInterceptor('files'))
+  public async createProduct(@Body() createProductDto: CreateProductDto) {
+    return this.productService.doCreateProduct(createProductDto);
   }
 
   @Get('get-all-product')

@@ -1,23 +1,23 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { DataSource } from 'typeorm';
-import { UserModule } from './user/user.module';
-import { ProductModule } from './product/product.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { CapacityModule } from './capacity/capacity.module';
 import { CartModule } from './cart/cart.module';
 import { ColorModule } from './color/color.module';
-import { CapacityModule } from './capacity/capacity.module';
-import { VendorModule } from './vendor/vendor.module';
-import { PaymentModule } from './payment/payment.module';
-import { OrderModule } from './order/order.module';
-import { VendorBillModule } from './vendor-bill/vendor-bill.module';
-import { PurchaseModule } from './payment/purchase.module';
 import { DiscountModule } from './discount/discount.module';
-import { ReviewModule } from './review/review.module';
+import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
+import { PurchaseModule } from './payment/purchase.module';
+import { ProductModule } from './product/product.module';
 import { ReturnModule } from './return/return.module';
+import { ReviewModule } from './review/review.module';
+import { UploadModule } from './upload/upload.module';
+import { UserModule } from './user/user.module';
+import { VendorBillModule } from './vendor-bill/vendor-bill.module';
+import { VendorModule } from './vendor/vendor.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -54,6 +54,7 @@ import { ReturnModule } from './return/return.module';
     DiscountModule,
     ReviewModule,
     ReturnModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [],
