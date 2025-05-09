@@ -281,7 +281,7 @@ export class ProductService {
 
       if (!productDetail) {
         throw new BadRequestException({
-          message: 'Không tìm thấy chi tiết sản phẩm',
+          message: `Không tìm thấy chi tiết sản phẩm với product_id: ${data.product_id}, color_id: ${data.color_id}, capacity_id: ${data.capacity_id}`,
           errors: [
             {
               field: 'product_detail',

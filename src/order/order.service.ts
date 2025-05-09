@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ProductService } from 'src/product/product.service';
 import { Repository } from 'typeorm';
 import {
   CreateOrderDto,
@@ -9,8 +10,6 @@ import {
 import { OrderDetail } from '../entity/order-detail.entity';
 import { Order, OrderStatus } from '../entity/order.entity';
 import { User } from '../entity/user.entity';
-import { Product } from 'src/entity/product.entity';
-import { ProductService } from 'src/product/product.service';
 
 @Injectable()
 export class OrderService {
@@ -50,6 +49,9 @@ export class OrderService {
           productDetail: productDetailId,
           quantity: detail.quantity,
           price: detail.price,
+          userName: detail.userName,
+          userLocation: detail.userLocation,
+          userPhone: detail.userPhone,
         });
         await this.orderDetailRepository.save(newOrderDetail);
       }
