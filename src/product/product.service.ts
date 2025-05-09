@@ -944,7 +944,7 @@ export class ProductService {
         }
       }
 
-      return await this.doGetProductById({ id: data.id });
+      return await this.doGetProductById({ id: data.id.toString() });
     } catch (error) {
       console.log(error);
       throw new BadRequestException({

@@ -313,10 +313,10 @@ export class UpdateProductDto {
 }
 
 export class GetProductByIdDto {
-  @ApiProperty({ type: Number, description: 'ID sản phẩm', required: true })
-  @IsNumber()
+  @ApiProperty({ type: String, description: 'ID sản phẩm', required: true })
+  @IsString()
   @IsNotEmpty()
-  id: number;
+  id: string;
 }
 
 export class SearchProductDto {
