@@ -855,7 +855,11 @@ export class ProductService {
           product: { id: data.id },
         });
 
-        const imagePromises = data.image_urls.map((imageUrl) => {
+        const cloudinaryUrls = await this.uploadService.uploadMultipleFiles(
+          data.image_urls,
+        );
+
+        const imagePromises = cloudinaryUrls.map((imageUrl) => {
           if (!imageUrl) {
             throw new BadRequestException({
               message: 'URL ảnh không được để trống',

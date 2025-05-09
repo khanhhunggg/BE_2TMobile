@@ -18,7 +18,7 @@ export class Image {
   @Column({ name: 'product_id' })
   productId: number;
 
-  @Column({ name: 'image_url' })
+  @Column({ name: 'image_url', type: 'text' })
   imageUrl: string;
 
   @Column({ name: 'is_thumbnail', default: true })

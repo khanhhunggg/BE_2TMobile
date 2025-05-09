@@ -42,7 +42,7 @@ export class UploadService {
       } else {
         throw new Error('Invalid file data: No buffer or base64 data provided');
       }
-
+      console.log(uploadResult.secure_url);
       return uploadResult.secure_url;
     } catch (error) {
       throw new Error(`Failed to upload file to Cloudinary: ${error.message}`);
