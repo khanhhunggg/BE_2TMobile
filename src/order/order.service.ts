@@ -70,12 +70,13 @@ export class OrderService {
   public async doGetAllOrders(searchParams: SearchOrderDto) {
     try {
       const {
-        page = 1,
-        size = 10,
+        user_id,
         status,
         payment_method,
         sort_by = 'order_date',
         sort_order = 'DESC',
+        page = 1,
+        size = 10,
       } = searchParams;
 
       const queryBuilder = this.orderRepository
@@ -84,6 +85,9 @@ export class OrderService {
         .leftJoinAndSelect('order.orderDetails', 'orderDetails')
         .leftJoinAndSelect('orderDetails.productDetail', 'productDetail');
 
+      if (user_id) {
+        queryBuilder.andWhere('order.user_id = :user_id', { user_id });
+      }
       if (status) {
         queryBuilder.andWhere('order.status = :status', { status });
       }

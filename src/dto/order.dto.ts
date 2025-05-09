@@ -160,21 +160,12 @@ export class UpdateOrderDto extends CreateOrderDto {
 export class SearchOrderDto {
   @ApiProperty({
     type: Number,
-    description: 'Số trang',
+    description: 'User ID',
     required: false,
-    default: 1,
   })
+  @IsNumber()
   @IsOptional()
-  page?: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Số lượng đơn hàng trên mỗi trang',
-    required: false,
-    default: 10,
-  })
-  @IsOptional()
-  size?: number;
+  user_id?: number;
 
   @ApiProperty({
     type: String,
@@ -217,4 +208,22 @@ export class SearchOrderDto {
   @IsString()
   @IsOptional()
   sort_order?: 'ASC' | 'DESC';
+
+  @ApiProperty({
+    type: Number,
+    description: 'Số trang',
+    required: false,
+    default: 1,
+  })
+  @IsOptional()
+  page?: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Số lượng đơn hàng trên mỗi trang',
+    required: false,
+    default: 10,
+  })
+  @IsOptional()
+  size?: number;
 }

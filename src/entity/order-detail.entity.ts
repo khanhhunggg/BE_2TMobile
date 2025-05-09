@@ -1,12 +1,11 @@
 import {
+  Check,
   Column,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Check,
 } from 'typeorm';
-import { CartDetail } from './cart-detail.entity';
 import { Order } from './order.entity';
 import { ProductDetail } from './product-detail.entity';
 
@@ -24,10 +23,6 @@ export class OrderDetail {
   @ManyToOne(() => ProductDetail)
   @JoinColumn({ name: 'product_detail_id' })
   productDetail: ProductDetail;
-
-  @ManyToOne(() => CartDetail, { nullable: true })
-  @JoinColumn({ name: 'cart_detail_id' })
-  cartDetail?: CartDetail;
 
   @Column({ type: 'int' })
   quantity: number;

@@ -1,14 +1,12 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Entity,
   ManyToOne,
-  OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Cart } from './cart.entity';
 import { ProductDetail } from './product-detail.entity';
-import { OrderDetail } from './order-detail.entity';
 
 @Entity('tbl_cart_details')
 export class CartDetail {
@@ -32,9 +30,6 @@ export class CartDetail {
 
   @ManyToOne(() => ProductDetail)
   productDetail: ProductDetail;
-
-  @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.cartDetail)
-  orderDetails: OrderDetail[];
 
   @CreateDateColumn()
   created_at: Date;
