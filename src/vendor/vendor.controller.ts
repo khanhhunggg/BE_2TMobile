@@ -35,7 +35,7 @@ export class VendorController {
 
   @Delete('delete')
   @ApiOperation({ summary: 'Xóa nhà cung cấp' })
-  public async deleteVendor(@Body() data: DeleteVendorDto) {
+  public async deleteVendor(@Query() data: DeleteVendorDto) {
     return await this.vendorService.doDeleteVendor(data);
   }
 
