@@ -150,7 +150,7 @@ export class UpdateProfileDto {
   BirthDate?: string;
 }
 export class DeleteUserDto {
-  @ApiProperty({ type: Number, description: 'ID', required: true })
-  @IsNumber()
-  Id: number;
+  @ApiProperty({ type: String, description: 'ID', required: true })
+  @IsString()
+  Id: string;
 }

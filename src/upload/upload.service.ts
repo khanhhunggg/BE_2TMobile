@@ -54,6 +54,7 @@ export class UploadService {
   ): Promise<string[]> {
     try {
       const uploadPromises = files.map((file) => this.uploadFile(file));
+      console.log(uploadPromises);
       return await Promise.all(uploadPromises);
     } catch (error) {
       throw new Error(`Failed to upload files to Cloudinary: ${error.message}`);
