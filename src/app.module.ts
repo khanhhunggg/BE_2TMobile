@@ -18,6 +18,7 @@ import { UploadModule } from './upload/upload.module';
 import { UserModule } from './user/user.module';
 import { VendorBillModule } from './vendor-bill/vendor-bill.module';
 import { VendorModule } from './vendor/vendor.module';
+import { BankModule } from './bank/bank.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -55,6 +56,7 @@ import { VendorModule } from './vendor/vendor.module';
     ReviewModule,
     ReturnModule,
     UploadModule,
+    BankModule,
   ],
   controllers: [],
   providers: [],
