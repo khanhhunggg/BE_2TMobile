@@ -49,11 +49,15 @@ export class VendorBillService {
           for (const productDetail of productDetails) {
             const importPrice = item.unitPrice.toString();
             const sellingPrice = (item.unitPrice * 1.1).toString();
+            const currentQuantity = productDetail.stock_quantity || 0;
+            const newQuantity = currentQuantity + item.quantity;
+
             await this.productDetailRepository.update(
               { id: productDetail.id },
               {
                 import_price: importPrice,
                 selling_price: sellingPrice,
+                stock_quantity: newQuantity,
               },
             );
           }
@@ -240,6 +244,30 @@ export class VendorBillService {
           });
 
         if (hasItemsChanged) {
+          for (const existingItem of existingItems) {
+            if (existingItem.productId) {
+              const productDetails = await this.productDetailRepository.find({
+                where: { product_id: existingItem.productId },
+              });
+
+              for (const productDetail of productDetails) {
+                const currentQuantity = productDetail.stock_quantity || 0;
+                const newQuantity = currentQuantity - existingItem.quantity;
+                const importPrice = productDetail.import_price.toString();
+                const sellingPrice = (existingItem.unitPrice * 1.1).toString();
+
+                await this.productDetailRepository.update(
+                  { id: productDetail.id },
+                  {
+                    stock_quantity: newQuantity,
+                    import_price: importPrice,
+                    selling_price: sellingPrice,
+                  },
+                );
+              }
+            }
+          }
+
           if (existingItems.length > 0) {
             await this.purchaseOrderItemRepository.delete({
               purchaseOrderId: data.id,
@@ -252,6 +280,7 @@ export class VendorBillService {
           }));
           await this.purchaseOrderItemRepository.save(purchaseItems);
 
+          // Cập nhật số lượng mới cho các sản phẩm
           for (const item of items) {
             if (item.productId && item.unitPrice) {
               const productDetails = await this.productDetailRepository.find({
@@ -261,11 +290,15 @@ export class VendorBillService {
               for (const productDetail of productDetails) {
                 const importPrice = item.unitPrice.toString();
                 const sellingPrice = (item.unitPrice * 1.1).toString();
+                const currentQuantity = productDetail.stock_quantity || 0;
+                const newQuantity = currentQuantity + item.quantity;
+
                 await this.productDetailRepository.update(
                   { id: productDetail.id },
                   {
                     import_price: importPrice,
                     selling_price: sellingPrice,
+                    stock_quantity: newQuantity,
                   },
                 );
               }
@@ -311,6 +344,26 @@ export class VendorBillService {
         existingVendorBill.purchaseOrderItems &&
         existingVendorBill.purchaseOrderItems.length > 0
       ) {
+        // Cập nhật lại số lượng sản phẩm trước khi xóa
+        for (const item of existingVendorBill.purchaseOrderItems) {
+          if (item.productId) {
+            const productDetails = await this.productDetailRepository.find({
+              where: { product_id: item.productId },
+            });
+
+            for (const productDetail of productDetails) {
+              const currentQuantity = productDetail.stock_quantity || 0;
+              const newQuantity = currentQuantity - item.quantity;
+              await this.productDetailRepository.update(
+                { id: productDetail.id },
+                {
+                  stock_quantity: newQuantity,
+                },
+              );
+            }
+          }
+        }
+
         await this.purchaseOrderItemRepository.delete({
           purchaseOrderId: data.id,
         });
