@@ -7,6 +7,7 @@ import {
   IsArray,
   ValidateNested,
   IsString,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaymentMethod, OrderStatus } from '../entity/order.entity';
@@ -14,7 +15,7 @@ import { PaymentMethod, OrderStatus } from '../entity/order.entity';
 export class CreateOrderDetailDto {
   @ApiProperty({
     type: Number,
-    description: 'Product detail ID',
+    description: 'Product ID',
     required: true,
   })
   @IsNumber()
@@ -23,37 +24,38 @@ export class CreateOrderDetailDto {
 
   @ApiProperty({
     type: Number,
-    description: 'Product detail ID',
-    required: false,
+    description: 'Color ID',
+    required: true,
   })
+  @IsNumber()
   @IsOptional()
-  product_detail_id?: number;
-
-  @ApiProperty({
-    type: String,
-    description: 'Product detail color',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  productDetailColor: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Product detail capacity',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  productDetailCapacity: string;
+  color_id: number;
 
   @ApiProperty({
     type: Number,
-    description: 'Quantity of products',
+    description: 'Capacity ID',
+    required: true,
+  })
+  @IsNumber()
+  @IsOptional()
+  capacity_id: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Product detail ID',
     required: false,
   })
   @IsNumber()
   @IsOptional()
+  product_detail_id?: number;
+
+  @ApiProperty({
+    type: Number,
+    description: 'Quantity of products',
+    required: true,
+  })
+  @IsNumber()
+  @Min(1)
   quantity: number;
 
   @ApiProperty({
@@ -62,8 +64,44 @@ export class CreateOrderDetailDto {
     required: true,
   })
   @IsNumber()
-  @IsOptional()
+  @Min(0)
   price: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Name of the user',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  userName: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Phone number of the user',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  userPhone: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Location of the user',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  userLocation: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Additional notes for the order',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  note: string;
 }
 
 export class CreateOrderDto {

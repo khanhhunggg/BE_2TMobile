@@ -36,14 +36,13 @@ export class OrderService {
         total_price: total_price,
       });
       const order = await this.orderRepository.save(newOrder);
-      console.log(orderData.order_details);
       for (const detail of orderData.order_details) {
         const productDetailId =
           await this.productService.doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
             {
               product_id: detail.product_id,
-              color_id: Number(detail.productDetailColor),
-              capacity_id: Number(detail.productDetailCapacity),
+              color_id: Number(detail.color_id),
+              capacity_id: Number(detail.capacity_id),
             },
           );
         const newOrderDetail = this.orderDetailRepository.create({
