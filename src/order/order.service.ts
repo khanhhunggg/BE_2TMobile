@@ -120,6 +120,21 @@ export class OrderService {
     }
   }
 
+  public async doGetAllOrdersByUserId(userId: number) {
+    try {
+      const orders = await this.orderRepository.find({
+        where: { user: { id: userId } },
+        relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
+      });
+      return orders;
+    } catch (error) {
+      throw new BadRequestException({
+        message: 'Lỗi khi lấy danh sách đơn hàng',
+        errors: [{ message: error.message }],
+      });
+    }
+  }
+
   public async doGetOrderById(id: number) {
     try {
       const order = await this.orderRepository.findOne({

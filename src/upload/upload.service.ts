@@ -53,6 +53,7 @@ export class UploadService {
     files: (Express.Multer.File | string)[],
   ): Promise<string[]> {
     try {
+      console.log(files);
       if (!files || !Array.isArray(files) || files.length === 0) {
         throw new Error('No files provided for upload');
       }

@@ -152,7 +152,7 @@ export class CreateProductDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  image_urls?: Express.Multer.File[];
+  images?: Express.Multer.File[];
 
   @ApiProperty({
     type: [ProductDetailDto],

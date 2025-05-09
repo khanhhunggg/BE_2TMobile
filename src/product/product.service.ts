@@ -211,9 +211,10 @@ export class ProductService {
       }
 
       // Lưu ảnh theo product
-      if (product.image_urls && product.image_urls.length > 0) {
+      console.log(product.images);
+      if (product.images && product.images.length > 0) {
         const imageUrls = await this.uploadService.uploadMultipleFiles(
-          product.image_urls,
+          product.images,
         );
         const imagePromises = imageUrls.map((imageUrl) => {
           return this.imageRepository.save(

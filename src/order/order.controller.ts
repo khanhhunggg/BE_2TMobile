@@ -55,6 +55,13 @@ export class OrderController {
     return await this.orderService.doUpdateOrder(updateOrderDto);
   }
 
+  @Get('user/:id')
+  @ApiOperation({ summary: 'Lấy danh sách đơn hàng của người dùng' })
+  @ApiResponse({ status: 200, description: 'Danh sách đơn hàng' })
+  async getAllOrdersByUserId(@Param('id') id: string) {
+    return await this.orderService.doGetAllOrdersByUserId(Number(id));
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Xóa đơn hàng' })
   @ApiResponse({ status: 200, description: 'Đơn hàng được xóa thành công' })
