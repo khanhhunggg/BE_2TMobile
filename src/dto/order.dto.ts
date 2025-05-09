@@ -137,26 +137,4 @@ export class SearchOrderDto {
   @IsEnum(PaymentMethod)
   @IsOptional()
   payment_method?: PaymentMethod;
-
-  @ApiProperty({
-    type: String,
-    description: 'Trường sắp xếp',
-    required: false,
-    default: 'created_at',
-    enum: ['created_at', 'updated_at', 'total_amount', 'status'],
-  })
-  @IsString()
-  @IsOptional()
-  sort_by?: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Thứ tự sắp xếp',
-    required: false,
-    default: 'DESC',
-    enum: ['ASC', 'DESC'],
-  })
-  @IsString()
-  @IsOptional()
-  sort_order?: 'ASC' | 'DESC';
 }
