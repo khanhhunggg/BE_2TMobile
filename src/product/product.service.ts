@@ -259,24 +259,46 @@ export class ProductService {
   public async doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
     data: GetProductDetailIdByProductIdAndColorIdAndCapacityIdDto,
   ) {
-    if (!data.product_id || !data.color_id || !data.capacity_id) {
+    try {
+      if (!data.product_id || !data.color_id || !data.capacity_id) {
+        throw new BadRequestException({
+          message: 'Missing required fields',
+          errors: [
+            {
+              field: 'product_id, color_id, capacity_id',
+              message: 'All fields are required',
+            },
+          ],
+        });
+      }
+      const productDetail = await this.productDetailRepository.findOne({
+        where: {
+          product_id: data.product_id,
+          color_id: data.color_id,
+          capacity_id: data.capacity_id,
+        },
+      });
+
+      if (!productDetail) {
+        throw new BadRequestException({
+          message: 'Không tìm thấy chi tiết sản phẩm',
+          errors: [
+            {
+              field: 'product_detail',
+              message: `Không tìm thấy chi tiết sản phẩm với product_id: ${data.product_id}, color_id: ${data.color_id}, capacity_id: ${data.capacity_id}`,
+            },
+          ],
+        });
+      }
+
+      return productDetail;
+    } catch (error) {
+      console.log(error);
       throw new BadRequestException({
-        message: 'Missing required fields',
-        errors: [
-          {
-            field: 'product_id, color_id, capacity_id',
-            message: 'All fields are required',
-          },
-        ],
+        message: 'Lỗi khi tìm chi tiết sản phẩm',
+        errors: [{ message: error.message }],
       });
     }
-    return await this.productDetailRepository.findOne({
-      where: {
-        product_id: data.product_id,
-        color_id: data.color_id,
-        capacity_id: data.capacity_id,
-      },
-    });
   }
 
   public async doGetAllProduct(searchParams: SearchProductDto) {

@@ -18,23 +18,42 @@ export class CreateOrderDetailDto {
     required: true,
   })
   @IsNumber()
-  product_detail_id: number;
+  @IsOptional()
+  product_id: number;
 
   @ApiProperty({
     type: Number,
-    description: 'Cart detail ID',
+    description: 'Product detail ID',
     required: false,
   })
-  @IsNumber()
   @IsOptional()
-  cart_detail_id?: number;
+  product_detail_id?: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Product detail color',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  productDetailColor: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'Product detail capacity',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  productDetailCapacity: string;
 
   @ApiProperty({
     type: Number,
     description: 'Quantity of products',
-    required: true,
+    required: false,
   })
   @IsNumber()
+  @IsOptional()
   quantity: number;
 
   @ApiProperty({
@@ -43,12 +62,14 @@ export class CreateOrderDetailDto {
     required: true,
   })
   @IsNumber()
+  @IsOptional()
   price: number;
 }
 
 export class CreateOrderDto {
   @ApiProperty({ type: Number, description: 'User ID', required: true })
   @IsNumber()
+  @IsOptional()
   user_id: number;
 
   @ApiProperty({
@@ -58,6 +79,7 @@ export class CreateOrderDto {
     enum: PaymentMethod,
   })
   @IsEnum(PaymentMethod)
+  @IsOptional()
   payment_method: PaymentMethod;
 
   @ApiProperty({

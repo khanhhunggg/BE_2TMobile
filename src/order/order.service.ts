@@ -9,6 +9,8 @@ import {
 import { OrderDetail } from '../entity/order-detail.entity';
 import { Order, OrderStatus } from '../entity/order.entity';
 import { User } from '../entity/user.entity';
+import { Product } from 'src/entity/product.entity';
+import { ProductService } from 'src/product/product.service';
 
 @Injectable()
 export class OrderService {
@@ -17,6 +19,7 @@ export class OrderService {
     private orderRepository: Repository<Order>,
     @InjectRepository(OrderDetail)
     private orderDetailRepository: Repository<OrderDetail>,
+    private productService: ProductService,
   ) {}
 
   public async doCreateOrder(orderData: CreateOrderDto) {
@@ -33,11 +36,19 @@ export class OrderService {
         total_price: total_price,
       });
       const order = await this.orderRepository.save(newOrder);
-
+      console.log(orderData.order_details);
       for (const detail of orderData.order_details) {
+        const productDetailId =
+          await this.productService.doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
+            {
+              product_id: detail.product_id,
+              color_id: Number(detail.productDetailColor),
+              capacity_id: Number(detail.productDetailCapacity),
+            },
+          );
         const newOrderDetail = this.orderDetailRepository.create({
           order: { id: order.id },
-          productDetail: { id: detail.product_detail_id },
+          productDetail: productDetailId,
           quantity: detail.quantity,
           price: detail.price,
         });
@@ -122,10 +133,14 @@ export class OrderService {
 
   public async doGetAllOrdersByUserId(userId: number) {
     try {
-      const orders = await this.orderRepository.find({
-        where: { user: { id: userId } },
-        relations: ['user', 'orderDetails', 'orderDetails.productDetail'],
-      });
+      const orders = await this.orderRepository
+        .createQueryBuilder('order')
+        .leftJoinAndSelect('order.user', 'user')
+        .leftJoinAndSelect('order.orderDetails', 'orderDetails')
+        .leftJoinAndSelect('orderDetails.productDetail', 'productDetail')
+        .leftJoinAndSelect('productDetail.product', 'product')
+        .where('user.id = :userId', { userId })
+        .getMany();
       return orders;
     } catch (error) {
       throw new BadRequestException({
