@@ -8,6 +8,8 @@ import {
   ValidateNested,
   IsString,
   Min,
+  IsDate,
+  Length,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaymentMethod, OrderStatus } from '../entity/order.entity';
@@ -15,39 +17,11 @@ import { PaymentMethod, OrderStatus } from '../entity/order.entity';
 export class CreateOrderDetailDto {
   @ApiProperty({
     type: Number,
-    description: 'Product ID',
-    required: true,
-  })
-  @IsNumber()
-  @IsOptional()
-  product_id: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Color ID',
-    required: true,
-  })
-  @IsNumber()
-  @IsOptional()
-  color_id: number;
-
-  @ApiProperty({
-    type: Number,
-    description: 'Capacity ID',
-    required: true,
-  })
-  @IsNumber()
-  @IsOptional()
-  capacity_id: number;
-
-  @ApiProperty({
-    type: Number,
     description: 'Product detail ID',
-    required: false,
+    required: true,
   })
   @IsNumber()
-  @IsOptional()
-  product_detail_id?: number;
+  product_detail_id: number;
 
   @ApiProperty({
     type: Number,
@@ -66,48 +40,11 @@ export class CreateOrderDetailDto {
   @IsNumber()
   @Min(0)
   price: number;
-
-  @ApiProperty({
-    type: String,
-    description: 'Name of the user',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  userName: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Phone number of the user',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  userPhone: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Location of the user',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  userLocation: string;
-
-  @ApiProperty({
-    type: String,
-    description: 'Additional notes for the order',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  note: string;
 }
 
 export class CreateOrderDto {
   @ApiProperty({ type: Number, description: 'User ID', required: true })
   @IsNumber()
-  @IsOptional()
   user_id: number;
 
   @ApiProperty({
@@ -117,8 +54,18 @@ export class CreateOrderDto {
     enum: PaymentMethod,
   })
   @IsEnum(PaymentMethod)
-  @IsOptional()
   payment_method: PaymentMethod;
+
+  @ApiProperty({
+    type: String,
+    description: 'Order status',
+    required: false,
+    enum: OrderStatus,
+    default: OrderStatus.PENDING,
+  })
+  @IsEnum(OrderStatus)
+  @IsOptional()
+  status?: OrderStatus;
 
   @ApiProperty({
     type: String,
@@ -131,14 +78,41 @@ export class CreateOrderDto {
 
   @ApiProperty({
     type: String,
-    description: 'Order status',
+    description: 'Note for the order',
     required: false,
-    enum: OrderStatus,
-    default: OrderStatus.PENDING,
   })
-  @IsEnum(OrderStatus)
+  @IsString()
   @IsOptional()
-  status?: OrderStatus;
+  note?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'User delivery location',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  userLocation?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'User phone number',
+    required: false,
+  })
+  @IsString()
+  @Length(10, 20)
+  @IsOptional()
+  userPhone?: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'User name',
+    required: false,
+  })
+  @IsString()
+  @Length(1, 100)
+  @IsOptional()
+  userName?: string;
 
   @ApiProperty({
     type: [CreateOrderDetailDto],
@@ -155,6 +129,15 @@ export class UpdateOrderDto extends CreateOrderDto {
   @ApiProperty({ type: Number, description: 'Order ID', required: true })
   @IsNumber()
   id: number;
+
+  @ApiProperty({
+    type: String,
+    description: 'Delivered date',
+    required: false,
+  })
+  @IsDateString()
+  @IsOptional()
+  delivered_date?: Date;
 }
 
 export class SearchOrderDto {
@@ -191,8 +174,14 @@ export class SearchOrderDto {
     type: String,
     description: 'Trường sắp xếp',
     required: false,
-    default: 'created_at',
-    enum: ['created_at', 'updated_at', 'total_amount', 'status'],
+    default: 'order_date',
+    enum: [
+      'order_date',
+      'total_price',
+      'status',
+      'expected_delivery_date',
+      'delivered_date',
+    ],
   })
   @IsString()
   @IsOptional()

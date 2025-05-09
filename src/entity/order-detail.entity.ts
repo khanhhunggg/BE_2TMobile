@@ -27,23 +27,6 @@ export class OrderDetail {
   @Column({ type: 'int' })
   quantity: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({ type: 'int', nullable: true })
   price: number;
-
-  @Column({ name: 'userName', type: 'varchar', length: 255, nullable: true })
-  userName: string;
-
-  @Column({ name: 'userPhone', type: 'varchar', length: 255, nullable: true })
-  userPhone: string;
-
-  @Column({
-    name: 'userLocation',
-    type: 'varchar',
-    length: 255,
-    nullable: true,
-  })
-  userLocation: string;
-
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  note: string;
 }

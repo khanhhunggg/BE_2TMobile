@@ -20,7 +20,7 @@ export enum OrderStatus {
   DELIVERY = 'DELIVERY',
   COMPLETED = 'COMPLETED',
   CANCLED = 'CANCLED',
-  RETURN = 'RETURN',
+  RETURNING = 'RETURNING',
   RETURNED = 'RETURNED',
 }
 
@@ -48,8 +48,25 @@ export class Order {
   @Column({ type: 'date', nullable: true })
   delivered_date: Date;
 
-  @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+  @Column({ type: 'int', default: 0 })
   total_price: number;
+
+  @Column({ type: 'text', nullable: true })
+  note: string;
+
+  @Column({
+    name: 'userLocation',
+    type: 'varchar',
+    length: 255,
+    nullable: true,
+  })
+  userLocation: string;
+
+  @Column({ name: 'userPhone', type: 'varchar', length: 20, nullable: true })
+  userPhone: string;
+
+  @Column({ name: 'userName', type: 'varchar', length: 100, nullable: true })
+  userName: string;
 
   @OneToMany(() => OrderDetail, (orderDetail) => orderDetail.order)
   orderDetails: OrderDetail[];

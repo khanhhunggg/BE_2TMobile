@@ -33,30 +33,19 @@ export class OrderService {
         expected_delivery_date: orderData.expected_delivery_date,
         status: orderData.status || OrderStatus.PENDING,
         total_price: total_price,
+        note: orderData.note,
+        userLocation: orderData.userLocation,
+        userPhone: orderData.userPhone,
+        userName: orderData.userName,
       });
       const order = await this.orderRepository.save(newOrder);
+
       for (const detail of orderData.order_details) {
-        let productDetailId = null;
-        if (detail.product_detail_id != null) {
-          productDetailId = detail.product_detail_id;
-        } else {
-          productDetailId =
-            await this.productService.doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
-              {
-                product_id: detail.product_id,
-                color_id: Number(detail.color_id),
-                capacity_id: Number(detail.capacity_id),
-              },
-            );
-        }
         const newOrderDetail = this.orderDetailRepository.create({
           order: { id: order.id },
-          productDetail: productDetailId,
+          productDetail: { id: detail.product_detail_id },
           quantity: detail.quantity,
           price: detail.price,
-          userName: detail.userName,
-          userLocation: detail.userLocation,
-          userPhone: detail.userPhone,
         });
         await this.orderDetailRepository.save(newOrderDetail);
       }
@@ -105,7 +94,13 @@ export class OrderService {
         });
       }
 
-      const validSortFields = ['order_date', 'total_price', 'status'];
+      const validSortFields = [
+        'order_date',
+        'total_price',
+        'status',
+        'expected_delivery_date',
+        'delivered_date',
+      ];
       const sortField = validSortFields.includes(sort_by)
         ? sort_by
         : 'order_date';
@@ -225,10 +220,37 @@ export class OrderService {
           updateData.expected_delivery_date;
       }
       if (
+        updateData.delivered_date !== undefined &&
+        updateData.delivered_date !== order.delivered_date
+      ) {
+        orderUpdateData.delivered_date = updateData.delivered_date;
+      }
+      if (
         updateData.status !== undefined &&
         updateData.status !== order.status
       ) {
         orderUpdateData.status = updateData.status;
+      }
+      if (updateData.note !== undefined && updateData.note !== order.note) {
+        orderUpdateData.note = updateData.note;
+      }
+      if (
+        updateData.userLocation !== undefined &&
+        updateData.userLocation !== order.userLocation
+      ) {
+        orderUpdateData.userLocation = updateData.userLocation;
+      }
+      if (
+        updateData.userPhone !== undefined &&
+        updateData.userPhone !== order.userPhone
+      ) {
+        orderUpdateData.userPhone = updateData.userPhone;
+      }
+      if (
+        updateData.userName !== undefined &&
+        updateData.userName !== order.userName
+      ) {
+        orderUpdateData.userName = updateData.userName;
       }
 
       // If order details are provided, update them
