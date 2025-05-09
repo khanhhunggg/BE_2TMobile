@@ -42,7 +42,6 @@ export class UploadService {
       } else {
         throw new Error('Invalid file data: No buffer or base64 data provided');
       }
-      console.log(uploadResult.secure_url);
       return uploadResult.secure_url;
     } catch (error) {
       throw new Error(`Failed to upload file to Cloudinary: ${error.message}`);
@@ -53,7 +52,6 @@ export class UploadService {
     files: (Express.Multer.File | string)[],
   ): Promise<string[]> {
     try {
-      console.log(files);
       if (!files || !Array.isArray(files) || files.length === 0) {
         throw new Error('No files provided for upload');
       }
