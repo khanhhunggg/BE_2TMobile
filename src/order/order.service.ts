@@ -36,14 +36,19 @@ export class OrderService {
       });
       const order = await this.orderRepository.save(newOrder);
       for (const detail of orderData.order_details) {
-        const productDetailId =
-          await this.productService.doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
-            {
-              product_id: detail.product_id,
-              color_id: Number(detail.color_id),
-              capacity_id: Number(detail.capacity_id),
-            },
-          );
+        let productDetailId = null;
+        if (detail.product_detail_id != null) {
+          productDetailId = detail.product_detail_id;
+        } else {
+          productDetailId =
+            await this.productService.doGetProductDetailIdByProductIdAndColorIdAndCapacityId(
+              {
+                product_id: detail.product_id,
+                color_id: Number(detail.color_id),
+                capacity_id: Number(detail.capacity_id),
+              },
+            );
+        }
         const newOrderDetail = this.orderDetailRepository.create({
           order: { id: order.id },
           productDetail: productDetailId,
