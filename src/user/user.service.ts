@@ -25,6 +25,7 @@ import * as bcryptjs from 'bcryptjs';
 import * as moment from 'moment';
 import { PaginationResponseDto, SearchDto } from 'src/common/common.dto';
 import { VendorService } from '../vendor/vendor.service';
+import { In } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -376,6 +377,7 @@ export class UserService {
 
       const user = await this.userRepository.findOne({
         where: { id: Number(id) },
+        relations: ['carts', 'reviews', 'userInformation'],
       });
 
       if (!user) {
@@ -386,12 +388,88 @@ export class UserService {
         throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
       }
 
-      // Delete user information first if exists
+      // Delete user's cart details first
+      if (user.carts && user.carts.length > 0) {
+        for (const cart of user.carts) {
+          await this.userRepository.query(
+            'DELETE FROM tbl_cart_details WHERE cart_id = ?',
+            [cart.id],
+          );
+        }
+        // Delete user's carts
+        await this.userRepository.query(
+          'DELETE FROM tbl_carts WHERE user_id = ?',
+          [id],
+        );
+      }
+
+      // Delete user's reviews
+      if (user.reviews && user.reviews.length > 0) {
+        await this.userRepository.query(
+          'DELETE FROM tbl_reviews WHERE user_id = ?',
+          [id],
+        );
+      }
+
+      // Delete user's discount associations
+      await this.userRepository.query(
+        'DELETE FROM tbl_discount_users WHERE user_id = ?',
+        [id],
+      );
+
+      // Delete user's orders and related data
+      const orders = await this.userRepository.query(
+        'SELECT id FROM tbl_order WHERE user_id = ?',
+        [id],
+      );
+
+      if (orders && orders.length > 0) {
+        for (const order of orders) {
+          // Delete order details
+          await this.userRepository.query(
+            'DELETE FROM tbl_order_details WHERE order_id = ?',
+            [order.id],
+          );
+          // Delete payments
+          await this.userRepository.query(
+            'DELETE FROM tbl_payment WHERE order_id = ?',
+            [order.id],
+          );
+        }
+        // Delete orders
+        await this.userRepository.query(
+          'DELETE FROM tbl_order WHERE user_id = ?',
+          [id],
+        );
+      }
+
+      // Delete user's returns and related data
+      const returns = await this.userRepository.query(
+        'SELECT id FROM tbl_returns WHERE customer_id = ?',
+        [id],
+      );
+
+      if (returns && returns.length > 0) {
+        for (const returnItem of returns) {
+          // Delete return details
+          await this.userRepository.query(
+            'DELETE FROM tbl_return_details WHERE return_id = ?',
+            [returnItem.id],
+          );
+        }
+        // Delete returns
+        await this.userRepository.query(
+          'DELETE FROM tbl_returns WHERE customer_id = ?',
+          [id],
+        );
+      }
+
+      // Delete user information if exists
       if (user.informationId) {
         await this.userInformationRepository.delete(user.informationId);
       }
 
-      // Then delete the user
+      // Finally delete the user
       await this.userRepository.delete(Number(id));
 
       return { message: 'USER_DELETED_SUCCESSFULLY' };
@@ -403,12 +481,115 @@ export class UserService {
 
   public async deleteUserByIds(ids: number[]) {
     try {
-      for (let i = 0; i < ids.length; i++) {
-        await this.userRepository.delete({ id: ids[i] });
+      if (!ids || ids.length === 0) {
+        throw new BadRequestException('IDS_REQUIRED');
       }
+
+      // Get all users with their relations
+      const users = await this.userRepository.find({
+        where: { id: In(ids) },
+        relations: ['carts', 'reviews', 'userInformation'],
+      });
+
+      if (!users || users.length === 0) {
+        throw new BadRequestException('USERS_NOT_FOUND');
+      }
+
+      // Check if any user is admin
+      const adminUser = users.find((user) => user.isAdmin);
+      if (adminUser) {
+        throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
+      }
+
+      // Delete cart details and carts for all users
+      for (const user of users) {
+        if (user.carts && user.carts.length > 0) {
+          for (const cart of user.carts) {
+            await this.userRepository.query(
+              'DELETE FROM tbl_cart_details WHERE cart_id = ?',
+              [cart.id],
+            );
+          }
+        }
+      }
+      await this.userRepository.query(
+        'DELETE FROM tbl_carts WHERE user_id IN (?)',
+        [ids],
+      );
+
+      // Delete reviews for all users
+      await this.userRepository.query(
+        'DELETE FROM tbl_reviews WHERE user_id IN (?)',
+        [ids],
+      );
+
+      // Delete discount associations for all users
+      await this.userRepository.query(
+        'DELETE FROM tbl_discount_users WHERE user_id IN (?)',
+        [ids],
+      );
+
+      // Get all orders for these users
+      const orders = await this.userRepository.query(
+        'SELECT id FROM tbl_order WHERE user_id IN (?)',
+        [ids],
+      );
+
+      if (orders && orders.length > 0) {
+        const orderIds = orders.map((order) => order.id);
+        // Delete order details
+        await this.userRepository.query(
+          'DELETE FROM tbl_order_details WHERE order_id IN (?)',
+          [orderIds],
+        );
+        // Delete payments
+        await this.userRepository.query(
+          'DELETE FROM tbl_payment WHERE order_id IN (?)',
+          [orderIds],
+        );
+        // Delete orders
+        await this.userRepository.query(
+          'DELETE FROM tbl_order WHERE user_id IN (?)',
+          [ids],
+        );
+      }
+
+      // Get all returns for these users
+      const returns = await this.userRepository.query(
+        'SELECT id FROM tbl_returns WHERE customer_id IN (?)',
+        [ids],
+      );
+
+      if (returns && returns.length > 0) {
+        const returnIds = returns.map((returnItem) => returnItem.id);
+        // Delete return details
+        await this.userRepository.query(
+          'DELETE FROM tbl_return_details WHERE return_id IN (?)',
+          [returnIds],
+        );
+        // Delete returns
+        await this.userRepository.query(
+          'DELETE FROM tbl_returns WHERE customer_id IN (?)',
+          [ids],
+        );
+      }
+
+      // Delete user information for all users
+      const informationIds = users
+        .filter((user) => user.informationId)
+        .map((user) => user.informationId);
+
+      if (informationIds.length > 0) {
+        await this.userInformationRepository.delete(informationIds);
+      }
+
+      // Finally delete the users
+      await this.userRepository.delete(ids);
+
       return { message: 'USERS_DELETED_SUCCESSFULLY' };
     } catch (error) {
-      throw new BadRequestException('ERROR_DELETING_USER_BY_ID');
+      console.error('Error in deleteUserByIds:', error);
+      throw new BadRequestException('ERROR_DELETING_USERS');
     }
   }
 

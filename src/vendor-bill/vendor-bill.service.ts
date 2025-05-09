@@ -340,36 +340,72 @@ export class VendorBillService {
         });
       }
 
-      if (
-        existingVendorBill.purchaseOrderItems &&
-        existingVendorBill.purchaseOrderItems.length > 0
-      ) {
-        // Cập nhật lại số lượng sản phẩm trước khi xóa
-        for (const item of existingVendorBill.purchaseOrderItems) {
-          if (item.productId) {
-            const productDetails = await this.productDetailRepository.find({
-              where: { product_id: item.productId },
-            });
+      // Bắt đầu transaction để đảm bảo tính toàn vẹn dữ liệu
+      await this.purchaseRepository.manager.transaction(async (manager) => {
+        if (
+          existingVendorBill.purchaseOrderItems &&
+          existingVendorBill.purchaseOrderItems.length > 0
+        ) {
+          // Cập nhật lại số lượng sản phẩm trước khi xóa
+          for (const item of existingVendorBill.purchaseOrderItems) {
+            if (item.productId) {
+              const productDetails = await manager.find(ProductDetail, {
+                where: { product_id: item.productId },
+              });
 
-            for (const productDetail of productDetails) {
-              const currentQuantity = productDetail.stock_quantity || 0;
-              const newQuantity = currentQuantity - item.quantity;
-              await this.productDetailRepository.update(
-                { id: productDetail.id },
-                {
-                  stock_quantity: newQuantity,
-                },
-              );
+              for (const productDetail of productDetails) {
+                const currentQuantity = productDetail.stock_quantity || 0;
+                const newQuantity = Math.max(
+                  0,
+                  currentQuantity - item.quantity,
+                ); // Đảm bảo số lượng không âm
+                await manager.update(
+                  ProductDetail,
+                  { id: productDetail.id },
+                  {
+                    stock_quantity: newQuantity,
+                  },
+                );
+              }
             }
           }
+
+          // Xóa các purchase order items
+          await manager.delete(PurchaseOrderItem, {
+            purchaseOrderId: data.id,
+          });
         }
 
-        await this.purchaseOrderItemRepository.delete({
-          purchaseOrderId: data.id,
-        });
-      }
+        // Xóa các bản ghi liên quan khác nếu có
+        // Ví dụ: xóa các bản ghi trong bảng payment nếu có
+        await manager.query('DELETE FROM tbl_payment WHERE order_id = ?', [
+          data.id,
+        ]);
 
-      await this.purchaseRepository.delete(data.id);
+        // Xóa các bản ghi trong bảng return nếu có
+        const returns = await manager.query(
+          'SELECT id FROM tbl_returns WHERE purchase_detail_id IN (SELECT id FROM tbl_purchase_order_item WHERE purchase_order_id = ?)',
+          [data.id],
+        );
+
+        if (returns && returns.length > 0) {
+          const returnIds = returns.map((returnItem) => returnItem.id);
+
+          // Xóa return details trước
+          await manager.query(
+            'DELETE FROM tbl_return_details WHERE return_id IN (?)',
+            [returnIds],
+          );
+
+          // Sau đó xóa returns
+          await manager.query('DELETE FROM tbl_returns WHERE id IN (?)', [
+            returnIds,
+          ]);
+        }
+
+        // Cuối cùng xóa vendor bill
+        await manager.delete(Purchase, data.id);
+      });
 
       return {
         message: 'Xóa hóa đơn thành công',
@@ -378,12 +414,13 @@ export class VendorBillService {
         },
       };
     } catch (error) {
-      console.log(error);
+      console.error('Error in doDeleteVendorBill:', error);
       throw new BadRequestException({
         message: 'Lỗi khi xóa hóa đơn',
         errors: [
           {
-            message: error.message,
+            message:
+              error.message || 'Có lỗi xảy ra trong quá trình xóa hóa đơn',
           },
         ],
       });

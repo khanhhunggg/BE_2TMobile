@@ -85,16 +85,108 @@ export class VendorService {
   }
 
   public async doDeleteVendor(data: DeleteVendorDto) {
-    const vendor = await this.vendorRepository.findOne({
-      where: { id: data.id },
-    });
+    try {
+      const vendor = await this.vendorRepository.findOne({
+        where: { id: data.id },
+        relations: ['products'],
+      });
 
-    if (!vendor) {
-      throw new Error('Vendor not found');
+      if (!vendor) {
+        throw new Error('Vendor not found');
+      }
+
+      // Get all products of this vendor
+      const products = await this.vendorRepository.query(
+        'SELECT id FROM tbl_products WHERE vendor_id = ?',
+        [data.id],
+      );
+
+      if (products && products.length > 0) {
+        const productIds = products.map((product) => product.id);
+
+        // Get all product details
+        const productDetails = await this.vendorRepository.query(
+          'SELECT id FROM tbl_product_details WHERE product_id IN (?)',
+          [productIds],
+        );
+
+        if (productDetails && productDetails.length > 0) {
+          const productDetailIds = productDetails.map((detail) => detail.id);
+
+          // Delete cart details referencing these product details
+          await this.vendorRepository.query(
+            'DELETE FROM tbl_cart_details WHERE product_detail_id IN (?)',
+            [productDetailIds],
+          );
+
+          // Delete order details referencing these product details
+          await this.vendorRepository.query(
+            'DELETE FROM tbl_order_details WHERE product_detail_id IN (?)',
+            [productDetailIds],
+          );
+
+          // Delete reviews for these product details
+          await this.vendorRepository.query(
+            'DELETE FROM tbl_reviews WHERE product_detail_id IN (?)',
+            [productDetailIds],
+          );
+
+          // Delete product details
+          await this.vendorRepository.query(
+            'DELETE FROM tbl_product_details WHERE product_id IN (?)',
+            [productIds],
+          );
+        }
+
+        // Delete specs for these products
+        await this.vendorRepository.query(
+          'DELETE FROM tbl_specs WHERE product_id IN (?)',
+          [productIds],
+        );
+
+        // Delete images for these products
+        await this.vendorRepository.query(
+          'DELETE FROM tbl_images WHERE product_id IN (?)',
+          [productIds],
+        );
+
+        // Delete products
+        await this.vendorRepository.query(
+          'DELETE FROM tbl_products WHERE vendor_id = ?',
+          [data.id],
+        );
+      }
+
+      // Delete purchase orders for this vendor
+      const purchases = await this.vendorRepository.query(
+        'SELECT id FROM tbl_purchase WHERE vendor_id = ?',
+        [data.id],
+      );
+
+      if (purchases && purchases.length > 0) {
+        const purchaseIds = purchases.map((purchase) => purchase.id);
+
+        // Delete purchase order items
+        await this.vendorRepository.query(
+          'DELETE FROM tbl_purchase_order_item WHERE purchase_order_id IN (?)',
+          [purchaseIds],
+        );
+
+        // Delete purchase orders
+        await this.vendorRepository.query(
+          'DELETE FROM tbl_purchase WHERE vendor_id = ?',
+          [data.id],
+        );
+      }
+
+      // Finally delete the vendor
+      await this.vendorRepository.delete(data.id);
+
+      return { message: 'Vendor deleted successfully' };
+    } catch (error) {
+      console.error('Error in doDeleteVendor:', error);
+      throw new Error('Error deleting vendor');
     }
-
-    await this.vendorRepository.delete(data.id);
-    return { message: 'Vendor deleted successfully' };
   }
 
   public async getAllVendors(data: VendorResponseDto) {
