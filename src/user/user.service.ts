@@ -375,6 +375,7 @@ export class UserService {
         throw new BadRequestException('ID_REQUIRED');
       }
 
+      // Tìm user và các dữ liệu liên quan
       const user = await this.userRepository.findOne({
         where: { id: Number(id) },
         relations: ['carts', 'reviews', 'userInformation'],
@@ -388,7 +389,7 @@ export class UserService {
         throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
       }
 
-      // Delete user's cart details first
+      // Xóa chi tiết giỏ hàng trước
       if (user.carts && user.carts.length > 0) {
         for (const cart of user.carts) {
           await this.userRepository.query(
@@ -396,14 +397,14 @@ export class UserService {
             [cart.id],
           );
         }
-        // Delete user's carts
+        // Sau đó xóa giỏ hàng
         await this.userRepository.query(
           'DELETE FROM tbl_carts WHERE user_id = ?',
           [id],
         );
       }
 
-      // Delete user's reviews
+      // Xóa đánh giá của user
       if (user.reviews && user.reviews.length > 0) {
         await this.userRepository.query(
           'DELETE FROM tbl_reviews WHERE user_id = ?',
@@ -411,13 +412,13 @@ export class UserService {
         );
       }
 
-      // Delete user's discount associations
+      // Xóa liên kết giảm giá
       await this.userRepository.query(
         'DELETE FROM tbl_discount_users WHERE user_id = ?',
         [id],
       );
 
-      // Delete user's orders and related data
+      // Xóa đơn hàng và dữ liệu liên quan
       const orders = await this.userRepository.query(
         'SELECT id FROM tbl_order WHERE user_id = ?',
         [id],
@@ -425,25 +426,25 @@ export class UserService {
 
       if (orders && orders.length > 0) {
         for (const order of orders) {
-          // Delete order details
+          // Xóa chi tiết đơn hàng
           await this.userRepository.query(
             'DELETE FROM tbl_order_details WHERE order_id = ?',
             [order.id],
           );
-          // Delete payments
+          // Xóa thanh toán
           await this.userRepository.query(
             'DELETE FROM tbl_payment WHERE order_id = ?',
             [order.id],
           );
         }
-        // Delete orders
+        // Xóa đơn hàng
         await this.userRepository.query(
           'DELETE FROM tbl_order WHERE user_id = ?',
           [id],
         );
       }
 
-      // Delete user's returns and related data
+      // Xóa đơn trả hàng và dữ liệu liên quan
       const returns = await this.userRepository.query(
         'SELECT id FROM tbl_returns WHERE customer_id = ?',
         [id],
@@ -451,25 +452,25 @@ export class UserService {
 
       if (returns && returns.length > 0) {
         for (const returnItem of returns) {
-          // Delete return details
+          // Xóa chi tiết trả hàng
           await this.userRepository.query(
             'DELETE FROM tbl_return_details WHERE return_id = ?',
             [returnItem.id],
           );
         }
-        // Delete returns
+        // Xóa đơn trả hàng
         await this.userRepository.query(
           'DELETE FROM tbl_returns WHERE customer_id = ?',
           [id],
         );
       }
 
-      // Delete user information if exists
+      // Xóa thông tin user nếu có
       if (user.informationId) {
         await this.userInformationRepository.delete(user.informationId);
       }
 
-      // Finally delete the user
+      // Cuối cùng xóa user
       await this.userRepository.delete(Number(id));
 
       return { message: 'USER_DELETED_SUCCESSFULLY' };
@@ -485,7 +486,7 @@ export class UserService {
         throw new BadRequestException('IDS_REQUIRED');
       }
 
-      // Get all users with their relations
+      // Lấy tất cả user và dữ liệu liên quan
       const users = await this.userRepository.find({
         where: { id: In(ids) },
         relations: ['carts', 'reviews', 'userInformation'],
@@ -495,13 +496,13 @@ export class UserService {
         throw new BadRequestException('USERS_NOT_FOUND');
       }
 
-      // Check if any user is admin
+      // Kiểm tra xem có user admin không
       const adminUser = users.find((user) => user.isAdmin);
       if (adminUser) {
         throw new BadRequestException('ADMIN_CANNOT_BE_DELETED');
       }
 
-      // Delete cart details and carts for all users
+      // Xóa chi tiết giỏ hàng và giỏ hàng cho tất cả user
       for (const user of users) {
         if (user.carts && user.carts.length > 0) {
           for (const cart of user.carts) {
@@ -517,19 +518,19 @@ export class UserService {
         [ids],
       );
 
-      // Delete reviews for all users
+      // Xóa đánh giá cho tất cả user
       await this.userRepository.query(
         'DELETE FROM tbl_reviews WHERE user_id IN (?)',
         [ids],
       );
 
-      // Delete discount associations for all users
+      // Xóa liên kết giảm giá cho tất cả user
       await this.userRepository.query(
         'DELETE FROM tbl_discount_users WHERE user_id IN (?)',
         [ids],
       );
 
-      // Get all orders for these users
+      // Lấy tất cả đơn hàng của các user này
       const orders = await this.userRepository.query(
         'SELECT id FROM tbl_order WHERE user_id IN (?)',
         [ids],
@@ -537,24 +538,24 @@ export class UserService {
 
       if (orders && orders.length > 0) {
         const orderIds = orders.map((order) => order.id);
-        // Delete order details
+        // Xóa chi tiết đơn hàng
         await this.userRepository.query(
           'DELETE FROM tbl_order_details WHERE order_id IN (?)',
           [orderIds],
         );
-        // Delete payments
+        // Xóa thanh toán
         await this.userRepository.query(
           'DELETE FROM tbl_payment WHERE order_id IN (?)',
           [orderIds],
         );
-        // Delete orders
+        // Xóa đơn hàng
         await this.userRepository.query(
           'DELETE FROM tbl_order WHERE user_id IN (?)',
           [ids],
         );
       }
 
-      // Get all returns for these users
+      // Lấy tất cả đơn trả hàng của các user này
       const returns = await this.userRepository.query(
         'SELECT id FROM tbl_returns WHERE customer_id IN (?)',
         [ids],
@@ -562,19 +563,19 @@ export class UserService {
 
       if (returns && returns.length > 0) {
         const returnIds = returns.map((returnItem) => returnItem.id);
-        // Delete return details
+        // Xóa chi tiết trả hàng
         await this.userRepository.query(
           'DELETE FROM tbl_return_details WHERE return_id IN (?)',
           [returnIds],
         );
-        // Delete returns
+        // Xóa đơn trả hàng
         await this.userRepository.query(
           'DELETE FROM tbl_returns WHERE customer_id IN (?)',
           [ids],
         );
       }
 
-      // Delete user information for all users
+      // Xóa thông tin user cho tất cả user
       const informationIds = users
         .filter((user) => user.informationId)
         .map((user) => user.informationId);
@@ -583,7 +584,7 @@ export class UserService {
         await this.userInformationRepository.delete(informationIds);
       }
 
-      // Finally delete the users
+      // Cuối cùng xóa các user
       await this.userRepository.delete(ids);
 
       return { message: 'USERS_DELETED_SUCCESSFULLY' };
