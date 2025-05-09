@@ -490,6 +490,12 @@ export class ProductService {
           'productColor',
           'productColor.id IN (SELECT pd.color_id FROM tbl_product_details pd WHERE pd.product_id = product.id)',
         )
+        .leftJoinAndMapMany(
+          'product.productCapacity',
+          'tbl_capacities',
+          'productCapacity',
+          'productCapacity.id IN (SELECT pd.capacity_id FROM tbl_product_details pd WHERE pd.product_id = product.id)',
+        )
         .select([
           'product.id',
           'product.name',
@@ -537,6 +543,8 @@ export class ProductService {
           'productColor.id',
           'productColor.name',
           'productColor.color_code',
+          'productCapacity.id',
+          'productCapacity.display_name',
         ])
         .where('product.id = :id', { id: data.id })
         .getOne();

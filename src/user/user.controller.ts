@@ -45,7 +45,7 @@ export class UserController {
   // @ApiBearerAuth()
   // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Đăng xuất' })
-  public async LogOut(@Query() dto: UpdateDtoQuery) {
+  public async LogOut(@Body() dto: UpdateDtoQuery) {
     return await this.userService.LogOut(dto);
   }
 

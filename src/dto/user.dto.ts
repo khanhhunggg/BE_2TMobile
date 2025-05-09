@@ -111,7 +111,7 @@ export class CreateUserDto {
 }
 export class UpdateUserDto extends CreateUserDto {}
 export class UpdateDtoQuery {
-  @ApiProperty({ type: Number, description: 'ID', required: true })
+  @ApiProperty({ type: String, description: 'id', required: true })
   @IsNumber()
   id: number;
 }

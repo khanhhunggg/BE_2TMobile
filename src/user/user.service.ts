@@ -156,6 +156,7 @@ export class UserService {
         return { isLogin: false };
       }
     } catch (error) {
+      console.log(error);
       throw new BadRequestException(error);
     }
   }
