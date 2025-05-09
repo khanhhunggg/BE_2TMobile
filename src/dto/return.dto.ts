@@ -156,15 +156,20 @@ export class CreateReturnDetailDto {
 }
 
 export class ReturnResponseDto extends CreateReturnDto {
-  @ApiProperty({ description: 'Return ID', example: 1 })
-  id: number;
+  @ApiProperty({ description: 'Return ID', example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
+  id?: number;
 
-  @ApiProperty({ description: 'Created at timestamp' })
-  createdAt: Date;
+  @ApiProperty({ description: 'Created at timestamp', required: false })
+  @IsOptional()
+  createdAt?: Date;
 
-  @ApiProperty({ description: 'Updated at timestamp' })
-  updatedAt: Date;
+  @ApiProperty({ description: 'Updated at timestamp', required: false })
+  @IsOptional()
+  updatedAt?: Date;
 
-  @ApiProperty({ type: [CreateReturnDetailDto] })
-  returnDetails: CreateReturnDetailDto[];
+  @ApiProperty({ type: [CreateReturnDetailDto], required: false })
+  @IsOptional()
+  returnDetails?: CreateReturnDetailDto[];
 }

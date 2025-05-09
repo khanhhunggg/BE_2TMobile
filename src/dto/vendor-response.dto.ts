@@ -8,8 +8,13 @@ import {
 } from 'class-validator';
 
 export class VendorResponseDto {
-  @ApiProperty({ type: Number, description: 'ID', required: false })
+  @ApiProperty({
+    type: Number,
+    description: 'ID',
+    required: false,
+  })
   @IsNumber()
+  @IsOptional()
   id?: number;
 
   @ApiProperty({
@@ -18,6 +23,7 @@ export class VendorResponseDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   vendor_code?: string;
 
   @ApiProperty({
@@ -26,6 +32,7 @@ export class VendorResponseDto {
     required: false,
   })
   @IsString()
+  @IsOptional()
   name?: string;
 }
 

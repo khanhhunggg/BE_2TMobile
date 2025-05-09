@@ -1,8 +1,11 @@
 import { CapacityUnit } from '../entity/capacity.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsOptional, IsEnum, IsString } from 'class-validator';
 
 export class CapacityResponseDto {
   @ApiProperty({ type: Number, description: 'ID', required: false })
+  @IsNumber()
+  @IsOptional()
   id?: number;
 
   @ApiProperty({
@@ -10,6 +13,8 @@ export class CapacityResponseDto {
     description: 'Giá trị dung lượng',
     required: false,
   })
+  @IsNumber()
+  @IsOptional()
   value?: number;
 
   @ApiProperty({
@@ -17,7 +22,10 @@ export class CapacityResponseDto {
     description: 'Đơn vị dung lượng',
     enum: CapacityUnit,
     example: CapacityUnit.GB,
+    required: false,
   })
+  @IsEnum(CapacityUnit)
+  @IsOptional()
   unit?: CapacityUnit;
 
   @ApiProperty({
@@ -25,5 +33,7 @@ export class CapacityResponseDto {
     description: 'Tên hiển thị của dung lượng',
     required: false,
   })
+  @IsString()
+  @IsOptional()
   display_name?: string;
 }

@@ -18,15 +18,18 @@ async function bootstrap() {
   app.set('trust proxy', true);
   setupSwagger(app);
 
-  // Enable validation
-  app.useGlobalPipes(new ValidationPipe());
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     transform: true,
+  //     whitelist: true,
+  //     forbidNonWhitelisted: true,
+  //   }),
+  // );
 
-  // Serve static files
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
 
-  // Swagger configuration
   const config = new DocumentBuilder()
     .setTitle('2T Mobile API')
     .setDescription('The 2T Mobile API description')

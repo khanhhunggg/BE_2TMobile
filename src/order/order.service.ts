@@ -1,13 +1,13 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Order, OrderStatus } from '../entity/order.entity';
-import { OrderDetail } from '../entity/order-detail.entity';
 import {
   CreateOrderDto,
-  UpdateOrderDto,
   SearchOrderDto,
+  UpdateOrderDto,
 } from '../dto/order.dto';
+import { OrderDetail } from '../entity/order-detail.entity';
+import { Order, OrderStatus } from '../entity/order.entity';
 import { User } from '../entity/user.entity';
 
 @Injectable()
@@ -64,7 +64,7 @@ export class OrderService {
         size = 10,
         status,
         payment_method,
-        sort_by = 'created_at',
+        sort_by = 'order_date',
         sort_order = 'DESC',
       } = searchParams;
 
@@ -84,8 +84,12 @@ export class OrderService {
         });
       }
 
-      // Add sorting
-      queryBuilder.orderBy(`order.${sort_by}`, sort_order);
+      const validSortFields = ['order_date', 'total_price', 'status'];
+      const sortField = validSortFields.includes(sort_by)
+        ? sort_by
+        : 'order_date';
+
+      queryBuilder.orderBy(`order.${sortField}`, sort_order);
 
       const skip = (page - 1) * size;
       queryBuilder.skip(skip).take(size);
@@ -108,6 +112,7 @@ export class OrderService {
         },
       };
     } catch (error) {
+      console.log(error);
       throw new BadRequestException({
         message: 'Lỗi khi lấy danh sách đơn hàng',
         errors: [{ message: error.message }],

@@ -104,7 +104,6 @@ export class SearchOrderDto {
     required: false,
     default: 1,
   })
-  @IsNumber()
   @IsOptional()
   page?: number;
 
@@ -114,7 +113,6 @@ export class SearchOrderDto {
     required: false,
     default: 10,
   })
-  @IsNumber()
   @IsOptional()
   size?: number;
 

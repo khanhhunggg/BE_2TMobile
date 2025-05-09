@@ -8,8 +8,10 @@ import {
 } from 'class-validator';
 
 export class PaymentLinkResponseDto {
-  @ApiProperty({ description: 'URL thanh toán' })
-  checkoutUrl: string;
+  @ApiProperty({ description: 'URL thanh toán', required: false })
+  @IsString()
+  @IsOptional()
+  checkoutUrl?: string;
 }
 
 export class CreatePaymentLinkDto {

@@ -113,26 +113,54 @@ export class UpdateCartDetailDto {
 }
 
 export class CartItemResponseDto {
-  @ApiProperty({ description: 'ID of the cart item', example: 1 })
-  id: number;
+  @ApiProperty({
+    description: 'ID of the cart item',
+    example: 1,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  id?: number;
 
-  @ApiProperty({ description: 'ID of the cart', example: 1 })
-  cart_id: number;
+  @ApiProperty({ description: 'ID of the cart', example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
+  cart_id?: number;
 
-  @ApiProperty({ description: 'ID of the product detail', example: 1 })
-  product_detail_id: number;
+  @ApiProperty({
+    description: 'ID of the product detail',
+    example: 1,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  product_detail_id?: number;
 
-  @ApiProperty({ description: 'Quantity of the product', example: 2 })
-  quantity: number;
+  @ApiProperty({
+    description: 'Quantity of the product',
+    example: 2,
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  quantity?: number;
 
-  @ApiProperty({ description: 'Price of the product', example: '100000' })
-  price: string;
+  @ApiProperty({
+    description: 'Price of the product',
+    example: '100000',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  price?: string;
 
-  @ApiProperty({ description: 'Creation timestamp' })
-  created_at: Date;
+  @ApiProperty({ description: 'Creation timestamp', required: false })
+  @IsOptional()
+  created_at?: Date;
 
   @ApiPropertyOptional({
     description: 'Product details',
+    required: false,
     example: {
       id: 1,
       name: 'Product Name',
@@ -145,6 +173,7 @@ export class CartItemResponseDto {
       provider_id: 1,
     },
   })
+  @IsOptional()
   product?: {
     id: number;
     name: string;
@@ -159,21 +188,29 @@ export class CartItemResponseDto {
 }
 
 export class CartResponseDto {
-  @ApiProperty({ description: 'ID of the cart', example: 1 })
-  id: number;
+  @ApiProperty({ description: 'ID of the cart', example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
+  id?: number;
 
-  @ApiProperty({ description: 'ID of the user', example: 1 })
-  user_id: number;
+  @ApiProperty({ description: 'ID of the user', example: 1, required: false })
+  @IsNumber()
+  @IsOptional()
+  user_id?: number;
 
-  @ApiProperty({ description: 'Creation timestamp' })
-  created_at: Date;
+  @ApiProperty({ description: 'Creation timestamp', required: false })
+  @IsOptional()
+  created_at?: Date;
 
-  @ApiProperty({ description: 'Last update timestamp' })
-  updated_at: Date;
+  @ApiProperty({ description: 'Last update timestamp', required: false })
+  @IsOptional()
+  updated_at?: Date;
 
   @ApiPropertyOptional({
     type: [CartItemResponseDto],
     description: 'Items in the cart',
+    required: false,
   })
+  @IsOptional()
   items?: CartItemResponseDto[];
 }
