@@ -981,17 +981,36 @@ export class ProductService {
         });
       }
 
-      // Delete all images for all product details
+      // Delete all related records in the correct order
       if (
         existingProduct.productDetails &&
         existingProduct.productDetails.length > 0
       ) {
         for (const productDetail of existingProduct.productDetails) {
-          await this.imageRepository.delete({
-            productId: productDetail.id,
-          });
+          // Delete order details first
+          await this.productRepository.manager.query(
+            'DELETE FROM tbl_order_details WHERE product_detail_id = ?',
+            [productDetail.id],
+          );
+
+          // Delete cart details
+          await this.productRepository.manager.query(
+            'DELETE FROM tbl_cart_details WHERE product_detail_id = ?',
+            [productDetail.id],
+          );
+
+          // Delete reviews
+          await this.productRepository.manager.query(
+            'DELETE FROM tbl_reviews WHERE product_detail_id = ?',
+            [productDetail.id],
+          );
         }
       }
+
+      // Delete images
+      await this.imageRepository.delete({
+        product: { id: data.id },
+      });
 
       // Delete product details
       if (
@@ -1008,7 +1027,7 @@ export class ProductService {
         await this.specsRepository.delete(existingProduct.specs[0].id);
       }
 
-      // Delete product
+      // Finally delete the product
       await this.productRepository.delete(data.id);
 
       return {
