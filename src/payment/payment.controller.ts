@@ -36,7 +36,7 @@ export class PaymentController {
   public async createPayment(@Body() body: SimpleCreatePaymentDto) {
     try {
       const paymentBody = {
-        orderCode: Number(String(new Date().getTime()).slice(-6)),
+        orderCode: body.orderId,
         amount: body.amount,
         description: body.description,
       };
@@ -73,7 +73,7 @@ export class PaymentController {
       console.log(error);
       return {
         error: -1,
-        message: 'fail',
+        message: error.message,
         data: null,
       };
     }
