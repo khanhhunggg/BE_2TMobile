@@ -149,7 +149,7 @@ export class UserService {
   public async LogOut(data: UpdateDtoQuery) {
     try {
       const user = await this.userRepository.findOne({
-        where: { id: data.id },
+        where: { id: Number(data.id) },
       });
       if (user) {
         return { isLogin: false };
@@ -259,7 +259,7 @@ export class UserService {
       }
 
       const user = await this.userRepository.findOne({
-        where: { id: dto.id },
+        where: { id: Number(dto.id) },
         relations: ['userInformation'],
       });
 
@@ -358,7 +358,7 @@ export class UserService {
       }
 
       const updatedUser = await this.userRepository.findOne({
-        where: { id: dto.id },
+        where: { id: Number(dto.id) },
         relations: ['userInformation'],
       });
 
@@ -368,14 +368,14 @@ export class UserService {
     }
   }
 
-  public async deleteUserById(id: number) {
+  public async deleteUserById(id: string) {
     try {
       if (!id) {
         throw new BadRequestException('ID_REQUIRED');
       }
 
       const user = await this.userRepository.findOne({
-        where: { id: id },
+        where: { id: Number(id) },
       });
 
       if (!user) {
@@ -392,7 +392,7 @@ export class UserService {
       }
 
       // Then delete the user
-      await this.userRepository.delete(id);
+      await this.userRepository.delete(Number(id));
 
       return { message: 'USER_DELETED_SUCCESSFULLY' };
     } catch (error) {
@@ -478,7 +478,7 @@ export class UserService {
           'userInformation.createdAt',
           'userInformation.updatedAt',
         ])
-        .where('user.id = :id', { id: id.id })
+        .where('user.id = :id', { id: Number(id.id) })
         .getOne();
       return user;
     } catch (error) {

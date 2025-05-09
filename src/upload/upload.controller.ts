@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   UploadedFiles,
@@ -21,7 +22,7 @@ export class UploadController {
         data: urls,
       };
     } catch (error) {
-      throw error;
+      throw BadRequestException;
     }
   }
 }
