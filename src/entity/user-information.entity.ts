@@ -19,7 +19,7 @@ export class UserInformation {
   @Column({ nullable: true })
   address: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'birthday', nullable: true })
   dateOfBirth: Date;
 
   @Column({ nullable: true })
