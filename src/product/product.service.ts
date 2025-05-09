@@ -210,21 +210,22 @@ export class ProductService {
         ];
       }
 
-      // Lưu ảnh theo product
       if (product.images && product.images.length > 0) {
         const imageUrls = await this.uploadService.uploadMultipleFiles(
           product.images,
         );
-        const imagePromises = imageUrls.map((imageUrl) => {
+
+        const imagePromises = imageUrls.map((imageUrl, index) => {
           return this.imageRepository.save(
             this.imageRepository.create({
               product: { id: savedProduct.id },
               imageUrl: imageUrl,
-              isThumbnail: false,
-              sortOrder: 0,
+              isThumbnail: index === 0,
+              sortOrder: index,
             }),
           );
         });
+
         await Promise.all(imagePromises);
       }
 
