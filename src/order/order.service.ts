@@ -59,7 +59,14 @@ export class OrderService {
 
   public async doGetAllOrders(searchParams: SearchOrderDto) {
     try {
-      const { page = 1, size = 10, status, payment_method } = searchParams;
+      const {
+        page = 1,
+        size = 10,
+        status,
+        payment_method,
+        sort_by = 'created_at',
+        sort_order = 'DESC',
+      } = searchParams;
 
       const queryBuilder = this.orderRepository
         .createQueryBuilder('order')
@@ -78,6 +85,8 @@ export class OrderService {
       }
 
       // Add sorting
+      queryBuilder.orderBy(`order.${sort_by}`, sort_order);
+
       const skip = (page - 1) * size;
       queryBuilder.skip(skip).take(size);
 
