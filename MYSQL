@@ -1,0 +1,768 @@
+-- MySQL dump 10.13  Distrib 8.0.40, for Win64 (x86_64)
+--
+-- Host: localhost    Database: 2t_mobile
+-- ------------------------------------------------------
+-- Server version	8.0.40
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `tbl_bank_accounts`
+--
+
+DROP TABLE IF EXISTS `tbl_bank_accounts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_bank_accounts` (
+  `bank_account_id` int NOT NULL AUTO_INCREMENT,
+  `bank_name` varchar(255) NOT NULL,
+  `bank_number` varchar(50) NOT NULL,
+  `user_bank_name` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`bank_account_id`),
+  UNIQUE KEY `bank_number` (`bank_number`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_bank_accounts`
+--
+
+LOCK TABLES `tbl_bank_accounts` WRITE;
+/*!40000 ALTER TABLE `tbl_bank_accounts` DISABLE KEYS */;
+INSERT INTO `tbl_bank_accounts` VALUES (1,'Vietcombank','123456789012','Nguyễn Văn A','2025-05-01 15:25:58','2025-05-01 15:25:58'),(2,'Techcombank','987654321098','Trần Thị Bích','2025-05-01 15:25:58','2025-05-01 15:25:58'),(3,'Vietinbank','112233445566','Lê Minh Cường','2025-05-01 15:25:58','2025-05-01 15:25:58'),(4,'MB Bank','667788990011','Phạm Thu Duyên','2025-05-01 15:25:58','2025-05-01 15:25:58'),(5,'Sacombank','223344556677','Hoàng Anh Dũng','2025-05-01 15:25:58','2025-05-01 15:25:58');
+/*!40000 ALTER TABLE `tbl_bank_accounts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_capacities`
+--
+
+DROP TABLE IF EXISTS `tbl_capacities`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_capacities` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `value` int NOT NULL,
+  `unit` enum('MB','GB','TB') NOT NULL DEFAULT 'GB',
+  `display_name` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_capacities`
+--
+
+LOCK TABLES `tbl_capacities` WRITE;
+/*!40000 ALTER TABLE `tbl_capacities` DISABLE KEYS */;
+INSERT INTO `tbl_capacities` VALUES (8,32,'GB','32GB','2025-05-03 19:35:01','2025-05-03 19:35:01'),(9,64,'GB','64GB','2025-05-03 19:35:01','2025-05-03 19:35:01'),(10,128,'GB','128GB','2025-05-03 19:35:01','2025-05-03 19:35:01'),(11,256,'GB','256GB','2025-05-03 19:35:01','2025-05-03 19:35:01'),(12,512,'GB','512GB','2025-05-03 19:35:01','2025-05-03 19:35:01'),(13,1024,'GB','1TB','2025-05-03 19:35:01','2025-05-03 19:35:01'),(14,2048,'GB','2TB','2025-05-03 19:35:01','2025-05-03 19:35:01');
+/*!40000 ALTER TABLE `tbl_capacities` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_capacity_prices`
+--
+
+DROP TABLE IF EXISTS `tbl_capacity_prices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_capacity_prices` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `capacity_id` int NOT NULL,
+  `price` decimal(10,2) NOT NULL,
+  `discount_price` decimal(10,2) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `product_id` (`capacity_id`),
+  KEY `capacity_id` (`capacity_id`),
+  CONSTRAINT `tbl_capacity_prices_ibfk_2` FOREIGN KEY (`capacity_id`) REFERENCES `tbl_capacities` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_capacity_prices`
+--
+
+LOCK TABLES `tbl_capacity_prices` WRITE;
+/*!40000 ALTER TABLE `tbl_capacity_prices` DISABLE KEYS */;
+INSERT INTO `tbl_capacity_prices` VALUES (8,8,4599000.00,4099000.00,'2025-05-03 19:38:53','2025-05-03 19:38:53'),(9,9,5999000.00,5199000.00,'2025-05-03 19:38:53','2025-05-03 19:38:53'),(10,10,6999000.00,6299000.00,'2025-05-03 19:38:53','2025-05-03 19:38:53'),(11,11,8999000.00,8299000.00,'2025-05-03 19:38:53','2025-05-03 19:38:53'),(12,12,10999000.00,9999000.00,'2025-05-03 19:38:53','2025-05-03 19:38:53'),(13,13,14999000.00,13999000.00,'2025-05-03 19:38:53','2025-05-03 19:38:53'),(14,14,19999000.00,17999000.00,'2025-05-03 19:38:53','2025-05-03 19:38:53');
+/*!40000 ALTER TABLE `tbl_capacity_prices` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_cart_details`
+--
+
+DROP TABLE IF EXISTS `tbl_cart_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_cart_details` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `cart_id` int NOT NULL,
+  `product_detail_id` int NOT NULL,
+  `quantity` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `price` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cart_id` (`cart_id`),
+  KEY `product_detail_id` (`product_detail_id`),
+  CONSTRAINT `tbl_cart_details_ibfk_1` FOREIGN KEY (`cart_id`) REFERENCES `tbl_carts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `tbl_cart_details_ibfk_2` FOREIGN KEY (`product_detail_id`) REFERENCES `tbl_product_details` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_cart_details`
+--
+
+LOCK TABLES `tbl_cart_details` WRITE;
+/*!40000 ALTER TABLE `tbl_cart_details` DISABLE KEYS */;
+INSERT INTO `tbl_cart_details` VALUES (10,4,106,1,'2025-05-09 15:09:39','8999000');
+/*!40000 ALTER TABLE `tbl_cart_details` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_carts`
+--
+
+DROP TABLE IF EXISTS `tbl_carts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_carts` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `tbl_carts_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_carts`
+--
+
+LOCK TABLES `tbl_carts` WRITE;
+/*!40000 ALTER TABLE `tbl_carts` DISABLE KEYS */;
+INSERT INTO `tbl_carts` VALUES (4,21,'2025-05-09 14:24:12','2025-05-09 14:24:12');
+/*!40000 ALTER TABLE `tbl_carts` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_colors`
+--
+
+DROP TABLE IF EXISTS `tbl_colors`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_colors` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `color_code` varchar(20) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_colors`
+--
+
+LOCK TABLES `tbl_colors` WRITE;
+/*!40000 ALTER TABLE `tbl_colors` DISABLE KEYS */;
+INSERT INTO `tbl_colors` VALUES (1,'Đen','#000000','2025-04-30 13:52:06','2025-04-30 13:52:06'),(2,'Trắng','#FFFFFF','2025-04-30 13:52:06','2025-04-30 13:52:06'),(3,'Bạc','#C0C0C0','2025-04-30 13:52:06','2025-04-30 13:52:06'),(4,'Xám','#808080','2025-04-30 13:52:06','2025-04-30 13:52:06'),(5,'Xanh dương','#007BFF','2025-04-30 13:52:06','2025-04-30 13:52:06'),(6,'Xanh đậm','#191970','2025-04-30 13:52:06','2025-04-30 13:52:06'),(7,'Đỏ','#FF0000','2025-04-30 13:52:06','2025-04-30 13:52:06'),(8,'Xanh lá','#28A745','2025-04-30 13:52:06','2025-04-30 13:52:06'),(9,'Vàng','#FFD700','2025-04-30 13:52:06','2025-04-30 13:52:06'),(10,'Vàng hồng','#B76E79','2025-04-30 13:52:06','2025-04-30 13:52:06'),(11,'Tím','#800080','2025-04-30 13:52:06','2025-04-30 13:52:06'),(12,'Tím nhạt','#E6E6FA','2025-04-30 13:52:06','2025-04-30 13:52:06'),(13,'Hồng','#FFC0CB','2025-04-30 13:52:06','2025-04-30 13:52:06'),(14,'San hô','#FF7F50','2025-04-30 13:52:06','2025-04-30 13:52:06'),(15,'Cam','#FFA500','2025-04-30 13:52:06','2025-04-30 13:52:06'),(16,'Vàng nhạt','#FFFF00','2025-04-30 13:52:06','2025-04-30 13:52:06'),(17,'Nâu','#A52A2A','2025-04-30 13:52:06','2025-04-30 13:52:06'),(18,'Xám đậm','#3B3B3B','2025-04-30 13:52:06','2025-04-30 13:52:06'),(19,'Xám không gian','#4B4B4B','2025-04-30 13:52:06','2025-04-30 13:52:06'),(20,'Xanh rêu','#004953','2025-04-30 13:52:06','2025-04-30 13:52:06');
+/*!40000 ALTER TABLE `tbl_colors` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_discount`
+--
+
+DROP TABLE IF EXISTS `tbl_discount`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_discount` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `discount_type` enum('percentage','fixed_amount') NOT NULL,
+  `discount_value` decimal(10,2) NOT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime NOT NULL,
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_discount`
+--
+
+LOCK TABLES `tbl_discount` WRITE;
+/*!40000 ALTER TABLE `tbl_discount` DISABLE KEYS */;
+INSERT INTO `tbl_discount` VALUES (1,'Khuyến mãi tháng 12','Giảm giá 20% cho tất cả sản phẩm','percentage',20.00,'2024-01-01 00:00:00','2024-01-31 23:59:59',1,'2025-05-04 20:07:14','2025-05-04 20:07:14'),(2,'Khuyến mãi khai trương','Giảm giá 20% cho tất cả sản phẩm trong tuần đầu tiên','percentage',20.00,'2025-05-01 00:00:00','2025-05-07 23:59:59',1,'2025-05-09 22:37:29','2025-05-09 22:37:29'),(3,'Giảm 50k cho đơn hàng trên 500k','Áp dụng cho đơn hàng có giá trị từ 500,000 VNĐ trở lên','fixed_amount',50000.00,'2025-05-01 00:00:00','2025-05-15 23:59:59',1,'2025-05-09 22:37:29','2025-05-09 22:37:29'),(4,'Ưu đãi ngày lễ','Giảm 15% nhân dịp lễ lớn','percentage',15.00,'2025-05-10 00:00:00','2025-05-11 23:59:59',1,'2025-05-09 22:37:29','2025-05-09 22:37:29'),(5,'Voucher 100k','Khách hàng thân thiết nhận voucher giảm trực tiếp 100,000 VNĐ','fixed_amount',100000.00,'2025-05-01 00:00:00','2025-06-01 23:59:59',1,'2025-05-09 22:37:29','2025-05-09 22:37:29');
+/*!40000 ALTER TABLE `tbl_discount` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_discount_users`
+--
+
+DROP TABLE IF EXISTS `tbl_discount_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_discount_users` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `discount_id` bigint NOT NULL,
+  `user_id` int NOT NULL,
+  `assigned_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `discount_id` (`discount_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `tbl_discount_users_ibfk_1` FOREIGN KEY (`discount_id`) REFERENCES `tbl_discount` (`id`),
+  CONSTRAINT `tbl_discount_users_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_discount_users`
+--
+
+LOCK TABLES `tbl_discount_users` WRITE;
+/*!40000 ALTER TABLE `tbl_discount_users` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tbl_discount_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_images`
+--
+
+DROP TABLE IF EXISTS `tbl_images`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_images` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `product_id` int NOT NULL,
+  `image_url` text,
+  `is_thumbnail` tinyint(1) DEFAULT '0',
+  `sort_order` int DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `product_detail_id` (`product_id`),
+  CONSTRAINT `fk_tbl_images_product` FOREIGN KEY (`product_id`) REFERENCES `tbl_products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_images`
+--
+
+LOCK TABLES `tbl_images` WRITE;
+/*!40000 ALTER TABLE `tbl_images` DISABLE KEYS */;
+INSERT INTO `tbl_images` VALUES (94,66,'https://res.cloudinary.com/mobilecloud/image/upload/v1746771022/dedwfsct3i5dv8dxwkcn.jpg',0,0,'2025-05-09 06:10:15'),(95,66,'https://res.cloudinary.com/mobilecloud/image/upload/v1746771021/tfq5eiy0ytawlu74qsmw.jpg',0,0,'2025-05-09 06:10:15'),(96,67,'https://res.cloudinary.com/mobilecloud/image/upload/v1746771026/m4uwjgpnpxeexab51vbd.jpg',0,0,'2025-05-09 06:10:19'),(97,67,'https://res.cloudinary.com/mobilecloud/image/upload/v1746771026/o5mqt3bx8yqgrewv1zdt.jpg',0,0,'2025-05-09 06:10:19'),(98,68,'https://res.cloudinary.com/mobilecloud/image/upload/v1746780774/jdgkxuaiwfa1v04raxyv.jpg',0,0,'2025-05-09 08:52:47'),(99,69,'https://res.cloudinary.com/mobilecloud/image/upload/v1746781350/qz5qy7ih3ewnwpapuebf.jpg',0,0,'2025-05-09 09:02:23');
+/*!40000 ALTER TABLE `tbl_images` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_order`
+--
+
+DROP TABLE IF EXISTS `tbl_order`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_order` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `payment_method` enum('BANKING','CAST') NOT NULL,
+  `order_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expected_delivery_date` date DEFAULT NULL,
+  `status` enum('PENDING','DELIVERY','COMPLETED','CANCLED','RETURNING','RETURNED') DEFAULT 'PENDING',
+  `delivered_date` date DEFAULT NULL,
+  `total_price` int NOT NULL DEFAULT '0',
+  `note` text,
+  `userLocation` varchar(255) DEFAULT NULL,
+  `userPhone` varchar(20) DEFAULT NULL,
+  `userName` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `tbl_order_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=76 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_order`
+--
+
+LOCK TABLES `tbl_order` WRITE;
+/*!40000 ALTER TABLE `tbl_order` DISABLE KEYS */;
+INSERT INTO `tbl_order` VALUES (23,21,'CAST','2025-05-09 13:16:18','2025-05-08','PENDING',NULL,6299000,NULL,NULL,NULL,NULL),(24,21,'CAST','2025-05-09 13:17:08','2025-05-08','PENDING',NULL,6299000,NULL,NULL,NULL,NULL),(25,21,'CAST','2025-05-09 13:18:29','2025-05-08','PENDING',NULL,6299000,NULL,NULL,NULL,NULL),(26,21,'CAST','2025-05-09 13:19:20','2025-05-08','PENDING',NULL,6299000,NULL,NULL,NULL,NULL),(27,21,'CAST','2025-05-09 13:19:26','2025-05-08','PENDING',NULL,6299000,NULL,NULL,NULL,NULL),(28,21,'CAST','2025-05-09 13:19:44','2025-05-08','PENDING',NULL,6299000,NULL,NULL,NULL,NULL),(29,21,'BANKING','2025-05-09 13:33:52','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(30,21,'BANKING','2025-05-09 13:33:55','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(31,21,'BANKING','2025-05-09 13:33:56','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(32,21,'BANKING','2025-05-09 13:33:56','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(33,21,'BANKING','2025-05-09 13:33:56','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(34,21,'BANKING','2025-05-09 13:33:56','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(35,21,'BANKING','2025-05-09 13:33:56','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(36,21,'BANKING','2025-05-09 13:33:56','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(37,21,'BANKING','2025-05-09 13:33:57','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(38,21,'BANKING','2025-05-09 13:33:57','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(39,21,'BANKING','2025-05-09 13:33:57','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(41,22,'BANKING','2025-05-09 13:39:44','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(42,22,'BANKING','2025-05-09 13:40:52','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(43,22,'BANKING','2025-05-09 13:43:28','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(44,22,'BANKING','2025-05-09 13:43:48','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(45,22,'BANKING','2025-05-09 13:43:50','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(46,22,'BANKING','2025-05-09 13:43:51','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(47,22,'BANKING','2025-05-09 13:44:21','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(48,22,'BANKING','2025-05-09 13:44:51','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(49,22,'BANKING','2025-05-09 13:45:35','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(50,22,'BANKING','2025-05-09 13:45:41','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(51,22,'BANKING','2025-05-09 13:45:49','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(52,22,'BANKING','2025-05-09 13:47:45','2025-07-28','PENDING',NULL,1111111100,NULL,NULL,NULL,NULL),(53,21,'BANKING','2025-05-09 19:54:49','2025-08-28','PENDING',NULL,0,NULL,NULL,NULL,NULL),(54,21,'BANKING','2025-05-09 19:55:16','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(55,21,'BANKING','2025-05-09 19:56:07','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(56,21,'BANKING','2025-05-09 19:56:32','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(57,21,'BANKING','2025-05-09 19:56:36','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(58,21,'BANKING','2025-05-09 19:56:36','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(59,21,'BANKING','2025-05-09 19:56:37','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(60,21,'BANKING','2025-05-09 19:56:51','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(61,21,'BANKING','2025-05-09 19:57:20','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(62,21,'BANKING','2025-05-09 19:59:23','2025-08-28','PENDING',NULL,200000000,NULL,NULL,NULL,NULL),(66,23,'CAST','2025-05-09 21:14:21','2025-05-12','PENDING',NULL,6999000,NULL,NULL,NULL,NULL),(67,23,'CAST','2025-05-09 21:14:55','2025-05-12','PENDING',NULL,6999000,NULL,NULL,NULL,NULL),(68,21,'CAST','2025-05-09 21:55:24','2025-05-12','PENDING',NULL,17998000,NULL,NULL,NULL,NULL),(69,21,'CAST','2025-05-09 21:55:24','2025-05-12','PENDING',NULL,17998000,NULL,NULL,NULL,NULL),(70,21,'CAST','2025-05-09 21:59:23','2025-05-12','PENDING',NULL,17998000,NULL,NULL,NULL,NULL),(71,21,'CAST','2025-05-09 22:05:02','2025-05-12','PENDING',NULL,17998000,NULL,NULL,NULL,NULL),(72,21,'CAST','2025-05-09 22:06:26','2025-05-12','PENDING',NULL,17998000,NULL,NULL,NULL,NULL),(73,21,'CAST','2025-05-09 22:07:18','2025-05-12','PENDING',NULL,8999000,NULL,NULL,NULL,NULL),(74,21,'CAST','2025-05-09 22:09:14','2025-05-12','PENDING',NULL,17998000,NULL,NULL,NULL,NULL),(75,21,'BANKING','2025-05-09 22:57:35','2024-03-25','PENDING',NULL,5000000,'Giao hàng giờ hành chính','123 Đường ABC, Quận XYZ, TP.HCM','0987654321','Nguyễn Văn A');
+/*!40000 ALTER TABLE `tbl_order` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_order_details`
+--
+
+DROP TABLE IF EXISTS `tbl_order_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_order_details` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `order_id` bigint NOT NULL,
+  `product_detail_id` int DEFAULT NULL,
+  `quantity` int NOT NULL,
+  `price` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `product_id` (`product_detail_id`),
+  CONSTRAINT `order_details_fk_order` FOREIGN KEY (`order_id`) REFERENCES `tbl_order` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `order_details_fk_product_detail` FOREIGN KEY (`product_detail_id`) REFERENCES `tbl_product_details` (`id`),
+  CONSTRAINT `order_details_chk_price` CHECK ((`price` >= 0)),
+  CONSTRAINT `order_details_chk_quantity` CHECK ((`quantity` > 0))
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_order_details`
+--
+
+LOCK TABLES `tbl_order_details` WRITE;
+/*!40000 ALTER TABLE `tbl_order_details` DISABLE KEYS */;
+INSERT INTO `tbl_order_details` VALUES (25,29,NULL,10,111111110),(26,30,NULL,10,111111110),(27,31,NULL,10,111111110),(28,32,NULL,10,111111110),(29,33,NULL,10,111111110),(30,34,NULL,10,111111110),(31,35,NULL,10,111111110),(32,36,NULL,10,111111110),(33,37,NULL,10,111111110),(34,38,NULL,10,111111110),(35,39,NULL,10,111111110),(36,41,NULL,10,111111110),(37,42,NULL,10,111111110),(38,47,NULL,10,111111110),(39,48,NULL,10,111111110),(40,49,NULL,10,111111110),(41,50,NULL,10,111111110),(42,51,NULL,10,111111110),(43,52,104,10,111111110),(44,61,83,2000,100000),(45,62,83,2000,100000),(46,67,94,1,6999000),(47,72,106,2,8999000),(48,73,106,1,8999000),(49,74,106,2,8999000),(50,75,94,2,1500000),(51,75,83,1,2000000);
+/*!40000 ALTER TABLE `tbl_order_details` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_payment`
+--
+
+DROP TABLE IF EXISTS `tbl_payment`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_payment` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_id` bigint NOT NULL,
+  `buyer_name` varchar(255) DEFAULT NULL,
+  `buyer_email` varchar(255) DEFAULT NULL,
+  `buyer_phone` varchar(20) DEFAULT NULL,
+  `buyer_address` text,
+  `expired_at` bigint DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  CONSTRAINT `tbl_payment_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `tbl_order` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_payment`
+--
+
+LOCK TABLES `tbl_payment` WRITE;
+/*!40000 ALTER TABLE `tbl_payment` DISABLE KEYS */;
+INSERT INTO `tbl_payment` VALUES (49,50,'string','string','string','string',1746867979,'2025-05-09 09:06:19','2025-05-09 09:06:19'),(50,50,'string','string','string','string',1746868033,'2025-05-09 09:07:13','2025-05-09 09:07:13'),(51,50,'string','string','string','string',1746868097,'2025-05-09 09:08:17','2025-05-09 09:08:17'),(52,50,'string','string','string','string',1746868214,'2025-05-09 09:10:14','2025-05-09 09:10:14'),(53,50,'string','string','string','string',1746868352,'2025-05-09 09:12:32','2025-05-09 09:12:32'),(54,46,'string','string','string','string',1746868709,'2025-05-09 09:18:29','2025-05-09 09:18:29');
+/*!40000 ALTER TABLE `tbl_payment` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_product_details`
+--
+
+DROP TABLE IF EXISTS `tbl_product_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_product_details` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `product_id` int NOT NULL,
+  `capacity_id` int NOT NULL,
+  `stock_quantity` int DEFAULT '0',
+  `serial_number` varchar(100) DEFAULT NULL,
+  `import_price` varchar(55) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `selling_price` varchar(55) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `color_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `capacity_id` (`capacity_id`),
+  KEY `fk_color_id` (`color_id`),
+  CONSTRAINT `fk_color_id` FOREIGN KEY (`color_id`) REFERENCES `tbl_colors` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `tbl_product_details_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `tbl_products` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `tbl_product_details_ibfk_3` FOREIGN KEY (`capacity_id`) REFERENCES `tbl_capacities` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_product_details`
+--
+
+LOCK TABLES `tbl_product_details` WRITE;
+/*!40000 ALTER TABLE `tbl_product_details` DISABLE KEYS */;
+INSERT INTO `tbl_product_details` VALUES (83,46,10,0,'',NULL,NULL,'2025-05-09 05:25:25','2025-05-09 05:25:25',2),(84,47,10,0,'',NULL,NULL,'2025-05-09 05:26:23','2025-05-09 05:26:23',4),(85,48,9,0,'',NULL,NULL,'2025-05-09 05:27:46','2025-05-09 05:27:46',3),(86,49,12,0,'',NULL,NULL,'2025-05-09 05:28:08','2025-05-09 05:28:08',5),(87,50,10,0,'',NULL,NULL,'2025-05-09 05:28:43','2025-05-09 05:28:43',4),(88,51,9,0,'',NULL,NULL,'2025-05-09 05:29:46','2025-05-09 05:29:46',3),(89,52,9,0,'',NULL,NULL,'2025-05-09 05:43:27','2025-05-09 05:43:27',4),(90,53,10,0,'',NULL,NULL,'2025-05-09 05:46:32','2025-05-09 05:46:32',4),(91,54,10,0,'',NULL,NULL,'2025-05-09 05:47:23','2025-05-09 05:47:23',3),(92,55,9,0,'',NULL,NULL,'2025-05-09 05:48:00','2025-05-09 05:48:00',3),(93,56,10,0,'',NULL,NULL,'2025-05-09 05:50:02','2025-05-09 05:50:02',4),(94,57,10,0,'',NULL,NULL,'2025-05-09 05:51:01','2025-05-09 05:51:01',4),(95,58,10,0,'',NULL,NULL,'2025-05-09 05:53:39','2025-05-09 05:53:39',5),(96,59,10,0,'',NULL,NULL,'2025-05-09 05:55:35','2025-05-09 05:55:35',5),(97,60,10,0,'',NULL,NULL,'2025-05-09 06:00:55','2025-05-09 06:00:55',5),(98,61,10,0,'',NULL,NULL,'2025-05-09 06:02:05','2025-05-09 06:02:05',5),(99,62,10,0,'',NULL,NULL,'2025-05-09 06:02:19','2025-05-09 06:02:19',5),(100,63,10,0,'',NULL,NULL,'2025-05-09 06:03:00','2025-05-09 06:03:00',5),(101,64,10,0,'',NULL,NULL,'2025-05-09 06:05:44','2025-05-09 06:05:44',5),(102,65,10,0,'',NULL,NULL,'2025-05-09 06:07:33','2025-05-09 06:07:33',5),(103,66,10,0,'',NULL,NULL,'2025-05-09 06:10:12','2025-05-09 06:10:12',5),(104,67,10,1,'','12000000','13200000.000000002','2025-05-09 06:10:19','2025-05-09 06:14:15',5),(105,68,10,0,'',NULL,NULL,'2025-05-09 08:52:43','2025-05-09 08:52:43',4),(106,69,11,0,'',NULL,NULL,'2025-05-09 09:02:20','2025-05-09 09:02:20',5);
+/*!40000 ALTER TABLE `tbl_product_details` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_products`
+--
+
+DROP TABLE IF EXISTS `tbl_products`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_products` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `model` varchar(100) DEFAULT NULL,
+  `description` text,
+  `warranty_period` int DEFAULT NULL,
+  `release_year` int DEFAULT NULL,
+  `is_featured` tinyint(1) DEFAULT '0',
+  `status` enum('Active','Inactive') DEFAULT 'Active',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `vendor_id` bigint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_vendor_id` (`vendor_id`),
+  CONSTRAINT `fk_vendor_id` FOREIGN KEY (`vendor_id`) REFERENCES `vendor` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_products`
+--
+
+LOCK TABLES `tbl_products` WRITE;
+/*!40000 ALTER TABLE `tbl_products` DISABLE KEYS */;
+INSERT INTO `tbl_products` VALUES (46,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:25:25','2025-05-09 05:25:25',NULL),(47,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:26:23','2025-05-09 05:26:23',NULL),(48,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:27:46','2025-05-09 05:27:46',NULL),(49,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:28:08','2025-05-09 05:28:08',NULL),(50,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:28:43','2025-05-09 05:28:43',NULL),(51,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:29:46','2025-05-09 05:29:46',NULL),(52,'product 10','','',0,2025,1,'Active','2025-05-09 05:43:27','2025-05-09 05:43:27',NULL),(53,'product 10','','',0,2025,1,'Active','2025-05-09 05:46:32','2025-05-09 05:46:32',NULL),(54,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:47:23','2025-05-09 05:47:23',NULL),(55,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:48:00','2025-05-09 05:48:00',NULL),(56,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:50:02','2025-05-09 05:50:02',NULL),(57,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:51:01','2025-05-09 05:51:01',NULL),(58,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:53:39','2025-05-09 05:53:39',NULL),(59,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 05:55:35','2025-05-09 05:55:35',NULL),(60,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:00:55','2025-05-09 06:00:55',NULL),(61,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:02:05','2025-05-09 06:02:05',NULL),(62,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:02:19','2025-05-09 06:02:19',NULL),(63,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:03:00','2025-05-09 06:03:00',NULL),(64,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:05:44','2025-05-09 06:05:44',NULL),(65,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:07:33','2025-05-09 06:07:33',NULL),(66,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:10:12','2025-05-09 06:10:12',NULL),(67,'Trịnh Đức Thưởng','','',0,2025,1,'Active','2025-05-09 06:10:19','2025-05-09 06:10:19',NULL),(68,'IPhone 11','','',0,2025,1,'Active','2025-05-09 08:52:42','2025-05-09 08:52:42',NULL),(69,'androi','','',0,2025,1,'Active','2025-05-09 09:02:19','2025-05-09 09:02:19',NULL);
+/*!40000 ALTER TABLE `tbl_products` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_purchase`
+--
+
+DROP TABLE IF EXISTS `tbl_purchase`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_purchase` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `lot_code` varchar(100) DEFAULT NULL,
+  `item_type` varchar(100) DEFAULT NULL,
+  `vendor_id` bigint NOT NULL,
+  `payment_method` varchar(50) DEFAULT NULL,
+  `order_date` date DEFAULT NULL,
+  `order_time` time DEFAULT NULL,
+  `status` enum('PENDING','DELIVERY','COMPLETED','CANCLED','RETURNING','RETURNED') DEFAULT 'PENDING',
+  `note` text,
+  PRIMARY KEY (`id`),
+  KEY `fk_po_vendor` (`vendor_id`),
+  CONSTRAINT `fk_po_vendor` FOREIGN KEY (`vendor_id`) REFERENCES `vendor` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_purchase`
+--
+
+LOCK TABLES `tbl_purchase` WRITE;
+/*!40000 ALTER TABLE `tbl_purchase` DISABLE KEYS */;
+INSERT INTO `tbl_purchase` VALUES (6,'SHIP-1080c8fa','Điện thoại',28,'CASH','2025-05-09','13:14:00','COMPLETED','DuckThuong');
+/*!40000 ALTER TABLE `tbl_purchase` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_purchase_order_item`
+--
+
+DROP TABLE IF EXISTS `tbl_purchase_order_item`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_purchase_order_item` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `purchase_order_id` bigint NOT NULL,
+  `product_id` int DEFAULT NULL,
+  `quantity` int NOT NULL,
+  `unit_price` decimal(12,2) DEFAULT NULL,
+  `total_price` decimal(14,2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_po_item_order` (`purchase_order_id`),
+  KEY `fk_po_item_product` (`product_id`),
+  CONSTRAINT `fk_po_item_order` FOREIGN KEY (`purchase_order_id`) REFERENCES `tbl_purchase` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_purchase_order_item`
+--
+
+LOCK TABLES `tbl_purchase_order_item` WRITE;
+/*!40000 ALTER TABLE `tbl_purchase_order_item` DISABLE KEYS */;
+INSERT INTO `tbl_purchase_order_item` VALUES (17,6,67,1,12000000.00,12000000.00);
+/*!40000 ALTER TABLE `tbl_purchase_order_item` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_return_details`
+--
+
+DROP TABLE IF EXISTS `tbl_return_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_return_details` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `return_id` int NOT NULL,
+  `status` enum('Pending','Approved','Rejected','Shipping','Completed') DEFAULT 'Pending',
+  `shipping_code` varchar(50) DEFAULT NULL,
+  `custom_reason` text,
+  `images` json DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `return_id` (`return_id`),
+  CONSTRAINT `tbl_return_details_fk_return` FOREIGN KEY (`return_id`) REFERENCES `tbl_returns` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_return_details`
+--
+
+LOCK TABLES `tbl_return_details` WRITE;
+/*!40000 ALTER TABLE `tbl_return_details` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tbl_return_details` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_returns`
+--
+
+DROP TABLE IF EXISTS `tbl_returns`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_returns` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `order_detail_id` bigint NOT NULL,
+  `purchase_detail_id` bigint NOT NULL,
+  `admin_id` int DEFAULT NULL,
+  `customer_id` int NOT NULL,
+  `return_code` varchar(20) DEFAULT NULL,
+  `type` enum('Refund','Repair','Replacement') NOT NULL,
+  `refund_amount` decimal(10,2) DEFAULT NULL,
+  `reason_id` int DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `return_code` (`return_code`),
+  KEY `order_detail_id` (`order_detail_id`),
+  KEY `purchase_detail_id` (`purchase_detail_id`),
+  CONSTRAINT `order_detail_id` FOREIGN KEY (`order_detail_id`) REFERENCES `tbl_order_details` (`id`),
+  CONSTRAINT `purchase_detail_id` FOREIGN KEY (`purchase_detail_id`) REFERENCES `tbl_purchase_order_item` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_returns`
+--
+
+LOCK TABLES `tbl_returns` WRITE;
+/*!40000 ALTER TABLE `tbl_returns` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tbl_returns` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_reviews`
+--
+
+DROP TABLE IF EXISTS `tbl_reviews`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_reviews` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `product_detail_id` int NOT NULL,
+  `rating` tinyint DEFAULT NULL,
+  `comment` text,
+  `is_verified` tinyint(1) DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `product_detail_id` (`product_detail_id`),
+  CONSTRAINT `tbl_reviews_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `tbl_users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `tbl_reviews_ibfk_2` FOREIGN KEY (`product_detail_id`) REFERENCES `tbl_product_details` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `tbl_reviews_chk_1` CHECK ((`rating` between 1 and 5))
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_reviews`
+--
+
+LOCK TABLES `tbl_reviews` WRITE;
+/*!40000 ALTER TABLE `tbl_reviews` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tbl_reviews` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_specs`
+--
+
+DROP TABLE IF EXISTS `tbl_specs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_specs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `product_id` int NOT NULL,
+  `screen_size` varchar(50) DEFAULT NULL,
+  `resolution` varchar(50) DEFAULT NULL,
+  `chipset` varchar(100) DEFAULT NULL,
+  `ram` varchar(20) DEFAULT NULL,
+  `os` varchar(50) DEFAULT NULL,
+  `battery_capacity` varchar(50) DEFAULT NULL,
+  `charging_tech` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  CONSTRAINT `tbl_specs_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `tbl_products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_specs`
+--
+
+LOCK TABLES `tbl_specs` WRITE;
+/*!40000 ALTER TABLE `tbl_specs` DISABLE KEYS */;
+INSERT INTO `tbl_specs` VALUES (1,9,'6.1 inches','2556 x 1179','A17 Pro','8GB','iOS 17','3274 mAh','USB-C'),(2,10,'6.1 inches','2556 x 1179','A17 Pro','8GB','iOS 17','3274 mAh','USB-C'),(29,46,'','','','','','',''),(30,47,'','','','','','',''),(31,48,'','','','','','',''),(32,49,'','','','','','',''),(33,50,'','','','','','',''),(34,53,'','','','','','',''),(35,54,'','','','','','',''),(36,55,'','','','','','',''),(37,66,'','','','','','',''),(38,67,'','','','','','',''),(39,68,'','','','','','',''),(40,69,'','','','','','','');
+/*!40000 ALTER TABLE `tbl_specs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_user_information`
+--
+
+DROP TABLE IF EXISTS `tbl_user_information`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_user_information` (
+  `information_id` int NOT NULL AUTO_INCREMENT,
+  `bank_account_id` int DEFAULT NULL,
+  `avatar` varchar(255) DEFAULT NULL,
+  `full_name` varchar(255) NOT NULL,
+  `address` text NOT NULL,
+  `gender` enum('Male','Female','Other') DEFAULT NULL,
+  `birthday` date DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`information_id`),
+  KEY `bank_account_id` (`bank_account_id`),
+  CONSTRAINT `tbl_user_information_ibfk_1` FOREIGN KEY (`bank_account_id`) REFERENCES `tbl_bank_accounts` (`bank_account_id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_user_information`
+--
+
+LOCK TABLES `tbl_user_information` WRITE;
+/*!40000 ALTER TABLE `tbl_user_information` DISABLE KEYS */;
+INSERT INTO `tbl_user_information` VALUES (1,1,'avatar1.jpg','Nguyễn Văn A','123 Đường Lê Lợi, TP.HCM','Male','1990-01-01','2025-05-01 15:26:07','2025-05-01 15:26:07'),(2,2,'avatar2.jpg','Trần Thị Bích','456 Đường Nguyễn Trãi, TP.HCM','Female','1988-05-12','2025-05-01 15:26:07','2025-05-01 15:26:07'),(3,3,'avatar3.jpg','Lê Minh Cường','789 Đường Cách Mạng Tháng 8, TP.HCM','Male','1992-11-30','2025-05-01 15:26:07','2025-05-01 15:26:07'),(4,4,'avatar4.jpg','Phạm Thu Duyên','12 Trần Hưng Đạo, Hà Nội','Female','1995-02-20','2025-05-01 15:26:07','2025-05-01 15:26:07'),(5,5,'avatar5.jpg','Hoàng Anh Dũng','88 Phố Huế, Hà Nội','Male','1991-07-15','2025-05-01 15:26:07','2025-05-01 15:26:07'),(6,1,'avatar1.jpg','Nguyễn Văn A','123 Đường Lê Lợi, TP.HCM','Male','1990-01-01','2025-05-01 15:26:12','2025-05-01 15:26:12'),(7,2,'avatar2.jpg','Trần Thị Bích','456 Đường Nguyễn Trãi, TP.HCM','Female','1988-05-12','2025-05-01 15:26:12','2025-05-01 15:26:12'),(8,3,'avatar3.jpg','Lê Minh Cường','789 Đường Cách Mạng Tháng 8, TP.HCM','Male','1992-11-30','2025-05-01 15:26:12','2025-05-01 15:26:12'),(9,4,'avatar4.jpg','Phạm Thu Duyên','12 Trần Hưng Đạo, Hà Nội','Female','1995-02-20','2025-05-01 15:26:12','2025-05-01 15:26:12'),(10,5,'avatar5.jpg','Hoàng Anh Dũng','88 Phố Huế, Hà Nội','Male','1991-07-15','2025-05-01 15:26:12','2025-05-01 15:26:12');
+/*!40000 ALTER TABLE `tbl_user_information` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tbl_users`
+--
+
+DROP TABLE IF EXISTS `tbl_users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tbl_users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `information_id` int DEFAULT NULL,
+  `user_name` varchar(255) DEFAULT NULL,
+  `phone_number` varchar(20) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `is_admin` tinyint(1) DEFAULT '0',
+  `user_rank` enum('Bronze','Silver','Gold','Platinum','Diamond') DEFAULT 'Bronze' COMMENT 'Hạng thành viên dành cho khách hàng',
+  `is_active` tinyint(1) DEFAULT '1',
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `user_name` (`user_name`),
+  KEY `information_id` (`information_id`),
+  CONSTRAINT `tbl_users_ibfk_1` FOREIGN KEY (`information_id`) REFERENCES `tbl_user_information` (`information_id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tbl_users`
+--
+
+LOCK TABLES `tbl_users` WRITE;
+/*!40000 ALTER TABLE `tbl_users` DISABLE KEYS */;
+INSERT INTO `tbl_users` VALUES (21,NULL,NULL,'0123456739','0123456739@gmail.com','$2a$10$yD6FHrjMEF.jx7DnDinqA.o/TOzn3DCYxb/WBz9Cip4YqMBxgQHEW',0,'Bronze',1,'2025-05-08 07:05:31','2025-05-08 07:05:31'),(22,NULL,NULL,'1','1@gmail.com','$2a$10$h0t3hAAmhJkXb1Z5B.QIP.9duebSfdYNuQ128UeCsw2VVs/B.1E6u',0,'Bronze',1,'2025-05-09 06:39:33','2025-05-09 06:39:33'),(23,NULL,NULL,'0868472032','admin123456A@gmail.com','$2a$10$7/XReFPdNN82PMAQwoEndO7gnuDZbPg9n2G7YIlLSMAh8bw8.a0RC',1,'Bronze',1,'2025-05-09 09:50:42','2025-05-09 09:50:42');
+/*!40000 ALTER TABLE `tbl_users` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `vendor`
+--
+
+DROP TABLE IF EXISTS `vendor`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `vendor` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `vendor_code` varchar(50) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `address` text,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `vendor_code` (`vendor_code`)
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `vendor`
+--
+
+LOCK TABLES `vendor` WRITE;
+/*!40000 ALTER TABLE `vendor` DISABLE KEYS */;
+INSERT INTO `vendor` VALUES (28,'VEND-c7ada027','DuckThuong','0868472032','trinhthuong26022003@gmail.com','Xã Hoà Bình, huyện Vũ Thư, tỉnh Thái Bình','2025-05-09 13:13:52','2025-05-09 13:13:52');
+/*!40000 ALTER TABLE `vendor` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2025-05-09 22:58:12
